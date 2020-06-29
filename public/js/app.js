@@ -2100,7 +2100,7 @@ __webpack_require__.r(__webpack_exports__);
       this.name = localStorage.name;
     }
 
-    this.socket = new WebSocket('ws://localhost:3000');
+    this.socket = new WebSocket(document.body.dataset.socket);
     this.socket.addEventListener('open', function () {
       _this.socket.send(JSON.stringify({
         'action': 'room.open',
@@ -2110,7 +2110,6 @@ __webpack_require__.r(__webpack_exports__);
     });
     this.socket.addEventListener('message', function (etv) {
       var data = JSON.parse(etv.data);
-      console.log(data);
 
       if (data['action'] === 'room.entered.user') {
         _this.users.push({

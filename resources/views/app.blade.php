@@ -13,7 +13,7 @@
 	<link rel="stylesheet" type="text/css" href="">
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
-<body>
+<body data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
 	<div class="flex-center position-ref full-height">
 		<div class="content">
 			<div class="container">
