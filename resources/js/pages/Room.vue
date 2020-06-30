@@ -3,15 +3,19 @@
 		<div class="col-md-4 order-md-2 mb-4">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">
 				<span class="text-muted">Users</span>
-				<span class="badge badge-secondary badge-pill">{{users.length}}</span>
+				<span class="badge badge-secondary">{{users.length}}</span>
 			</h4>
 			<ul v-if="users.length > 0" class="list-group mb-3">
 				<li v-for="user in users" :key="user.id" class="list-group-item d-flex justify-content-between lh-condensed">
-					<div v-bind:class="{'text-success': user.isVoted}">
-						<h6 class="my-0">{{user.name}}</h6>
-						<small class="text-muted"></small>
+					<div :class="{'text-success': user.isVoted}">
+						<h6 class="my-0">
+							{{user.name === '' ? 'User #'+user.id : user.name}}
+						</h6>
+						<small class="text-muted">{{owner === user.id ? 'Owner' : 'Guest'}}</small>
 					</div>
-					<span class="text-muted">{{user.vote}}</span>
+					<span class="text-muted">
+						<span class="badge badge-success">{{user.vote}}</span>
+					</span>
 				</li>
 
 				<li v-if="average !== null" class="list-group-item d-flex justify-content-between">
@@ -20,19 +24,35 @@
 				</li>
 			</ul>
 			<div class="card p-2">
-				<div class="input-group">
-					<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
-					<div class="input-group-append">
-						<button type="submit" @click.prevent="saveName" class="btn btn-secondary">Save</button>
+				<button v-if="!changeNameSwitcher" @click.prevent="changeName" class="btn btn-secondary">Change name</button>
+				<form v-if="changeNameSwitcher" @submit.prevent="saveName">
+					<div class="input-group">
+						<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
+						<div class="input-group-append">
+							<button type="submit" class="btn btn-secondary">Save</button>
+						</div>
 					</div>
-				</div>
+				</form>
 			</div>
 		</div>
 		<div class="col-md-8 order-md-1">
-			<h4 class="mb-3">Cards</h4>
+			<h4 class="d-flex justify-content-between align-items-center mb-3">
+				Cards
+				<span class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
+			</h4>
 			<div class="row mb-3">
 				<div v-for="card in cards" :key="card.point" class="poker-card mb-3 d-flex col-md-2 justify-content-between">
-					<img :src="canVote ? card.src : cover" @click="vote(card.point)" width="100%">
+					<div class="flip-container" :class="{'hover': canVote}">
+						<div class="flipper">
+							<div class="front">
+								<img :src="cover" @click="shake(card.point)" :class="{'shake': card.shake}" width="100%">
+							</div>
+							<div class="back">
+								<img :src="card.src" @click="vote(card.point)" width="100%">
+							</div>
+						</div>
+					</div>
+					
 				</div>
 			</div>
 			<div v-if="isOwner()" class="row mb-3 ml-0 text-right">
@@ -44,11 +64,13 @@
 </template>
 
 <script>
+	import Stopwatch from '@/js/components/Stopwatch';
+
 	export default {
 		props: ['hash'],
 
 		components: {
-
+			Stopwatch,
 		},
 
 		data: () => ({
@@ -65,6 +87,10 @@
 				{
 					src: '/images/cards/0.25.png',
 					point: 0.25,
+				},
+				{
+					src: '/images/cards/0.5.png',
+					point: 0.5,
 				},
 				{
 					src: '/images/cards/1.png',
@@ -96,6 +122,8 @@
 				},
 			],
 			loading: false,
+
+			changeNameSwitcher: false,
 		}),
 
 		created: function() {
@@ -116,6 +144,7 @@
 					'action': 'room.open',
 					'room': this.hash,
 					'name': this.name,
+					'user': this.$root.getUser(),
 				}));
 			});
 
@@ -140,6 +169,7 @@
 				}
 
 				if (data['action'] === 'room.parameters') {
+					this.selfId = data.id;
 					this.users = data.users;
 					this.owner = data.owner;
 					this.stage = data.stage;
@@ -181,6 +211,7 @@
 					this.users = data.users;
 					this.canVote = false;
 					this.average = this.getAverage();
+					this.$refs.stopwatch.stopTimer();
 				}
 
 				if (data['action'] === 'room.vote.reset') {
@@ -192,13 +223,38 @@
 						this.$set(this.users[i], 'isVoted', false);
 					}
 				}
+
+
+				if (data['action'] === 'room.eggs.shake') {
+					for (var i = 0; i < this.cards.length; i++) {
+						if (this.cards[i].point === data.point) {
+							this.$set(this.cards[i], 'shake', true);
+
+							setTimeout(() => {
+								console.log(this, i);
+								this.$set(this.cards[i], 'shake', false);
+							}, 500);
+							break;
+						}
+					}
+				}
 			});
 
 		},
 
 		methods: {
+			changeName() {
+				this.changeNameSwitcher = true;
+			},
+
 			saveName() {
+				if (this.name === '') {
+					alert('Error! Empty name.');
+					return false;
+				}
+
 				localStorage.name = this.name;
+				this.changeNameSwitcher = false;
 
 				this.socket.send(JSON.stringify({
 					'action': 'room.user.changeName',
@@ -208,7 +264,7 @@
 			},
 
 			isOwner() {
-				return this.$root.getUser() === this.owner;
+				return this.selfId === this.owner;
 			},
 
 			vote(point) {
@@ -246,15 +302,28 @@
 
 				return Math.round(amount/count*100) / 100;
 			},
+
+
+			// Easter eggs
+			shake(point) {
+				this.socket.send(JSON.stringify({
+					'action': 'room.eggs.shake',
+					'point': point,
+					'room': this.hash,
+				}));
+			},
 		},
 
 		watch: {
 			stage() {
 				if (this.stage === 0) {
 					this.canVote = false;
+					this.$refs.stopwatch.stopTimer();
 				} else
 				if (this.stage === 1) {
 					this.canVote = true;
+					this.$refs.stopwatch.clearAll();
+					this.$refs.stopwatch.startTimer();
 				}
 			},
 		},
@@ -265,5 +334,87 @@
 	.poker-card img {
 		cursor: pointer;
 		border-radius: 5px;
+	}
+
+	/* entire container, keeps perspective */
+	.flip-container {
+		perspective: 1000px;
+	}
+		/* flip the pane when hovered */
+		.flip-container.hover .flipper {
+			transform: rotateY(180deg);
+		}
+
+	.flip-container, .front, .back {
+		/* width: 96px;
+		height: 144px; */
+		width: 100%;
+		/* height: 100vh; */
+	}
+
+	/* flip speed goes here */
+	.flipper {
+		transition: ease-in-out 0.6s;
+		transform-style: preserve-3d;
+
+		position: relative;
+
+		width: 100%;
+		padding-top: 150%; /* 3:4 Aspect Ratio */
+	}
+
+	/* hide back of pane during swap */
+	.front, .back {
+		backface-visibility: hidden;
+
+		position: absolute;
+		top: 0;
+		left: 0;
+		bottom: 0;
+		right: 0;
+	}
+
+	/* front pane, placed above back */
+	.front {
+		z-index: 2;
+		/* for firefox 31 */
+		transform: rotateY(0deg);
+	}
+
+	/* back, initially hidden pane */
+	.back {
+		transform: rotateY(180deg);
+	}
+
+	img.shake {
+		animation: shake 0.5s;
+		animation-iteration-count: 1;
+	}
+
+	/* @keyframes shake {
+		0% { transform: translate(1px, 1px) rotate(0deg); }
+		10% { transform: translate(-1px, -2px) rotate(-1deg); }
+		20% { transform: translate(-3px, 0px) rotate(1deg); }
+		30% { transform: translate(3px, 2px) rotate(0deg); }
+		40% { transform: translate(1px, -1px) rotate(1deg); }
+		50% { transform: translate(-1px, 2px) rotate(-1deg); }
+		60% { transform: translate(-3px, 1px) rotate(0deg); }
+		70% { transform: translate(3px, 1px) rotate(-1deg); }
+		80% { transform: translate(-1px, -1px) rotate(1deg); }
+		90% { transform: translate(1px, 2px) rotate(0deg); }
+		100% { transform: translate(1px, -2px) rotate(-1deg); }
+	} */
+	@keyframes shake {
+		0% { transform: translate(1px, 1px) rotate(0deg); }
+		10% { transform: translate(-1px, -2px) rotate(0deg); }
+		20% { transform: translate(-2px, 0px) rotate(0deg); }
+		30% { transform: translate(2px, 1px) rotate(0deg); }
+		40% { transform: translate(1px, -1px) rotate(0deg); }
+		50% { transform: translate(-1px, 2px) rotate(0deg); }
+		60% { transform: translate(-2px, 1px) rotate(0deg); }
+		70% { transform: translate(2px, 1px) rotate(0deg); }
+		80% { transform: translate(-1px, -1px) rotate(0deg); }
+		90% { transform: translate(1px, 1px) rotate(0deg); }
+		100% { transform: translate(1px, -1px) rotate(0deg); }
 	}
 </style>

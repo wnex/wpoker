@@ -18,12 +18,14 @@
 					</router-link>
 				</li>
 			</ul>
-			<div class="input-group mb-4">
-				<input type="text" v-model="nameNewRoom" class="form-control" placeholder="Room name">
-				<div class="input-group-append">
-					<button type="submit" @click.prevent="createRoom" class="btn btn-primary">New room</button>
+			<form @submit.prevent="createRoom">
+				<div class="input-group mb-4">
+					<input type="text" v-model="nameNewRoom" class="form-control" placeholder="Room name">
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-primary">New room</button>
+					</div>
 				</div>
-			</div>
+			</form>
 		</div>
 	</div>
 </template>
@@ -60,10 +62,20 @@
 
 		methods: {
 			saveName() {
+				if (this.name === '') {
+					alert('Error! Empty name.');
+					return false;
+				}
+
 				localStorage.name = this.name;
 			},
 
 			createRoom() {
+				if (this.nameNewRoom === '') {
+					alert('Error! Empty name.');
+					return false;
+				}
+
 				let promise = fetch('/api/rooms/create', {
 					method: 'POST',
 					body: JSON.stringify({
@@ -75,6 +87,7 @@
 					.then(result => {
 						this.rooms.push(result);
 						localStorage.rooms = JSON.stringify(this.rooms);
+						this.nameNewRoom = '';
 					});
 			},
 

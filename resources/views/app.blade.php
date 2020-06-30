@@ -18,9 +18,7 @@
 		<div class="content">
 			<div class="container">
 				<div class="text-center">
-					<a href="/">
-						@include('logo')
-					</a>
+					@include('logo')
 					<h1 style="display: none;">Planning Poker</h1>
 					<p class="lead"></p>
 				</div>

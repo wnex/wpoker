@@ -26,25 +26,7 @@ class Workerman {
 	}
 
 	public static function onConnect($client_id) {
-/*		Gateway::sendToAll(json_encode([
-			'type' => 'service',
-			'player' => 'new',
-			'id' => $client_id,
-			'you' => false,
-		]), null, [$client_id]);*/
 
-		/*Gateway::sendToCurrentClient(json_encode([
-			'type' => 'service',
-			'players' => self::$users,
-		]));*/
-
-		/*Gateway::sendToCurrentClient(json_encode([
-			'type' => 'player.create',
-			'id' => $client_id,
-			'isOwner' => true,
-		]));*/
-
-		//self::$users[$client_id] = [];
 	}
 
 	public static function onWebSocketConnect($client_id, $data) {
@@ -53,11 +35,12 @@ class Workerman {
 	public static function onMessage($client_id, $data) {
 		$data = json_decode($data, true);
 
-		// Вход в комнату
+		// Вход в комнату [room, name, user]
 		if ($data['action'] === 'room.open') {
 			self::$users[$client_id]['id'] = $client_id;
 			self::$users[$client_id]['room'] = $data['room'];
 			self::$users[$client_id]['name'] = $data['name'];
+			self::$users[$client_id]['user'] = $data['user'];
 
 			self::$rooms[$data['room']][] = $client_id;
 
@@ -72,14 +55,17 @@ class Workerman {
 
 			Gateway::sendToCurrentClient(json_encode([
 				'action' => 'room.parameters',
+				'id' => $client_id,
 				'users' => self::getAllUsers($data['room']),
-				'owner' => $room->owner,
+				'owner' => self::getOwnerId($room->owner),
 				'stage' => $room->stage,
 			]));
 		}
 
-		// Смена имени
+		// Смена имени [room, name]
 		if ($data['action'] === 'room.user.changeName') {
+			self::$users[$client_id]['name'] = $data['name'];
+
 			$users_in_room = self::$rooms[$data['room']];
 			Gateway::sendToAll(json_encode([
 				'action' => 'room.user.changeName',
@@ -88,7 +74,7 @@ class Workerman {
 			]), $users_in_room);
 		}
 
-		// Старт голосования
+		// Старт голосования [room]
 		if ($data['action'] === 'room.vote.start') {
 			$room = Rooms::where('hash', $data['room'])->first();
 			$room->stage = 1;
@@ -151,6 +137,16 @@ class Workerman {
 			]), $users_in_room);
 		}
 
+
+		// Пасхалки [room, point]
+		if ($data['action'] === 'room.eggs.shake') {
+			$users_in_room = self::$rooms[$data['room']];
+			Gateway::sendToAll(json_encode([
+				'action' => 'room.eggs.shake',
+				'point' => $data['point'],
+			]), $users_in_room);
+		}
+
 	}
 
 	public static function onClose($client_id) {
@@ -188,5 +184,13 @@ class Workerman {
 		}
 
 		return $users;
+	}
+
+	private static function getOwnerId($owner) {
+		foreach (self::$users as $key => $user) {
+			if ($user['user'] === $owner) {
+				return $user['id'];
+			}
+		}
 	}
 }

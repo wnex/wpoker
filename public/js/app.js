@@ -1899,6 +1899,100 @@ module.exports = {
 
 /***/ }),
 
+/***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Stopwatch.vue?vue&type=script&lang=js&":
+/*!********************************************************************************************************************************************************************!*\
+  !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Stopwatch.vue?vue&type=script&lang=js& ***!
+  \********************************************************************************************************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+//
+//
+//
+//
+//
+//
+//
+//
+/* harmony default export */ __webpack_exports__["default"] = ({
+  data: function data() {
+    return {
+      animateFrame: 0,
+      nowTime: 0,
+      diffTime: 0,
+      startTime: 0,
+      isRunning: false
+    };
+  },
+  mounted: function mounted() {},
+  methods: {
+    // 現在時刻から引数に渡した数値を startTime に代入
+    setSubtractStartTime: function setSubtractStartTime(time) {
+      var time = typeof time !== 'undefined' ? time : 0;
+      this.startTime = Math.floor(performance.now() - time);
+    },
+    // タイマーをスタートさせる
+    startTimer: function startTimer() {
+      // loop()内で this の値が変更されるので退避
+      var vm = this; //console.log(this);
+      //alert(timer0.innerText);
+
+      vm.setSubtractStartTime(vm.diffTime); // ループ処理
+
+      (function loop() {
+        vm.nowTime = Math.floor(performance.now());
+        vm.diffTime = vm.nowTime - vm.startTime;
+        vm.animateFrame = requestAnimationFrame(loop);
+      })();
+
+      vm.isRunning = true; //alert(innerText);
+    },
+    // タイマーを停止させる
+    stopTimer: function stopTimer() {
+      this.isRunning = false;
+      cancelAnimationFrame(this.animateFrame);
+    },
+    // 初期化
+    clearAll: function clearAll() {
+      this.startTime = 0;
+      this.nowTime = 0;
+      this.diffTime = 0;
+      this.stopTimer();
+      this.animateFrame = 0;
+    }
+  },
+  computed: {
+    // 時間を計算
+    hours: function hours() {
+      return Math.floor(this.diffTime / 1000 / 60 / 60);
+    },
+    // 分数を計算 (60分になったら0分に戻る)
+    minutes: function minutes() {
+      return Math.floor(this.diffTime / 1000 / 60) % 60;
+    },
+    // 秒数を計算 (60秒になったら0秒に戻る)
+    seconds: function seconds() {
+      return Math.floor(this.diffTime / 1000) % 60;
+    },
+    // ミリ数を計算 (1000ミリ秒になったら0ミリ秒に戻る)
+    milliSeconds: function milliSeconds() {
+      return Math.floor(this.diffTime % 1000);
+    }
+  },
+  filters: {
+    // ゼロ埋めフィルタ 引数に桁数を入力する
+    // ※ String.prototype.padStart() は IEじゃ使えない
+    zeroPad: function zeroPad(value, num) {
+      var num = typeof num !== 'undefined' ? num : 2;
+      return value.toString().padStart(num, "0");
+    }
+  }
+});
+
+/***/ }),
+
 /***/ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/Home.vue?vue&type=script&lang=js&":
 /*!**********************************************************************************************************************************************************!*\
   !*** ./node_modules/babel-loader/lib??ref--4-0!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/Home.vue?vue&type=script&lang=js& ***!
@@ -1908,6 +2002,8 @@ module.exports = {
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+//
+//
 //
 //
 //
@@ -1968,10 +2064,20 @@ __webpack_require__.r(__webpack_exports__);
   },
   methods: {
     saveName: function saveName() {
+      if (this.name === '') {
+        alert('Error! Empty name.');
+        return false;
+      }
+
       localStorage.name = this.name;
     },
     createRoom: function createRoom() {
       var _this2 = this;
+
+      if (this.nameNewRoom === '') {
+        alert('Error! Empty name.');
+        return false;
+      }
 
       var promise = fetch('/api/rooms/create', {
         method: 'POST',
@@ -1985,6 +2091,7 @@ __webpack_require__.r(__webpack_exports__);
         _this2.rooms.push(result);
 
         localStorage.rooms = JSON.stringify(_this2.rooms);
+        _this2.nameNewRoom = '';
       });
     }
   },
@@ -2003,6 +2110,7 @@ __webpack_require__.r(__webpack_exports__);
 
 "use strict";
 __webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _js_components_Stopwatch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @/js/components/Stopwatch */ "./resources/js/components/Stopwatch.vue");
 //
 //
 //
@@ -2048,9 +2156,32 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['hash'],
-  components: {},
+  components: {
+    Stopwatch: _js_components_Stopwatch__WEBPACK_IMPORTED_MODULE_0__["default"]
+  },
   data: function data() {
     return {
       name: '',
@@ -2065,6 +2196,9 @@ __webpack_require__.r(__webpack_exports__);
       cards: [{
         src: '/images/cards/0.25.png',
         point: 0.25
+      }, {
+        src: '/images/cards/0.5.png',
+        point: 0.5
       }, {
         src: '/images/cards/1.png',
         point: 1
@@ -2087,7 +2221,8 @@ __webpack_require__.r(__webpack_exports__);
         src: '/images/cards/dragon.png',
         point: 0
       }],
-      loading: false
+      loading: false,
+      changeNameSwitcher: false
     };
   },
   created: function created() {},
@@ -2105,7 +2240,8 @@ __webpack_require__.r(__webpack_exports__);
       _this.socket.send(JSON.stringify({
         'action': 'room.open',
         'room': _this.hash,
-        'name': _this.name
+        'name': _this.name,
+        'user': _this.$root.getUser()
       }));
     });
     this.socket.addEventListener('message', function (etv) {
@@ -2129,6 +2265,7 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       if (data['action'] === 'room.parameters') {
+        _this.selfId = data.id;
         _this.users = data.users;
         _this.owner = data.owner;
         _this.stage = data.stage;
@@ -2173,6 +2310,8 @@ __webpack_require__.r(__webpack_exports__);
         _this.users = data.users;
         _this.canVote = false;
         _this.average = _this.getAverage();
+
+        _this.$refs.stopwatch.stopTimer();
       }
 
       if (data['action'] === 'room.vote.reset') {
@@ -2186,11 +2325,35 @@ __webpack_require__.r(__webpack_exports__);
           _this.$set(_this.users[i], 'isVoted', false);
         }
       }
+
+      if (data['action'] === 'room.eggs.shake') {
+        for (var i = 0; i < _this.cards.length; i++) {
+          if (_this.cards[i].point === data.point) {
+            _this.$set(_this.cards[i], 'shake', true);
+
+            setTimeout(function () {
+              console.log(_this, i);
+
+              _this.$set(_this.cards[i], 'shake', false);
+            }, 500);
+            break;
+          }
+        }
+      }
     });
   },
   methods: {
+    changeName: function changeName() {
+      this.changeNameSwitcher = true;
+    },
     saveName: function saveName() {
+      if (this.name === '') {
+        alert('Error! Empty name.');
+        return false;
+      }
+
       localStorage.name = this.name;
+      this.changeNameSwitcher = false;
       this.socket.send(JSON.stringify({
         'action': 'room.user.changeName',
         'name': this.name,
@@ -2198,7 +2361,7 @@ __webpack_require__.r(__webpack_exports__);
       }));
     },
     isOwner: function isOwner() {
-      return this.$root.getUser() === this.owner;
+      return this.selfId === this.owner;
     },
     vote: function vote(point) {
       if (this.canVote) {
@@ -2232,14 +2395,25 @@ __webpack_require__.r(__webpack_exports__);
       }
 
       return Math.round(amount / count * 100) / 100;
+    },
+    // Easter eggs
+    shake: function shake(point) {
+      this.socket.send(JSON.stringify({
+        'action': 'room.eggs.shake',
+        'point': point,
+        'room': this.hash
+      }));
     }
   },
   watch: {
     stage: function stage() {
       if (this.stage === 0) {
         this.canVote = false;
+        this.$refs.stopwatch.stopTimer();
       } else if (this.stage === 1) {
         this.canVote = true;
+        this.$refs.stopwatch.clearAll();
+        this.$refs.stopwatch.startTimer();
       }
     }
   }
@@ -2259,7 +2433,7 @@ exports = module.exports = __webpack_require__(/*! ../../../node_modules/css-loa
 
 
 // module
-exports.push([module.i, "\n.poker-card img[data-v-8e797338] {\n\tcursor: pointer;\n\tborder-radius: 5px;\n}\n", ""]);
+exports.push([module.i, "\n.poker-card img[data-v-8e797338] {\n\tcursor: pointer;\n\tborder-radius: 5px;\n}\n\n/* entire container, keeps perspective */\n.flip-container[data-v-8e797338] {\n\tperspective: 1000px;\n}\n\t/* flip the pane when hovered */\n.flip-container.hover .flipper[data-v-8e797338] {\n\t\ttransform: rotateY(180deg);\n}\n.flip-container[data-v-8e797338], .front[data-v-8e797338], .back[data-v-8e797338] {\n\t/* width: 96px;\n\theight: 144px; */\n\twidth: 100%;\n\t/* height: 100vh; */\n}\n\n/* flip speed goes here */\n.flipper[data-v-8e797338] {\n\ttransition: ease-in-out 0.6s;\n\ttransform-style: preserve-3d;\n\n\tposition: relative;\n\n\twidth: 100%;\n\tpadding-top: 150%; /* 3:4 Aspect Ratio */\n}\n\n/* hide back of pane during swap */\n.front[data-v-8e797338], .back[data-v-8e797338] {\n\t-webkit-backface-visibility: hidden;\n\t        backface-visibility: hidden;\n\n\tposition: absolute;\n\ttop: 0;\n\tleft: 0;\n\tbottom: 0;\n\tright: 0;\n}\n\n/* front pane, placed above back */\n.front[data-v-8e797338] {\n\tz-index: 2;\n\t/* for firefox 31 */\n\ttransform: rotateY(0deg);\n}\n\n/* back, initially hidden pane */\n.back[data-v-8e797338] {\n\ttransform: rotateY(180deg);\n}\nimg.shake[data-v-8e797338] {\n\t-webkit-animation: shake-data-v-8e797338 0.5s;\n\t        animation: shake-data-v-8e797338 0.5s;\n\t-webkit-animation-iteration-count: 1;\n\t        animation-iteration-count: 1;\n}\n\n/* @keyframes shake {\n\t0% { transform: translate(1px, 1px) rotate(0deg); }\n\t10% { transform: translate(-1px, -2px) rotate(-1deg); }\n\t20% { transform: translate(-3px, 0px) rotate(1deg); }\n\t30% { transform: translate(3px, 2px) rotate(0deg); }\n\t40% { transform: translate(1px, -1px) rotate(1deg); }\n\t50% { transform: translate(-1px, 2px) rotate(-1deg); }\n\t60% { transform: translate(-3px, 1px) rotate(0deg); }\n\t70% { transform: translate(3px, 1px) rotate(-1deg); }\n\t80% { transform: translate(-1px, -1px) rotate(1deg); }\n\t90% { transform: translate(1px, 2px) rotate(0deg); }\n\t100% { transform: translate(1px, -2px) rotate(-1deg); }\n} */\n@-webkit-keyframes shake-data-v-8e797338 {\n0% { transform: translate(1px, 1px) rotate(0deg);\n}\n10% { transform: translate(-1px, -2px) rotate(0deg);\n}\n20% { transform: translate(-2px, 0px) rotate(0deg);\n}\n30% { transform: translate(2px, 1px) rotate(0deg);\n}\n40% { transform: translate(1px, -1px) rotate(0deg);\n}\n50% { transform: translate(-1px, 2px) rotate(0deg);\n}\n60% { transform: translate(-2px, 1px) rotate(0deg);\n}\n70% { transform: translate(2px, 1px) rotate(0deg);\n}\n80% { transform: translate(-1px, -1px) rotate(0deg);\n}\n90% { transform: translate(1px, 1px) rotate(0deg);\n}\n100% { transform: translate(1px, -1px) rotate(0deg);\n}\n}\n@keyframes shake-data-v-8e797338 {\n0% { transform: translate(1px, 1px) rotate(0deg);\n}\n10% { transform: translate(-1px, -2px) rotate(0deg);\n}\n20% { transform: translate(-2px, 0px) rotate(0deg);\n}\n30% { transform: translate(2px, 1px) rotate(0deg);\n}\n40% { transform: translate(1px, -1px) rotate(0deg);\n}\n50% { transform: translate(-1px, 2px) rotate(0deg);\n}\n60% { transform: translate(-2px, 1px) rotate(0deg);\n}\n70% { transform: translate(2px, 1px) rotate(0deg);\n}\n80% { transform: translate(-1px, -1px) rotate(0deg);\n}\n90% { transform: translate(1px, 1px) rotate(0deg);\n}\n100% { transform: translate(1px, -1px) rotate(0deg);\n}\n}\n", ""]);
 
 // exports
 
@@ -20476,6 +20650,40 @@ exports.clearImmediate = (typeof self !== "undefined" && self.clearImmediate) ||
 
 /***/ }),
 
+/***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Stopwatch.vue?vue&type=template&id=2da649b2&":
+/*!************************************************************************************************************************************************************************************************************!*\
+  !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/components/Stopwatch.vue?vue&type=template&id=2da649b2& ***!
+  \************************************************************************************************************************************************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "render", function() { return render; });
+/* harmony export (binding) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return staticRenderFns; });
+var render = function() {
+  var _vm = this
+  var _h = _vm.$createElement
+  var _c = _vm._self._c || _h
+  return _c("div", [
+    _vm._v(
+      "\n\t" +
+        _vm._s(_vm.hours ? _vm.hours + " : " : "") +
+        " \n\t" +
+        _vm._s(_vm._f("zeroPad")(_vm.minutes)) +
+        " :\n\t" +
+        _vm._s(_vm._f("zeroPad")(_vm.seconds)) +
+        "\n"
+    )
+  ])
+}
+var staticRenderFns = []
+render._withStripped = true
+
+
+
+/***/ }),
+
 /***/ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/pages/Home.vue?vue&type=template&id=b3c5cf30&scoped=true&":
 /*!**************************************************************************************************************************************************************************************************************!*\
   !*** ./node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!./node_modules/vue-loader/lib??vue-loader-options!./resources/js/pages/Home.vue?vue&type=template&id=b3c5cf30&scoped=true& ***!
@@ -20575,50 +20783,61 @@ var render = function() {
           )
         : _vm._e(),
       _vm._v(" "),
-      _c("div", { staticClass: "input-group mb-4" }, [
-        _c("input", {
-          directives: [
-            {
-              name: "model",
-              rawName: "v-model",
-              value: _vm.nameNewRoom,
-              expression: "nameNewRoom"
-            }
-          ],
-          staticClass: "form-control",
-          attrs: { type: "text", placeholder: "Room name" },
-          domProps: { value: _vm.nameNewRoom },
+      _c(
+        "form",
+        {
           on: {
-            input: function($event) {
-              if ($event.target.composing) {
-                return
-              }
-              _vm.nameNewRoom = $event.target.value
+            submit: function($event) {
+              $event.preventDefault()
+              return _vm.createRoom($event)
             }
           }
-        }),
-        _vm._v(" "),
-        _c("div", { staticClass: "input-group-append" }, [
-          _c(
-            "button",
-            {
-              staticClass: "btn btn-primary",
-              attrs: { type: "submit" },
+        },
+        [
+          _c("div", { staticClass: "input-group mb-4" }, [
+            _c("input", {
+              directives: [
+                {
+                  name: "model",
+                  rawName: "v-model",
+                  value: _vm.nameNewRoom,
+                  expression: "nameNewRoom"
+                }
+              ],
+              staticClass: "form-control",
+              attrs: { type: "text", placeholder: "Room name" },
+              domProps: { value: _vm.nameNewRoom },
               on: {
-                click: function($event) {
-                  $event.preventDefault()
-                  return _vm.createRoom($event)
+                input: function($event) {
+                  if ($event.target.composing) {
+                    return
+                  }
+                  _vm.nameNewRoom = $event.target.value
                 }
               }
-            },
-            [_vm._v("New room")]
-          )
-        ])
-      ])
+            }),
+            _vm._v(" "),
+            _vm._m(0)
+          ])
+        ]
+      )
     ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-append" }, [
+      _c(
+        "button",
+        { staticClass: "btn btn-primary", attrs: { type: "submit" } },
+        [_vm._v("New room")]
+      )
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -20650,7 +20869,7 @@ var render = function() {
         [
           _c("span", { staticClass: "text-muted" }, [_vm._v("Users")]),
           _vm._v(" "),
-          _c("span", { staticClass: "badge badge-secondary badge-pill" }, [
+          _c("span", { staticClass: "badge badge-secondary" }, [
             _vm._v(_vm._s(_vm.users.length))
           ])
         ]
@@ -20672,14 +20891,26 @@ var render = function() {
                   [
                     _c("div", { class: { "text-success": user.isVoted } }, [
                       _c("h6", { staticClass: "my-0" }, [
-                        _vm._v(_vm._s(user.name))
+                        _vm._v(
+                          "\n\t\t\t\t\t\t" +
+                            _vm._s(
+                              user.name === "" ? "User #" + user.id : user.name
+                            ) +
+                            "\n\t\t\t\t\t"
+                        )
                       ]),
                       _vm._v(" "),
-                      _c("small", { staticClass: "text-muted" })
+                      _c("small", { staticClass: "text-muted" }, [
+                        _vm._v(
+                          _vm._s(_vm.owner === user.id ? "Owner" : "Guest")
+                        )
+                      ])
                     ]),
                     _vm._v(" "),
                     _c("span", { staticClass: "text-muted" }, [
-                      _vm._v(_vm._s(user.vote))
+                      _c("span", { staticClass: "badge badge-success" }, [
+                        _vm._v(_vm._s(user.vote))
+                      ])
                     ])
                   ]
                 )
@@ -20705,51 +20936,81 @@ var render = function() {
         : _vm._e(),
       _vm._v(" "),
       _c("div", { staticClass: "card p-2" }, [
-        _c("div", { staticClass: "input-group" }, [
-          _c("input", {
-            directives: [
-              {
-                name: "model",
-                rawName: "v-model",
-                value: _vm.name,
-                expression: "name"
-              }
-            ],
-            staticClass: "form-control",
-            attrs: { type: "text", placeholder: "Enter your name" },
-            domProps: { value: _vm.name },
-            on: {
-              input: function($event) {
-                if ($event.target.composing) {
-                  return
-                }
-                _vm.name = $event.target.value
-              }
-            }
-          }),
-          _vm._v(" "),
-          _c("div", { staticClass: "input-group-append" }, [
-            _c(
+        !_vm.changeNameSwitcher
+          ? _c(
               "button",
               {
                 staticClass: "btn btn-secondary",
-                attrs: { type: "submit" },
                 on: {
                   click: function($event) {
+                    $event.preventDefault()
+                    return _vm.changeName($event)
+                  }
+                }
+              },
+              [_vm._v("Change name")]
+            )
+          : _vm._e(),
+        _vm._v(" "),
+        _vm.changeNameSwitcher
+          ? _c(
+              "form",
+              {
+                on: {
+                  submit: function($event) {
                     $event.preventDefault()
                     return _vm.saveName($event)
                   }
                 }
               },
-              [_vm._v("Save")]
+              [
+                _c("div", { staticClass: "input-group" }, [
+                  _c("input", {
+                    directives: [
+                      {
+                        name: "model",
+                        rawName: "v-model",
+                        value: _vm.name,
+                        expression: "name"
+                      }
+                    ],
+                    staticClass: "form-control",
+                    attrs: { type: "text", placeholder: "Enter your name" },
+                    domProps: { value: _vm.name },
+                    on: {
+                      input: function($event) {
+                        if ($event.target.composing) {
+                          return
+                        }
+                        _vm.name = $event.target.value
+                      }
+                    }
+                  }),
+                  _vm._v(" "),
+                  _vm._m(0)
+                ])
+              ]
             )
-          ])
-        ])
+          : _vm._e()
       ])
     ]),
     _vm._v(" "),
     _c("div", { staticClass: "col-md-8 order-md-1" }, [
-      _c("h4", { staticClass: "mb-3" }, [_vm._v("Cards")]),
+      _c(
+        "h4",
+        {
+          staticClass: "d-flex justify-content-between align-items-center mb-3"
+        },
+        [
+          _vm._v("\n\t\t\tCards\n\t\t\t"),
+          _c(
+            "span",
+            { staticClass: "badge badge-secondary" },
+            [_c("stopwatch", { ref: "stopwatch" })],
+            1
+          )
+        ]
+      ),
       _vm._v(" "),
       _c(
         "div",
@@ -20763,17 +21024,39 @@ var render = function() {
                 "poker-card mb-3 d-flex col-md-2 justify-content-between"
             },
             [
-              _c("img", {
-                attrs: {
-                  src: _vm.canVote ? card.src : _vm.cover,
-                  width: "100%"
+              _c(
+                "div",
+                {
+                  staticClass: "flip-container",
+                  class: { hover: _vm.canVote }
                 },
-                on: {
-                  click: function($event) {
-                    return _vm.vote(card.point)
-                  }
-                }
-              })
+                [
+                  _c("div", { staticClass: "flipper" }, [
+                    _c("div", { staticClass: "front" }, [
+                      _c("img", {
+                        class: { shake: card.shake },
+                        attrs: { src: _vm.cover, width: "100%" },
+                        on: {
+                          click: function($event) {
+                            return _vm.shake(card.point)
+                          }
+                        }
+                      })
+                    ]),
+                    _vm._v(" "),
+                    _c("div", { staticClass: "back" }, [
+                      _c("img", {
+                        attrs: { src: card.src, width: "100%" },
+                        on: {
+                          click: function($event) {
+                            return _vm.vote(card.point)
+                          }
+                        }
+                      })
+                    ])
+                  ])
+                ]
+              )
             ]
           )
         }),
@@ -20808,7 +21091,20 @@ var render = function() {
     ])
   ])
 }
-var staticRenderFns = []
+var staticRenderFns = [
+  function() {
+    var _vm = this
+    var _h = _vm.$createElement
+    var _c = _vm._self._c || _h
+    return _c("div", { staticClass: "input-group-append" }, [
+      _c(
+        "button",
+        { staticClass: "btn btn-secondary", attrs: { type: "submit" } },
+        [_vm._v("Save")]
+      )
+    ])
+  }
+]
 render._withStripped = true
 
 
@@ -36109,6 +36405,75 @@ window.axios.defaults.headers.common['X-Requested-With'] = 'XMLHttpRequest';
 //     cluster: process.env.MIX_PUSHER_APP_CLUSTER,
 //     forceTLS: true
 // });
+
+/***/ }),
+
+/***/ "./resources/js/components/Stopwatch.vue":
+/*!***********************************************!*\
+  !*** ./resources/js/components/Stopwatch.vue ***!
+  \***********************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ./Stopwatch.vue?vue&type=template&id=2da649b2& */ "./resources/js/components/Stopwatch.vue?vue&type=template&id=2da649b2&");
+/* harmony import */ var _Stopwatch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ./Stopwatch.vue?vue&type=script&lang=js& */ "./resources/js/components/Stopwatch.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport *//* harmony import */ var _node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(/*! ../../../node_modules/vue-loader/lib/runtime/componentNormalizer.js */ "./node_modules/vue-loader/lib/runtime/componentNormalizer.js");
+
+
+
+
+
+/* normalize component */
+
+var component = Object(_node_modules_vue_loader_lib_runtime_componentNormalizer_js__WEBPACK_IMPORTED_MODULE_2__["default"])(
+  _Stopwatch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_1__["default"],
+  _Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__["render"],
+  _Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"],
+  false,
+  null,
+  null,
+  null
+  
+)
+
+/* hot reload */
+if (false) { var api; }
+component.options.__file = "resources/js/components/Stopwatch.vue"
+/* harmony default export */ __webpack_exports__["default"] = (component.exports);
+
+/***/ }),
+
+/***/ "./resources/js/components/Stopwatch.vue?vue&type=script&lang=js&":
+/*!************************************************************************!*\
+  !*** ./resources/js/components/Stopwatch.vue?vue&type=script&lang=js& ***!
+  \************************************************************************/
+/*! exports provided: default */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Stopwatch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/babel-loader/lib??ref--4-0!../../../node_modules/vue-loader/lib??vue-loader-options!./Stopwatch.vue?vue&type=script&lang=js& */ "./node_modules/babel-loader/lib/index.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Stopwatch.vue?vue&type=script&lang=js&");
+/* empty/unused harmony star reexport */ /* harmony default export */ __webpack_exports__["default"] = (_node_modules_babel_loader_lib_index_js_ref_4_0_node_modules_vue_loader_lib_index_js_vue_loader_options_Stopwatch_vue_vue_type_script_lang_js___WEBPACK_IMPORTED_MODULE_0__["default"]); 
+
+/***/ }),
+
+/***/ "./resources/js/components/Stopwatch.vue?vue&type=template&id=2da649b2&":
+/*!******************************************************************************!*\
+  !*** ./resources/js/components/Stopwatch.vue?vue&type=template&id=2da649b2& ***!
+  \******************************************************************************/
+/*! exports provided: render, staticRenderFns */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+__webpack_require__.r(__webpack_exports__);
+/* harmony import */ var _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! -!../../../node_modules/vue-loader/lib/loaders/templateLoader.js??vue-loader-options!../../../node_modules/vue-loader/lib??vue-loader-options!./Stopwatch.vue?vue&type=template&id=2da649b2& */ "./node_modules/vue-loader/lib/loaders/templateLoader.js?!./node_modules/vue-loader/lib/index.js?!./resources/js/components/Stopwatch.vue?vue&type=template&id=2da649b2&");
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "render", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__["render"]; });
+
+/* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
+
+
 
 /***/ }),
 
