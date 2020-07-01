@@ -65,6 +65,7 @@
 
 <script>
 	import Stopwatch from '@/js/components/Stopwatch';
+	import Socket from '@/js/modules/Socket';
 
 	export default {
 		props: ['hash'],
@@ -137,109 +138,103 @@
 				this.name = localStorage.name;
 			}
 
-			this.socket = new WebSocket(document.body.dataset.socket);
+			this.socket = new Socket(document.body.dataset.socket);
 
-			this.socket.addEventListener('open', () => {
-				this.socket.send(JSON.stringify({
+			this.socket.open(() => {
+				this.socket.send({
 					'action': 'room.open',
 					'room': this.hash,
 					'name': this.name,
 					'user': this.$root.getUser(),
-				}));
+				});
 			});
 
-			this.socket.addEventListener('message', (etv) => {
-				let data = JSON.parse(etv.data);
+			this.socket.listener('room.entered.user', (data) => {
+				this.users.push({
+					id: data.id,
+					name: data.name,
+				});
+			});
 
-				if (data['action'] === 'room.entered.user') {
-					this.users.push({
-						id: data.id,
-						name: data.name,
-					});
-				}
-
-				if (data['action'] === 'room.left.user') {
-					for (var i = 0; i < this.users.length; i++) {
-						if (this.users[i].id === data.id) {
-							break;
-						}
-					}
-
-					this.users.splice(i, 1);
-				}
-
-				if (data['action'] === 'room.parameters') {
-					this.selfId = data.id;
-					this.users = data.users;
-					this.owner = data.owner;
-					this.stage = data.stage;
-				}
-
-				if (data['action'] === 'room.user.changeName') {
-					for (var i = 0; i < this.users.length; i++) {
-						if (this.users[i].id === data.id) {
-							this.users[i].name = data.name;
-							break;
-						}
+			this.socket.listener('room.left.user', (data) => {
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === data.id) {
+						break;
 					}
 				}
 
-				if (data['action'] === 'room.vote.start') {
-					this.stage = 1;
-				}
+				this.users.splice(i, 1);
+			});
 
-				if (data['action'] === 'room.vote') {
-					for (var i = 0; i < this.users.length; i++) {
-						if (this.users[i].id === data.id) {
-							this.$set(this.users[i], 'isVoted', true);
-							break;
-						}
-					}
-				}
+			this.socket.listener('room.parameters', (data) => {
+				this.selfId = data.id;
+				this.users = data.users;
+				this.owner = data.owner;
+				this.stage = data.stage;
+			});
 
-				if (data['action'] === 'room.vote.you') {
-					for (var i = 0; i < this.users.length; i++) {
-						if (this.users[i].id === data.id) {
-							this.$set(this.users[i], 'vote', data.vote);
-							this.$set(this.users[i], 'isVoted', true);
-							break;
-						}
-					}
-				}
-
-				if (data['action'] === 'room.vote.final') {
-					this.users = data.users;
-					this.canVote = false;
-					this.average = this.getAverage();
-					this.$refs.stopwatch.stopTimer();
-				}
-
-				if (data['action'] === 'room.vote.reset') {
-					this.stage = 0;
-					this.selectPoint = 0;
-					this.average = null;
-					for (var i = 0; i < this.users.length; i++) {
-						this.$set(this.users[i], 'vote', undefined);
-						this.$set(this.users[i], 'isVoted', false);
-					}
-				}
-
-
-				if (data['action'] === 'room.eggs.shake') {
-					for (var i = 0; i < this.cards.length; i++) {
-						if (this.cards[i].point === data.point) {
-							this.$set(this.cards[i], 'shake', true);
-
-							setTimeout(() => {
-								console.log(this, i);
-								this.$set(this.cards[i], 'shake', false);
-							}, 500);
-							break;
-						}
+			this.socket.listener('room.user.changeName', (data) => {
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === data.id) {
+						this.users[i].name = data.name;
+						break;
 					}
 				}
 			});
 
+			this.socket.listener('room.vote.start', (data) => {
+				this.stage = 1;
+			});
+
+			this.socket.listener('room.vote', (data) => {
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === data.id) {
+						this.$set(this.users[i], 'isVoted', true);
+						break;
+					}
+				}
+			});
+
+			this.socket.listener('room.vote.you', (data) => {
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === data.id) {
+						this.$set(this.users[i], 'vote', data.vote);
+						this.$set(this.users[i], 'isVoted', true);
+						break;
+					}
+				}
+			});
+
+			this.socket.listener('room.vote.final', (data) => {
+				this.users = data.users;
+				this.canVote = false;
+				this.average = this.getAverage();
+				this.$refs.stopwatch.stopTimer();
+			});
+
+			this.socket.listener('room.vote.reset', (data) => {
+				this.stage = 0;
+				this.selectPoint = 0;
+				this.average = null;
+				for (var i = 0; i < this.users.length; i++) {
+					this.$set(this.users[i], 'vote', undefined);
+					this.$set(this.users[i], 'isVoted', false);
+				}
+				this.$refs.stopwatch.clearAll();
+			});
+
+			this.socket.listener('room.eggs.shake', (data) => {
+				for (var i = 0; i < this.cards.length; i++) {
+					if (this.cards[i].point === data.point) {
+						this.$set(this.cards[i], 'shake', true);
+
+						setTimeout(() => {
+							this.$set(this.cards[i], 'shake', false);
+						}, 500);
+						break;
+					}
+				}
+			});
 		},
 
 		methods: {
@@ -256,11 +251,11 @@
 				localStorage.name = this.name;
 				this.changeNameSwitcher = false;
 
-				this.socket.send(JSON.stringify({
+				this.socket.send({
 					'action': 'room.user.changeName',
 					'name': this.name,
 					'room': this.hash,
-				}));
+				});
 			},
 
 			isOwner() {
@@ -270,26 +265,26 @@
 			vote(point) {
 				if (this.canVote) {
 					this.selectPoint = point;
-					this.socket.send(JSON.stringify({
+					this.socket.send({
 						'action': 'room.vote',
 						'room': this.hash,
 						'vote': point,
-					}));
+					});
 				}
 			},
 
 			startVote() {
-				this.socket.send(JSON.stringify({
+				this.socket.send({
 					'action': 'room.vote.start',
 					'room': this.hash,
-				}));
+				});
 			},
 
 			resetVote() {
-				this.socket.send(JSON.stringify({
+				this.socket.send({
 					'action': 'room.vote.reset',
 					'room': this.hash,
-				}));
+				});
 			},
 
 			getAverage() {
@@ -306,11 +301,11 @@
 
 			// Easter eggs
 			shake(point) {
-				this.socket.send(JSON.stringify({
+				this.socket.send({
 					'action': 'room.eggs.shake',
 					'point': point,
 					'room': this.hash,
-				}));
+				});
 			},
 		},
 
@@ -322,7 +317,6 @@
 				} else
 				if (this.stage === 1) {
 					this.canVote = true;
-					this.$refs.stopwatch.clearAll();
 					this.$refs.stopwatch.startTimer();
 				}
 			},

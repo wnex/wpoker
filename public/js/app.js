@@ -2111,6 +2111,8 @@ __webpack_require__.r(__webpack_exports__);
 "use strict";
 __webpack_require__.r(__webpack_exports__);
 /* harmony import */ var _js_components_Stopwatch__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! @/js/components/Stopwatch */ "./resources/js/components/Stopwatch.vue");
+/* harmony import */ var _js_modules_Socket__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! @/js/modules/Socket */ "./resources/js/modules/Socket.ts");
+/* harmony import */ var _js_modules_Socket__WEBPACK_IMPORTED_MODULE_1___default = /*#__PURE__*/__webpack_require__.n(_js_modules_Socket__WEBPACK_IMPORTED_MODULE_1__);
 //
 //
 //
@@ -2176,6 +2178,7 @@ __webpack_require__.r(__webpack_exports__);
 //
 //
 //
+
 
 /* harmony default export */ __webpack_exports__["default"] = ({
   props: ['hash'],
@@ -2235,109 +2238,96 @@ __webpack_require__.r(__webpack_exports__);
       this.name = localStorage.name;
     }
 
-    this.socket = new WebSocket(document.body.dataset.socket);
-    this.socket.addEventListener('open', function () {
-      _this.socket.send(JSON.stringify({
+    this.socket = new _js_modules_Socket__WEBPACK_IMPORTED_MODULE_1___default.a(document.body.dataset.socket);
+    this.socket.open(function () {
+      _this.socket.send({
         'action': 'room.open',
         'room': _this.hash,
         'name': _this.name,
         'user': _this.$root.getUser()
-      }));
+      });
     });
-    this.socket.addEventListener('message', function (etv) {
-      var data = JSON.parse(etv.data);
-
-      if (data['action'] === 'room.entered.user') {
-        _this.users.push({
-          id: data.id,
-          name: data.name
-        });
-      }
-
-      if (data['action'] === 'room.left.user') {
-        for (var i = 0; i < _this.users.length; i++) {
-          if (_this.users[i].id === data.id) {
-            break;
-          }
-        }
-
-        _this.users.splice(i, 1);
-      }
-
-      if (data['action'] === 'room.parameters') {
-        _this.selfId = data.id;
-        _this.users = data.users;
-        _this.owner = data.owner;
-        _this.stage = data.stage;
-      }
-
-      if (data['action'] === 'room.user.changeName') {
-        for (var i = 0; i < _this.users.length; i++) {
-          if (_this.users[i].id === data.id) {
-            _this.users[i].name = data.name;
-            break;
-          }
+    this.socket.listener('room.entered.user', function (data) {
+      _this.users.push({
+        id: data.id,
+        name: data.name
+      });
+    });
+    this.socket.listener('room.left.user', function (data) {
+      for (var i = 0; i < _this.users.length; i++) {
+        if (_this.users[i].id === data.id) {
+          break;
         }
       }
 
-      if (data['action'] === 'room.vote.start') {
-        _this.stage = 1;
-      }
-
-      if (data['action'] === 'room.vote') {
-        for (var i = 0; i < _this.users.length; i++) {
-          if (_this.users[i].id === data.id) {
-            _this.$set(_this.users[i], 'isVoted', true);
-
-            break;
-          }
+      _this.users.splice(i, 1);
+    });
+    this.socket.listener('room.parameters', function (data) {
+      _this.selfId = data.id;
+      _this.users = data.users;
+      _this.owner = data.owner;
+      _this.stage = data.stage;
+    });
+    this.socket.listener('room.user.changeName', function (data) {
+      for (var i = 0; i < _this.users.length; i++) {
+        if (_this.users[i].id === data.id) {
+          _this.users[i].name = data.name;
+          break;
         }
       }
+    });
+    this.socket.listener('room.vote.start', function (data) {
+      _this.stage = 1;
+    });
+    this.socket.listener('room.vote', function (data) {
+      for (var i = 0; i < _this.users.length; i++) {
+        if (_this.users[i].id === data.id) {
+          _this.$set(_this.users[i], 'isVoted', true);
 
-      if (data['action'] === 'room.vote.you') {
-        for (var i = 0; i < _this.users.length; i++) {
-          if (_this.users[i].id === data.id) {
-            _this.$set(_this.users[i], 'vote', data.vote);
-
-            _this.$set(_this.users[i], 'isVoted', true);
-
-            break;
-          }
+          break;
         }
       }
+    });
+    this.socket.listener('room.vote.you', function (data) {
+      for (var i = 0; i < _this.users.length; i++) {
+        if (_this.users[i].id === data.id) {
+          _this.$set(_this.users[i], 'vote', data.vote);
 
-      if (data['action'] === 'room.vote.final') {
-        _this.users = data.users;
-        _this.canVote = false;
-        _this.average = _this.getAverage();
+          _this.$set(_this.users[i], 'isVoted', true);
 
-        _this.$refs.stopwatch.stopTimer();
-      }
-
-      if (data['action'] === 'room.vote.reset') {
-        _this.stage = 0;
-        _this.selectPoint = 0;
-        _this.average = null;
-
-        for (var i = 0; i < _this.users.length; i++) {
-          _this.$set(_this.users[i], 'vote', undefined);
-
-          _this.$set(_this.users[i], 'isVoted', false);
+          break;
         }
       }
+    });
+    this.socket.listener('room.vote.final', function (data) {
+      _this.users = data.users;
+      _this.canVote = false;
+      _this.average = _this.getAverage();
 
-      if (data['action'] === 'room.eggs.shake') {
-        for (var i = 0; i < _this.cards.length; i++) {
-          if (_this.cards[i].point === data.point) {
-            _this.$set(_this.cards[i], 'shake', true);
+      _this.$refs.stopwatch.stopTimer();
+    });
+    this.socket.listener('room.vote.reset', function (data) {
+      _this.stage = 0;
+      _this.selectPoint = 0;
+      _this.average = null;
 
-            setTimeout(function () {
-              console.log(_this, i);
+      for (var i = 0; i < _this.users.length; i++) {
+        _this.$set(_this.users[i], 'vote', undefined);
 
-              _this.$set(_this.cards[i], 'shake', false);
-            }, 500);
-            break;
-          }
+        _this.$set(_this.users[i], 'isVoted', false);
+      }
+
+      _this.$refs.stopwatch.clearAll();
+    });
+    this.socket.listener('room.eggs.shake', function (data) {
+      for (var i = 0; i < _this.cards.length; i++) {
+        if (_this.cards[i].point === data.point) {
+          _this.$set(_this.cards[i], 'shake', true);
+
+          setTimeout(function () {
+            _this.$set(_this.cards[i], 'shake', false);
+          }, 500);
+          break;
         }
       }
     });
@@ -2354,11 +2344,11 @@ __webpack_require__.r(__webpack_exports__);
 
       localStorage.name = this.name;
       this.changeNameSwitcher = false;
-      this.socket.send(JSON.stringify({
+      this.socket.send({
         'action': 'room.user.changeName',
         'name': this.name,
         'room': this.hash
-      }));
+      });
     },
     isOwner: function isOwner() {
       return this.selfId === this.owner;
@@ -2366,24 +2356,24 @@ __webpack_require__.r(__webpack_exports__);
     vote: function vote(point) {
       if (this.canVote) {
         this.selectPoint = point;
-        this.socket.send(JSON.stringify({
+        this.socket.send({
           'action': 'room.vote',
           'room': this.hash,
           'vote': point
-        }));
+        });
       }
     },
     startVote: function startVote() {
-      this.socket.send(JSON.stringify({
+      this.socket.send({
         'action': 'room.vote.start',
         'room': this.hash
-      }));
+      });
     },
     resetVote: function resetVote() {
-      this.socket.send(JSON.stringify({
+      this.socket.send({
         'action': 'room.vote.reset',
         'room': this.hash
-      }));
+      });
     },
     getAverage: function getAverage() {
       var amount = 0,
@@ -2398,11 +2388,11 @@ __webpack_require__.r(__webpack_exports__);
     },
     // Easter eggs
     shake: function shake(point) {
-      this.socket.send(JSON.stringify({
+      this.socket.send({
         'action': 'room.eggs.shake',
         'point': point,
         'room': this.hash
-      }));
+      });
     }
   },
   watch: {
@@ -2412,7 +2402,6 @@ __webpack_require__.r(__webpack_exports__);
         this.$refs.stopwatch.stopTimer();
       } else if (this.stage === 1) {
         this.canVote = true;
-        this.$refs.stopwatch.clearAll();
         this.$refs.stopwatch.startTimer();
       }
     }
@@ -36473,6 +36462,72 @@ __webpack_require__.r(__webpack_exports__);
 
 /* harmony reexport (safe) */ __webpack_require__.d(__webpack_exports__, "staticRenderFns", function() { return _node_modules_vue_loader_lib_loaders_templateLoader_js_vue_loader_options_node_modules_vue_loader_lib_index_js_vue_loader_options_Stopwatch_vue_vue_type_template_id_2da649b2___WEBPACK_IMPORTED_MODULE_0__["staticRenderFns"]; });
 
+
+
+/***/ }),
+
+/***/ "./resources/js/modules/Socket.ts":
+/*!****************************************!*\
+  !*** ./resources/js/modules/Socket.ts ***!
+  \****************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", { value: true });
+var Socket = /** @class */ (function () {
+    function Socket(address, port, reconnect) {
+        if (reconnect === void 0) { reconnect = true; }
+        //private listeners : Function[] = [];
+        this.listeners = {};
+        this.openFunc = function () { };
+        this.closeFunc = function () { };
+        if (port === undefined) {
+            var parts = address.split(':');
+            address = parts[0] + ':' + parts[1];
+            port = parseInt(parts[2]);
+        }
+        this.connect(address, port, reconnect);
+    }
+    Socket.prototype.connect = function (address, port, reconnect) {
+        var _this = this;
+        if (reconnect === void 0) { reconnect = true; }
+        this.socket = new WebSocket(address + ":" + port);
+        this.socket.addEventListener('open', function () {
+            _this.openFunc.call(_this);
+        }, false);
+        if (reconnect) {
+            this.socket.addEventListener('close', function () {
+                _this.closeFunc.call(_this);
+                setTimeout(function () { return _this.connect(address, port, reconnect); }, 1000);
+            }, false);
+        }
+        this.socket.addEventListener('message', function (etv) {
+            var data = JSON.parse(etv.data);
+            if (_this.listeners[data.action] !== undefined) {
+                _this.listeners[data.action].call(_this, data);
+            }
+        });
+    };
+    Socket.prototype.send = function (data) {
+        this.socket.send(JSON.stringify(data));
+    };
+    Socket.prototype.listener = function (action, callback) {
+        this.listeners[action] = callback;
+    };
+    Socket.prototype.isOpen = function () {
+        return this.socket.readyState === this.socket.OPEN;
+    };
+    Socket.prototype.open = function (callback) {
+        this.openFunc = callback;
+    };
+    Socket.prototype.close = function (callback) {
+        this.closeFunc = callback;
+    };
+    return Socket;
+}());
+exports.default = Socket;
 
 
 /***/ }),

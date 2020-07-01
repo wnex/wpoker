@@ -1,14 +1,5 @@
 const mix = require('laravel-mix');
 
-mix.webpackConfig({
-	resolve: {
-		extensions: ['.js', '.vue'],
-		alias: {
-			'@': __dirname + '/resources'
-		}
-	}
-});
-
 /*
  |--------------------------------------------------------------------------
  | Mix Asset Management
@@ -21,4 +12,25 @@ mix.webpackConfig({
  */
 
 mix.js('resources/js/app.js', 'public/js')
-    .sass('resources/sass/app.scss', 'public/css');
+   .sass('resources/sass/app.scss', 'public/css');
+
+mix.version();
+
+mix.webpackConfig({
+	module: {
+		rules: [
+			{
+				test: /\.tsx?$/,
+				loader: "ts-loader",
+				options: { appendTsSuffixTo: [/\.vue$/] },
+				exclude: /node_modules/,
+			}
+		]
+	},
+	resolve: {
+		extensions: ["*", ".js", ".jsx", ".vue", ".ts", ".tsx"],
+		alias: {
+			'@': __dirname + '/resources'
+		}
+	},
+});

@@ -24,6 +24,8 @@
         "vue-template-compiler": "^2.6.10"
     },
     "dependencies": {
+        "ts-loader": "^7.0.5",
+        "typescript": "^3.9.5",
         "vue-router": "^3.3.4"
     }
 }

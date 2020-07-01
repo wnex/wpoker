@@ -11,7 +11,7 @@ use Workerman\Worker;
 class WorkermanCommand extends Command
 {
 
-	protected $signature = 'workman {action} {--d}';
+	protected $signature = 'workman {action?} {--d} {--g}';
 
 	protected $description = 'Start a Workerman server.';
 
@@ -22,7 +22,15 @@ class WorkermanCommand extends Command
 
 		$argv[0] = 'wk';
 		$argv[1] = $action;
-		$argv[2] = $this->option('d') ? '-d' : '';
+		$argv[2] = '';
+
+		if ($this->option('d')) {
+			$argv[2] = '-d'; 
+		}
+
+		if ($this->option('g')) {
+			$argv[2] = '-g'; 
+		}
 
 		$this->start();
 	}
@@ -52,9 +60,9 @@ class WorkermanCommand extends Command
 		$gateway->count                = 1;
 		$gateway->lanIp                = '127.0.0.1';
 		$gateway->startPort            = 2300;
-		$gateway->pingInterval         = 30;
-		$gateway->pingNotResponseLimit = 0;
-		$gateway->pingData             = '{"type":"@heart@"}';
+		//$gateway->pingInterval         = 30;
+		//$gateway->pingNotResponseLimit = 0;
+		//$gateway->pingData             = '{"type":"@heart@"}';
 		$gateway->registerAddress      = '127.0.0.1:1236';
 	}
 
