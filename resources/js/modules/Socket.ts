@@ -1,5 +1,8 @@
 interface Data {
-	action: string
+	action: string,
+	type?: string,
+	request_id?: string,
+	params: object,
 }
 
 interface Listeners {
@@ -15,6 +18,8 @@ export default class Socket {
 	private openFunc : Function = () => {};
 	private closeFunc : Function = () => {};
 
+	private requests : Data[] = [];
+	private response : Listeners = {};
 
 	constructor (address : string, port? : number, reconnect : boolean = true) {
 		if (port === undefined) {
@@ -31,6 +36,13 @@ export default class Socket {
 
 		this.socket.addEventListener('open', () => {
 			this.openFunc.call(this);
+
+			if (this.requests.length > 0) {
+				for (var i = 0; i < this.requests.length; i++) {
+					this.send(this.requests[i]);
+				}
+				this.requests = [];
+			}
 		}, false);
 
 		if (reconnect) {
@@ -42,6 +54,16 @@ export default class Socket {
 
 		this.socket.addEventListener('message', (etv) => {
 			let data : Data = JSON.parse(etv.data);
+
+			if (
+				data.type === 'request' &&
+				data.request_id !== undefined &&
+				this.response[data.request_id] !== undefined
+			) {
+				this.response[data.request_id].call(this, data);
+				delete this.response[data.request_id];
+				return false;
+			}
 
 			if (
 				this.listeners[data.action] !== undefined
@@ -59,6 +81,28 @@ export default class Socket {
 		this.listeners[action] = callback;
 	}
 
+	public request(action : string, params : any) : Promise<Data> {
+		return new Promise((resolve, reject) => {
+			let request_id = this.generateId(16),
+				data : Data = {
+					'action': action,
+					'type': 'request',
+					'request_id': request_id,
+					'params': params,
+				};
+
+			if (this.isOpen()) {
+				this.send(data);
+			} else {
+				this.requests.push(data);
+			}
+			
+			this.response[request_id] = (data : Data) => {
+				resolve(data);
+			};
+		})
+	}
+
 	public isOpen() {
 		return this.socket.readyState === this.socket.OPEN;
 	}
@@ -69,6 +113,20 @@ export default class Socket {
 
 	public close(callback : Function) {
 		this.closeFunc = callback;
+	}
+
+
+	private dec2hex(dec : number) : string {
+		return dec < 10
+			? '0' + String(dec)
+			: dec.toString(16)
+	}
+
+	// generateId :: Integer -> String
+	public generateId(length : number) {
+		var arr = new Uint32Array((length || 40) / 2);
+		window.crypto.getRandomValues(arr);
+		return Array.from(arr, this.dec2hex).join('').substr(0, length);;
 	}
 
 }

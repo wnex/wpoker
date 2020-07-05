@@ -128,10 +128,6 @@
 		}),
 
 		created: function() {
-			
-		},
-
-		mounted: function() {
 			this.loading = true;
 
 			if (localStorage.name) {
@@ -148,7 +144,9 @@
 					'user': this.$root.getUser(),
 				});
 			});
+		},
 
+		mounted: function() {
 			this.socket.listener('room.entered.user', (data) => {
 				this.users.push({
 					id: data.id,

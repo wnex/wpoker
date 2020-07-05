@@ -3,25 +3,30 @@
 namespace App\Http\Controllers;
 
 use App\Models\Rooms;
+use GatewayWorker\Lib\Gateway;
 use Illuminate\Http\Request;
 
 class RoomsController extends Controller {
 
-	public function create(Request $request) {
-		return response()->json(Rooms::create([
-			'name' => $request->json('name'),
-			'owner' => $request->json('owner'),
-		]));
+	public function create(array $params) {
+		return Rooms::create([
+			'name' => $params['name'],
+			'owner' => $params['owner'],
+		]);
 	}
 
-	public function get(Request $request) {
-		$query = Rooms::query();
+	public function delete(array $params) {
+		return Rooms::where('owner', $params['owner'])->where('id', $params['id'])->delete();
+	}
 
-		if ($owner = $request->input('owner')) {
-			$query->where('owner', $owner);
+	public function get(array $params) {
+		if (!isset($params['owner'])) {
+			return [];
 		}
+		
+		$query = Rooms::where('owner', $params['owner']);
 
-		return response()->json($query->get());
+		return $query->get();
 	}
 
 }

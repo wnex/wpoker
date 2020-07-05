@@ -11,18 +11,7 @@ class Workerman {
 	static $users = [];
 
 	public static function onWorkerStart($worker) {
-		/*Timer::add(0.1, function() {
-			\Log::info("Server tick.");
-			\Log::info(self::$users);
-			if (count(self::$users) > 0) {
-				Gateway::sendToAll(json_encode([
-					'type' => 'players.data',
-					'players' => self::$users,
-				]));
-			}
 
-			//Gateway::sendToAll('{"action":"Ping"}');
-		});*/
 	}
 
 	public static function onConnect($client_id) {
@@ -34,6 +23,19 @@ class Workerman {
 
 	public static function onMessage($client_id, $data) {
 		$data = json_decode($data, true);
+
+		if (app('App\Services\SocketRouter')->routing($data, $client_id)) {
+			return false;
+		}
+
+		/*if (isset($data['type']) AND $data['type'] === 'request' AND isset($data['request_id'])) {
+			Gateway::sendToCurrentClient(json_encode([
+				'type' => 'request',
+				'request_id' => $data['request_id'],
+				'ping' => 'pong',
+			]));
+			return false;
+		}*/
 
 		// Вход в комнату [room, name, user]
 		if ($data['action'] === 'room.open') {

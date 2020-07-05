@@ -18,7 +18,6 @@
 		background-repeat: no-repeat;
 		background-position: center center;
 		border-radius: 4px 4px 0px 0px;
-		background-color: rgb(255, 255, 255);
 	}
 
 	.logo {

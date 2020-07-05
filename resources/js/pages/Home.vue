@@ -1,7 +1,7 @@
 <template>
 	<div class="row">
 		<div class="col-md-4 order-md-2 mb-4">
-			<h4 class="mb-3">Your name</h4>
+			<h4 class="d-flex justify-content-between align-items-center mb-3">Your name</h4>
 			<div class="input-group">
 				<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
 				<div class="input-group-append">
@@ -16,6 +16,7 @@
 					<router-link link :to="{name: 'room', params: {hash: room.hash}}" style="cursor: pointer;">
 						<h6 class="my-0">{{room.name}}</h6>
 					</router-link>
+					<span class="badge badge-secondary delete" @click="deleteRoom(room.id)">x</span>
 				</li>
 			</ul>
 			<form @submit.prevent="createRoom">
@@ -31,6 +32,8 @@
 </template>
 
 <script>
+	import Socket from '@/js/modules/Socket';
+
 	export default {
 		components: {
 
@@ -40,10 +43,11 @@
 			rooms: [],
 			name: '',
 			nameNewRoom: '',
+			socket: null,
 			loading: false,
 		}),
 
-		mounted: function() {
+		created: function() {
 			if (localStorage.name) {
 				this.name = localStorage.name;
 			}
@@ -52,12 +56,19 @@
 				this.rooms = JSON.parse(localStorage.rooms);
 			}
 
-			let promise = fetch('/api/rooms?owner='+this.$root.getUser())
-				.then(response => response.json())
-				.then(result => {
-					this.rooms = result;
+			this.socket = new Socket(document.body.dataset.socket);
+
+			let promise = this.socket.request('room.get', {
+				owner: this.$root.getUser(),
+			})
+				.then((result) => {
+					this.rooms = result.data;
 					localStorage.rooms = JSON.stringify(this.rooms);
 				});
+		},
+
+		mounted: function() {
+			
 		},
 
 		methods: {
@@ -76,21 +87,34 @@
 					return false;
 				}
 
-				let promise = fetch('/api/rooms/create', {
-					method: 'POST',
-					body: JSON.stringify({
-						name: this.nameNewRoom,
-						owner: this.$root.getUser(),
-					}),
+				let promise = this.socket.request('room.create', {
+					name: this.nameNewRoom,
+					owner: this.$root.getUser(),
 				})
-					.then(response => response.json())
-					.then(result => {
-						this.rooms.push(result);
+					.then((result) => {
+						this.rooms.push(result.data);
 						localStorage.rooms = JSON.stringify(this.rooms);
 						this.nameNewRoom = '';
 					});
 			},
 
+			deleteRoom(id) {
+				if (confirm("Delete room?")) {
+					let promise = this.socket.request('room.delete', {
+						id: id,
+						owner: this.$root.getUser(),
+					})
+						.then((result) => {
+							for (var i = 0; i < this.rooms.length; i++) {
+								if (this.rooms[i].id == id) {
+									this.rooms.splice(i, 1);
+									break;
+								}
+							}
+							localStorage.rooms = JSON.stringify(this.rooms);
+						});
+				}
+			},
 			
 		},
 
@@ -105,5 +129,7 @@
 </script>
 
 <style scoped>
-	
+	.delete {
+		cursor: pointer;
+	}
 </style>
