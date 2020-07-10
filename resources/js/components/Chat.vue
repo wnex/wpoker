@@ -50,6 +50,7 @@
 
 <script>
 	import Timer from '@/js/components/Timer';
+	import moment from 'moment';
 
 	import VueMarkdown from 'vue-markdown';
 
@@ -77,10 +78,6 @@
 			setTimeout(this.scrollToBottom, 500);
 		},
 
-		destroyed () {
-			//clearInterval(this.scrollToBottom);
-		},
-
 		mounted: function() {
 			if (localStorage.messages) {
 				this.messages = JSON.parse(localStorage.messages);
@@ -93,7 +90,7 @@
 					author_id: data.author_id,
 					author_name: data.author_name,
 					message: data.message,
-					date: data.date,
+					date: moment().format(),
 				});
 
 				this.save();

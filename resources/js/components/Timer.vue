@@ -1,5 +1,5 @@
 <template>
-	<span>{{ timeFromNow }}</span>
+	<span :title="getFillTime">{{ timeFromNow }}</span>
 </template>
 
 <script>
@@ -21,9 +21,14 @@
 			clearInterval(this.getTimeFromNow);
 		},
 		methods: {
-			getTimeFromNow () {
+			getTimeFromNow() {
 				this.timeFromNow = moment(this.created).fromNow();
-			}
-		}
+			},
+		},
+		computed: {
+			getFillTime() {
+				return moment(this.created).format('LLL');
+			},
+		},
 	}
 </script>

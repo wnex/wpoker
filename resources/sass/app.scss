@@ -7,7 +7,7 @@
 // Bootstrap
 @import '~bootstrap/scss/bootstrap';
 
-input:focus, textarea:focus {
+input:focus, textarea:focus, button:focus {
     outline-style: none !important;
     outline-width: 0px !important;
     outline-color: none !important;
