@@ -80,7 +80,7 @@
 
 		mounted: function() {
 			if (localStorage.messages) {
-				this.messages = JSON.parse(localStorage.messages);
+				this.messages = JSON.parse(localStorage['messages-'+this.hash]);
 				this.save();
 			}
 
@@ -127,7 +127,7 @@
 			},
 
 			save() {
-				localStorage.messages = JSON.stringify(this.messages);
+				localStorage['messages-'+this.hash] = JSON.stringify(this.messages);
 
 				this.$nextTick(() => {
 					var block = document.getElementById('anchor');
