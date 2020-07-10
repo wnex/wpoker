@@ -79,7 +79,7 @@
 		},
 
 		mounted: function() {
-			if (localStorage.messages) {
+			if (localStorage['messages-'+this.hash]) {
 				this.messages = JSON.parse(localStorage['messages-'+this.hash]);
 				this.save();
 			}
