@@ -1,34 +1,5 @@
 <style type="text/css">
-	.logo-block {
-		display: inline-block;
-		width: 333px;
-	}
-
-	.logo-block-wrap {
-		text-align: center;
-	}
-
-	.logo-wrap {
-		background-size: cover;
-		position: relative;
-		pointer-events: none;
-		height: 0px;
-		width: 100%;
-		padding-top: 200px;
-		background-repeat: no-repeat;
-		background-position: center center;
-		border-radius: 4px 4px 0px 0px;
-	}
-
-	.logo {
-		width: 100%;
-		max-height: 70%;
-		max-width: 600px;
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-	}
+	
 </style>
 
 <div class="logo-block-wrap">

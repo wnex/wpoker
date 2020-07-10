@@ -47,7 +47,7 @@ class WorkermanCommand extends Command
 	{
 		$worker                  = new BusinessWorker();
 		$worker->name            = 'BusinessWorker';
-		$worker->count           = 1;
+		$worker->count           = 2;
 		$worker->registerAddress = '127.0.0.1:1236';
 		$worker->eventHandler    = \App\Events\Workerman::class;
 	}

@@ -68,7 +68,9 @@
 		},
 
 		mounted: function() {
-			
+			if(this.$route.query.kicked) {
+				alert('Kicked you out.');
+			}
 		},
 
 		methods: {

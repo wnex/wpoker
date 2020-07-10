@@ -12,6 +12,7 @@
 	<!-- Styles -->
 	<link rel="stylesheet" type="text/css" href="">
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="bg-light" data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
 	<div class="container">
@@ -32,33 +33,8 @@
 			</ul>
 		</footer>
 	</div>
-<div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-  <div class="toast-header">
-    <img src="..." class="rounded mr-2" alt="...">
-    <strong class="mr-auto">Bootstrap</strong>
-    <small class="text-muted">just now</small>
-    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="toast-body">
-    See? Just like this.
-  </div>
-</div>
 
-<div class="toast" role="alert" aria-live="assertive" aria-atomic="true">
-  <div class="toast-header">
-    <img src="..." class="rounded mr-2" alt="...">
-    <strong class="mr-auto">Bootstrap</strong>
-    <small class="text-muted">2 seconds ago</small>
-    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
-  <div class="toast-body">
-    Heads up, toasts will stack automatically
-  </div>
-</div>
 	<script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
+	<link rel="stylesheet" type="text/css" href="{{ mix('css/app.css') }}">
 </body>
 </html>

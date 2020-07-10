@@ -108,7 +108,11 @@ export default class Socket {
 	}
 
 	public open(callback : Function) {
-		this.openFunc = callback;
+		if (this.isOpen()) {
+			callback.call(this);
+		} else {
+			this.openFunc = callback;
+		}
 	}
 
 	public close(callback : Function) {

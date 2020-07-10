@@ -1,6 +1,6 @@
 <template>
 	<div class="row">
-		<div class="col-md-4 order-md-2 mb-4">
+		<div class="col-md-4 order-md-2 mb-4" style="position: inherit;">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">
 				<span class="text-muted">Users</span>
 				<span class="badge badge-secondary">{{users.length}}</span>
@@ -14,7 +14,10 @@
 						<small class="text-muted">{{owner === user.id ? 'Owner' : 'Guest'}}</small>
 					</div>
 					<span class="text-muted">
-						<span class="badge badge-success">{{user.vote}}</span>
+						<span v-if="isOwner() && user.id !== selfId" class="badge user-control kick-out" @click="kickOut(user.id)">
+							<i class="fa fa-fw fa-sign-out" aria-hidden="true"></i>
+						</span>
+						<span class="badge user-control badge-primary">{{user.vote}}</span>
 					</span>
 				</li>
 
@@ -22,37 +25,38 @@
 					<span>Average</span>
 					<strong>{{average}}</strong>
 				</li>
-			</ul>
-			<div class="card p-2">
-				<button v-if="!changeNameSwitcher" @click.prevent="changeName" class="btn btn-secondary">Change name</button>
-				<form v-if="changeNameSwitcher" @submit.prevent="saveName">
-					<div class="input-group">
-						<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
-						<div class="input-group-append">
-							<button type="submit" class="btn btn-secondary">Save</button>
+
+				<li class="list-group-item d-flex lh-condensed" style="display: flex; flex-direction: column;">
+					<button v-if="!changeNameSwitcher" @click.prevent="changeName" class="btn btn-outline-secondary">Change name</button>
+					<form v-if="changeNameSwitcher" @submit.prevent="saveName">
+						<div class="input-group">
+							<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
+							<div class="input-group-append">
+								<button type="submit" class="btn btn-secondary">Save</button>
+							</div>
 						</div>
-					</div>
-				</form>
-			</div>
+					</form>
+				</li>
+			</ul>
+			<chat :socket="socket" :hash="hash"></chat>
 		</div>
 		<div class="col-md-8 order-md-1">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">
-				Cards
+				{{roomName}}
 				<span class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
 			</h4>
 			<div class="row mb-3">
-				<div v-for="card in cards" :key="card.point" class="poker-card mb-3 d-flex col-md-2 justify-content-between">
+				<div v-for="card in cards" :key="card.point" class="poker-card mb-3 d-flex col-3 col-md-2 justify-content-between">
 					<div class="flip-container" :class="{'hover': canVote}">
 						<div class="flipper">
 							<div class="front">
-								<img :src="cover" @click="shake(card.point)" :class="{'shake': card.shake}" width="100%">
+								<img :src="cover" @click="cardShake(card.point)" :class="{'shake': card.shake}" width="100%">
 							</div>
 							<div class="back">
 								<img :src="card.src" @click="vote(card.point)" width="100%">
 							</div>
 						</div>
 					</div>
-					
 				</div>
 			</div>
 			<div v-if="isOwner()" class="row mb-3 ml-0 text-right">
@@ -65,18 +69,21 @@
 
 <script>
 	import Stopwatch from '@/js/components/Stopwatch';
+	import Chat from '@/js/components/Chat';
 	import Socket from '@/js/modules/Socket';
 
 	export default {
-		props: ['hash'],
+		props: ['socket', 'hash'],
 
 		components: {
 			Stopwatch,
+			Chat,
 		},
 
 		data: () => ({
+			selfId: null,
 			name: '',
-			socket: null,
+			roomName: '',
 			users: [],
 			owner: null,
 			stage: 0,
@@ -134,16 +141,19 @@
 				this.name = localStorage.name;
 			}
 
-			this.socket = new Socket(document.body.dataset.socket);
-
 			this.socket.open(() => {
-				this.socket.send({
-					'action': 'room.open',
-					'room': this.hash,
-					'name': this.name,
-					'user': this.$root.getUser(),
-				});
+				this.enterRoom();
 			});
+		},
+
+		beforeRouteUpdate(to, from, next) {
+			this.enterRoom();
+			next();
+		},
+
+		beforeRouteLeave(to, from, next) {
+			this.leaveRoom();
+			next();
 		},
 
 		mounted: function() {
@@ -152,6 +162,10 @@
 					id: data.id,
 					name: data.name,
 				});
+
+				if (data.isOwner) {
+					this.owner = data.id;
+				}
 			});
 
 			this.socket.listener('room.left.user', (data) => {
@@ -168,6 +182,7 @@
 				this.selfId = data.id;
 				this.users = data.users;
 				this.owner = data.owner;
+				this.roomName = data.name;
 				this.stage = data.stage;
 			});
 
@@ -203,6 +218,10 @@
 				}
 			});
 
+			this.socket.listener('room.kicked.you', (data) => {
+				this.$router.push({name: 'home', query: {kicked: true}});
+			});
+
 			this.socket.listener('room.vote.final', (data) => {
 				this.users = data.users;
 				this.canVote = false;
@@ -221,7 +240,7 @@
 				this.$refs.stopwatch.clearAll();
 			});
 
-			this.socket.listener('room.eggs.shake', (data) => {
+			this.socket.listener('room.card.shake', (data) => {
 				for (var i = 0; i < this.cards.length; i++) {
 					if (this.cards[i].point === data.point) {
 						this.$set(this.cards[i], 'shake', true);
@@ -236,6 +255,22 @@
 		},
 
 		methods: {
+			enterRoom() {
+				this.socket.send({
+					'action': 'room.enter',
+					'room': this.hash,
+					'name': this.name,
+					'user': this.$root.getUser(),
+				});
+			},
+
+			leaveRoom() {
+				this.socket.send({
+					'action': 'room.leave',
+					'room': this.hash,
+				});
+			},
+
 			changeName() {
 				this.changeNameSwitcher = true;
 			},
@@ -285,6 +320,16 @@
 				});
 			},
 
+			kickOut(client_id) {
+				if (confirm("Kick out this user?")) {
+					this.socket.send({
+						'action': 'room.user.kick',
+						'id': client_id,
+						'room': this.hash,
+					});
+				}
+			},
+
 			getAverage() {
 				let amount = 0,
 					count = 0;
@@ -298,9 +343,9 @@
 
 
 			// Easter eggs
-			shake(point) {
+			cardShake(point) {
 				this.socket.send({
-					'action': 'room.eggs.shake',
+					'action': 'room.card.shake',
 					'point': point,
 					'room': this.hash,
 				});
@@ -326,6 +371,14 @@
 	.poker-card img {
 		cursor: pointer;
 		border-radius: 5px;
+	}
+
+	.kick-out {
+		cursor: pointer;
+	}
+
+	.user-control {
+		font-size: 100%;
 	}
 
 	/* entire container, keeps perspective */
@@ -383,19 +436,6 @@
 		animation-iteration-count: 1;
 	}
 
-	/* @keyframes shake {
-		0% { transform: translate(1px, 1px) rotate(0deg); }
-		10% { transform: translate(-1px, -2px) rotate(-1deg); }
-		20% { transform: translate(-3px, 0px) rotate(1deg); }
-		30% { transform: translate(3px, 2px) rotate(0deg); }
-		40% { transform: translate(1px, -1px) rotate(1deg); }
-		50% { transform: translate(-1px, 2px) rotate(-1deg); }
-		60% { transform: translate(-3px, 1px) rotate(0deg); }
-		70% { transform: translate(3px, 1px) rotate(-1deg); }
-		80% { transform: translate(-1px, -1px) rotate(1deg); }
-		90% { transform: translate(1px, 2px) rotate(0deg); }
-		100% { transform: translate(1px, -2px) rotate(-1deg); }
-	} */
 	@keyframes shake {
 		0% { transform: translate(1px, 1px) rotate(0deg); }
 		10% { transform: translate(-1px, -2px) rotate(0deg); }
