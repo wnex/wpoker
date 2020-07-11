@@ -28,6 +28,7 @@ class EventServiceProvider extends ServiceProvider
         'socket.room.card.shake'            => [\App\Listeners\Room\CardShake::class],
 
         'socket.room.task.update.all'       => [\App\Listeners\Room\TaskUpdateAll::class],
+        'socket.room.task.approve'          => [\App\Listeners\Room\TaskApprove::class],
 
 
         'socket.room.chat.send'             => [\App\Listeners\Room\ChatSend::class],

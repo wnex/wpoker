@@ -1,7 +1,22 @@
 <template>
-	<div class="row mb-3">
-		<div v-for="card in cards" :key="card.point" class="poker-card mb-3 d-flex col-3 col-md-2 justify-content-between">
-			<div class="flip-container" :class="{'hover': canVote}">
+	<div class="row mb-3 pt-3" :class="{'approve': approve}">
+		<div v-if="task" class="mb-3 col-12">
+			<vue-markdown
+				:html="false"
+				:anchorAttributes="anchorAttributes"
+				:source="task.text"
+				class="card p-2"
+			></vue-markdown>
+		</div>
+
+		<h4 v-if="approve" class="mb-1 col-12">Approve final grade</h4>
+
+		<div
+			v-for="card in cards"
+			:key="card.point"
+			class="poker-card mb-3 d-flex col-3 col-md-2 pt-3 justify-content-between"
+		>
+			<div class="flip-container" :class="{'hover': canVote || approve}">
 				<div class="flipper">
 					<div class="front">
 						<img :src="cover" @click="cardShake(card.point)" :class="{'shake': card.shake}" width="100%">
@@ -16,14 +31,24 @@
 </template>
 
 <script>
+	import VueMarkdown from 'vue-markdown';
+
+	import Prism from 'prismjs';
+	import 'prismjs/themes/prism.css';
+
+	import 'prismjs/components/prism-markup-templating.js';
+	import 'prismjs/components/prism-php';
+	import 'prismjs/components/prism-bash';
+
 	export default {
-		props: ['socket', 'canVote', 'room'],
+		props: ['socket', 'canVote', 'room', 'task'],
 
 		components: {
-			
+			VueMarkdown,
 		},
 
 		data: () => ({
+			approve: false,
 			cover: '/images/cards/cover.png',
 			cards: [
 				{
@@ -90,6 +115,25 @@
 						'vote': point,
 					});
 				}
+
+				if (this.approve) {
+					this.socket.send({
+						'action': 'room.task.approve',
+						'id': this.task.id,
+						'point': point,
+					});
+					this.stopApprove();
+				}
+			},
+
+			startApprove() {
+				if (this.task !== null) {
+					this.approve = true;
+				}
+			},
+
+			stopApprove() {
+				this.approve = false;
 			},
 
 			// Easter eggs
@@ -101,6 +145,23 @@
 				});
 			},
 		},
+
+		computed: {
+			anchorAttributes() {
+				return {
+					target: 'blank',
+					rel: 'nofollow',
+				}
+			},
+		},
+
+		watch: {
+			task() {
+				this.$nextTick(() => {
+					Prism.highlightAll();
+				});
+			},
+		},
 	}
 </script>
 
@@ -108,6 +169,10 @@
 	.poker-card img {
 		cursor: pointer;
 		border-radius: 5px;
+	}
+
+	.approve {
+		background-color: #cdffb6;
 	}
 
 	/* entire container, keeps perspective */

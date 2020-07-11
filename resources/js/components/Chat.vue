@@ -62,7 +62,7 @@
 	import 'prismjs/components/prism-bash';
 
 	export default {
-		props: ['socket', 'hash'],
+		props: ['socket', 'room'],
 
 		components: {
 			Timer,
@@ -79,8 +79,15 @@
 		},
 
 		mounted: function() {
-			if (localStorage['messages-'+this.hash]) {
-				this.messages = JSON.parse(localStorage['messages-'+this.hash]);
+			if (localStorage['messages-'+this.room]) {
+				this.messages = JSON.parse(localStorage['messages-'+this.room]);
+				for (var i = 0; i < this.messages.length; i++) {
+					if (this.messages[i].notification) {
+						setTimeout(() => {
+							this.remove(data.id);
+						}, 5000);
+					}
+				}
 				this.save();
 			}
 
@@ -91,7 +98,14 @@
 					author_name: data.author_name,
 					message: data.message,
 					date: moment().format(),
+					notification: data.notification,
 				});
+
+				if (data.notification) {
+					setTimeout(() => {
+						this.remove(data.id);
+					}, 10000);
+				}
 
 				this.save();
 
@@ -108,7 +122,7 @@
 				if (this.message !== '') {
 					this.socket.send({
 						'action': 'room.chat.send',
-						'room': this.hash,
+						'room': this.room,
 						'name': this.$root.name,
 						'message': this.message,
 					});
@@ -127,7 +141,7 @@
 			},
 
 			save() {
-				localStorage['messages-'+this.hash] = JSON.stringify(this.messages);
+				localStorage['messages-'+this.room] = JSON.stringify(this.messages);
 
 				this.$nextTick(() => {
 					var block = document.getElementById('anchor');

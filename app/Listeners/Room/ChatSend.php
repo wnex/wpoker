@@ -18,6 +18,7 @@ class ChatSend extends SocketListeners {
 			'author_name' => $data['name'],
 			'message' => $data['message'],
 			'date' => date('c'),
+			'notification' => false,
 		], $users_in_room);
 	}
 

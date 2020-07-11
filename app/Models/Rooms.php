@@ -22,6 +22,18 @@ class Rooms extends Model {
 		return $this->hasMany('App\Models\Tasks');
 	}
 
+	public function getNextTask() {
+		if ($this->stage === 2) {
+			return $this->tasks()->whereNotNull('story_point')->orderBy('updated_at', 'desc')->first();
+		}
+
+		return $this->tasks()->whereNull('story_point')->orderBy('order', 'asc')->first();
+	}
+
+	public function haveActiveStage() {
+		return $this->stage === 1 OR $this->stage === 2;
+	}
+
 	public static function getAllRooms() {
 		return Cache::get('rooms', []);
 	}

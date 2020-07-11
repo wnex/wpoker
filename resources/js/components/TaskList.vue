@@ -40,15 +40,24 @@
 				handle=".handle"
 			>
 				<transition-group type="transition" :name="!drag ? 'flip-list' : null">
-					<li v-for="task in tasks" :key="task.id" class="list-group-item d-flex justify-content-between lh-condensed">
+					<li
+						v-for="task in tasks"
+						:key="task.id"
+						class="list-group-item d-flex justify-content-between lh-condensed"
+						:class="{'text-success': task.story_point}"
+					>
 						<div>
 							<span class="text-muted">#{{task.order}}</span>
 							<vue-markdown :html="false" :anchorAttributes="anchorAttributes" :source="task.text"></vue-markdown>
 						</div>
-						<span v-if="isOwner" class="control text-muted">
-							<i class="fa fa-fw fa-align-justify handle"></i>
-							<i class="fa fa-fw fa-pencil button-icon" @click="editInit(task.id)"></i>
-							<i class="fa fa-fw fa-trash-o button-icon" @click="remove(task.id)"></i>
+						
+						<span class="control text-muted">
+							<span v-if="task.story_point" class="story-point">{{task.story_point}} sp</span>
+							<span v-if="isOwner">
+								<i class="fa fa-fw fa-align-justify handle"></i>
+								<i class="fa fa-fw fa-pencil button-icon" @click="editInit(task.id)"></i>
+								<i class="fa fa-fw fa-trash-o button-icon" @click="remove(task.id)"></i>
+							</span>
 						</span>
 					</li>
 				</transition-group>
@@ -133,6 +142,16 @@
 				this.tasks = data.tasks;
 				this.tasksSort();
 			});
+
+			this.socket.listener('room.task.approve', (data) => {
+				for (var i = 0; i < this.tasks.length; i++) {
+					if (this.tasks[i].id === data.id) {
+						this.$set(this.tasks[i], 'story_point', data.point);
+						this.save();
+						break;
+					}
+				}
+			});
 		},
 
 		methods: {
@@ -162,14 +181,9 @@
 					order: this.tasks.length + 1,
 				})
 					.then((result) => {
-						/*this.tasks.push(result.data);
-						this.save();
-						this.text = '';
-
-						this.$nextTick(() => {
-							Prism.highlightAll();
-						});*/
+						
 					});
+				this.text = '';
 			},
 
 			remove(id) {
@@ -279,5 +293,14 @@
 		position: absolute;
 		top: 10px;
 		right: 10px;
+	}
+	.text-success {
+		background-color: #e1fde8;
+	}
+	.story-point {
+		padding: 1px 6px;
+		background-color: #4860af;
+		color: #fff;
+		border-radius: 3px;
 	}
 </style>

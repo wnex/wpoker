@@ -17,7 +17,7 @@ class VoteStart extends SocketListeners {
 		$users_in_room = Rooms::getUsers($data['room']);
 		$this->sendToAll([
 			'action' => 'room.vote.start',
-			'task' => $room->tasks()->orderBy('order', 'asc')->first(),
+			'task' => $room->getNextTask(),
 		], $users_in_room);
 	}
 

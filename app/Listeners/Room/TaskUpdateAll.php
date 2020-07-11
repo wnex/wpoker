@@ -28,6 +28,14 @@ class TaskUpdateAll extends SocketListeners {
 			'action' => 'room.task.update.all',
 			'tasks' => $room->tasks,
 		], $users_in_room, [$client_id]);
+
+		// Если голосование уже начато, задача могла поменятся
+		if ($room->stage === 1) {
+			$this->sendToAll([
+				'action' => 'room.vote.start',
+				'task' => $room->getNextTask(),
+			], $users_in_room);
+		}
 	}
 
 }

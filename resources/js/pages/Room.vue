@@ -2,22 +2,24 @@
 	<div class="row">
 		<div class="col-md-4 order-md-2 mb-4" style="position: inherit;">
 			<users :socket="socket" :users="users" :room="hash" :name="name" :isOwner="isOwner" :average="average"></users>
-			<chat :socket="socket" :hash="hash"></chat>
+			<chat :socket="socket" :room="hash"></chat>
 		</div>
 		<div class="col-md-8 order-md-1">
-			<h4 class="d-flex justify-content-between align-items-center mb-3">
+			<h4 class="d-flex justify-content-between align-items-center">
 				{{room.name}}
 				<span class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
 			</h4>
 
-			<cards :socket="socket" :canVote="canVote" :room="hash"></cards>
+			<cards ref="cards" :socket="socket" :canVote="canVote" :room="hash" :task="task"></cards>
 
 			<div v-if="isOwner" class="row mb-3 ml-0">
 				<button v-if="stage === 0" class="btn mr-3 col-md-3 btn-primary" @click="startVote">Start vote</button>
-				<button v-if="stage === 1" class="btn mr-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
+				<button v-if="stage === 1 || stage === 2" class="btn mr-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
+				<button v-if="canNextButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Next</button>
+				<button v-if="canReVoteButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Revote</button>
 			</div>
 
-			<task-list :socket="socket" :room="hash" :id="room.id" :isOwner="isOwner"></task-list>
+			<task-list ref="tasksList" :socket="socket" :room="hash" :id="room.id" :isOwner="isOwner"></task-list>
 		</div>
 	</div>
 </template>
@@ -55,6 +57,7 @@
 			selectPoint: 0,
 			average: null,
 			canVote: false,
+			task: null,
 			loading: false,
 		}),
 
@@ -110,6 +113,7 @@
 				this.room.id = data.id;
 				this.room.name = data.name;
 				this.stage = data.stage;
+				this.task = data.task;
 			});
 
 			this.socket.listener('room.user.changeName', (data) => {
@@ -123,6 +127,7 @@
 
 			this.socket.listener('room.vote.start', (data) => {
 				this.stage = 1;
+				this.task = data.task;
 			});
 
 			this.socket.listener('room.vote', (data) => {
@@ -153,6 +158,11 @@
 				this.canVote = false;
 				this.average = this.getAverage();
 				this.$refs.stopwatch.stopTimer();
+				this.stage = 2;
+
+				if (this.isOwner) {
+					this.$refs.cards.startApprove();
+				}
 			});
 
 			this.socket.listener('room.vote.reset', (data) => {
@@ -163,6 +173,7 @@
 					this.$set(this.users[i], 'vote', undefined);
 					this.$set(this.users[i], 'isVoted', false);
 				}
+				this.task = null;
 				this.$refs.stopwatch.clearAll();
 			});
 		},
@@ -196,6 +207,13 @@
 					'action': 'room.vote.reset',
 					'room': this.hash,
 				});
+
+				this.$refs.cards.stopApprove();
+			},
+
+			nextVote() {
+				this.resetVote();
+				this.startVote();
 			},
 
 			getAverage() {
@@ -219,17 +237,40 @@
 
 				return this.selfId === this.owner;
 			},
+
+			canNextButton() {
+				return this.stage === 2 && this.haveUnratedTasks && !this.$refs.cards.approve;
+			},
+
+			canReVoteButton() {
+				return this.stage === 2 && this.haveUnratedTasks && this.$refs.cards.approve;
+			},
+
+			haveUnratedTasks() {
+				for (var i = 0; i < this.$refs.tasksList.tasks.length; i++) {
+					if (this.$refs.tasksList.tasks[i].story_point === null) {
+						return true;
+					}
+				}
+
+				return false;
+			},
 		},
 
 		watch: {
 			stage() {
-				if (this.stage === 0) {
-					this.canVote = false;
-					this.$refs.stopwatch.stopTimer();
-				} else
-				if (this.stage === 1) {
-					this.canVote = true;
-					this.$refs.stopwatch.startTimer();
+				switch(this.stage) {
+					case 0:
+						this.canVote = false;
+						this.$refs.stopwatch.stopTimer();
+						break;
+					case 1:
+						this.canVote = true;
+						this.$refs.stopwatch.startTimer();
+						break;
+					case 2:
+						this.canVote = false;
+						break;
 				}
 			},
 		},

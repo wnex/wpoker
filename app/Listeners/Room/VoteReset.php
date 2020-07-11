@@ -21,8 +21,6 @@ class VoteReset extends SocketListeners {
 					'isVoted' => null,
 					'vote' => null,
 				]);
-				//unset(self::$users[$user_id]['isVoted']);
-				//unset(self::$users[$user_id]['vote']);
 			}
 		}
 		$this->sendToAll([

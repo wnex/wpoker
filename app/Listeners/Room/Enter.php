@@ -35,9 +35,10 @@ class Enter extends SocketListeners {
 			'client_id' => $client_id,
 			'id' => $room->id,
 			'name' => $room->name,
-			'users' => Workerman::getAllUsers($data['room']),
+			'users' => Workerman::getAllUsers($data['room'], $room->stage === 2),
 			'owner' => $owner_id,
 			'stage' => $room->stage,
+			'task' => $room->haveActiveStage() ? $room->getNextTask() : null,
 		]);
 	}
 

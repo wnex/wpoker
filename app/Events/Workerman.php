@@ -75,7 +75,7 @@ class Workerman {
 				'isOwner' => $user['user'] === $roomModel->owner,
 			];
 
-			if ($withVote) {
+			if ($withVote AND isset($user['vote'])) {
 				$u['vote'] = $user['vote'];
 			}
 
