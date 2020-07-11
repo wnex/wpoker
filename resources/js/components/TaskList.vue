@@ -1,5 +1,5 @@
 <template>
-	<div v-if="tasks.length">
+	<div v-if="tasks.length || isOwner">
 		<h4 class="d-flex justify-content-between align-items-center mb-3">
 			Tasks
 		</h4>
