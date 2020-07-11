@@ -1,5 +1,5 @@
 <template>
-	<div>
+	<div v-if="tasks.length">
 		<h4 class="d-flex justify-content-between align-items-center mb-3">
 			Tasks
 		</h4>
@@ -299,7 +299,7 @@
 	}
 	.story-point {
 		padding: 1px 6px;
-		background-color: #4860af;
+		background-color: #007bff;
 		color: #fff;
 		border-radius: 3px;
 	}
