@@ -64,6 +64,7 @@ class Workerman {
 
 
 	public static function getAllUsers($room, $withVote = false) {
+		$roomModel = Rooms::where('hash', $room)->first();
 		$users = [];
 		foreach (Rooms::getUsers($room) as $user_id) {
 			$user = self::getUser($user_id);
@@ -71,6 +72,7 @@ class Workerman {
 				'id' => $user_id,
 				'name' => $user['name'],
 				'isVoted' => isset($user['isVoted']) ? $user['isVoted'] : false,
+				'isOwner' => $user['user'] === $roomModel->owner,
 			];
 
 			if ($withVote) {

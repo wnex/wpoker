@@ -25,6 +25,10 @@ input:focus, textarea:focus, button:focus {
 	}
 }
 
+p:last-of-type {
+	margin-bottom: 0;
+}
+
 .logo-block-wrap {
 	text-align: center;
 }

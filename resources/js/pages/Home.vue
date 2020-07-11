@@ -37,6 +37,8 @@
 	import Socket from '@/js/modules/Socket';
 
 	export default {
+		props: ['socket'],
+
 		components: {
 
 		},
@@ -45,7 +47,6 @@
 			rooms: [],
 			name: '',
 			nameNewRoom: '',
-			socket: null,
 			loading: false,
 		}),
 
@@ -57,8 +58,6 @@
 			if (localStorage.rooms) {
 				this.rooms = JSON.parse(localStorage.rooms);
 			}
-
-			this.socket = new Socket(document.body.dataset.socket);
 
 			let promise = this.socket.request('room.get', {
 				owner: this.$root.getUser(),

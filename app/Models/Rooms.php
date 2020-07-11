@@ -18,6 +18,10 @@ class Rooms extends Model {
 		});
 	}
 
+	public function tasks() {
+		return $this->hasMany('App\Models\Tasks');
+	}
+
 	public static function getAllRooms() {
 		return Cache::get('rooms', []);
 	}

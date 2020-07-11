@@ -11,7 +11,7 @@
 						@keydown.enter.exact.prevent="send"
 						class="form-control"
 						v-model="message"
-						aria-label="Enter your name"
+						placeholder="Enter your message"
 					></textarea>
 					<div class="input-group-append">
 						<button type="submit" class="btn btn-secondary">Send</button>
@@ -21,7 +21,7 @@
 		</div>
 		<div v-if="messages.length" class="chat-block" aria-live="polite" aria-atomic="true">
 			<div class="mb-2" style="display: flex; flex-direction: column;">
-				<button type="submit" @click="clearAll()" class="btn btn-outline-secondary">Clear</button>
+				<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Clear</button>
 			</div>
 			<div id="message-block" class="message-block">
 				<div
@@ -195,5 +195,14 @@
 
 	textarea {
 		min-height: 38px;
+	}
+
+	.clear-all {
+		background-color: rgba(255,255,255,.85);
+		border: 1px solid rgba(0,0,0,.1);
+		backdrop-filter: blur(10px);
+	}
+	.clear-all:hover {
+		background-color: rgba(108,117,125,.85);
 	}
 </style>

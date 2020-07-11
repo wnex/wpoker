@@ -32,7 +32,8 @@ class Enter extends SocketListeners {
 
 		$this->sendToCurrentClient([
 			'action' => 'room.parameters',
-			'id' => $client_id,
+			'client_id' => $client_id,
+			'id' => $room->id,
 			'name' => $room->name,
 			'users' => Workerman::getAllUsers($data['room']),
 			'owner' => $owner_id,

@@ -27,6 +27,8 @@ class EventServiceProvider extends ServiceProvider
         'socket.room.vote.reset'            => [\App\Listeners\Room\VoteReset::class],
         'socket.room.card.shake'            => [\App\Listeners\Room\CardShake::class],
 
+        'socket.room.task.update.all'       => [\App\Listeners\Room\TaskUpdateAll::class],
+
 
         'socket.room.chat.send'             => [\App\Listeners\Room\ChatSend::class],
 
