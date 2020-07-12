@@ -17,12 +17,8 @@
 				<div v-if="isOwner" class="row mb-3 ml-0">
 					<button v-if="stage === 0" class="btn mr-3 col-md-3 btn-primary" @click="startVote">Start vote</button>
 					<button v-if="stage === 1 || stage === 2" class="btn mr-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
-					<transition name="fade">
-						<button v-if="canNextButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Next</button>
-					</transition>
-					<transition name="fade">
-						<button v-if="canReVoteButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Revote</button>
-					</transition>
+					<button v-if="canNextButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Next</button>
+					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Revote</button>
 				</div>
 			</transition>
 
