@@ -29,7 +29,7 @@
 				<li v-if="chart" class="list-group-item d-flex justify-content-between">
 					<div style="width: 100%;"><chart ref="chart" :chartdata="chartData()" :options="chartOptions" /></div>
 				</li>
-<!-- :width="308" :height="200" -->
+
 				<li class="list-group-item d-flex lh-condensed" style="display: flex; flex-direction: column;">
 					<button v-if="!changeNameSwitcher" @click.prevent="changeName" class="btn btn-outline-secondary">Change name</button>
 					<form v-if="changeNameSwitcher" @submit.prevent="saveName">

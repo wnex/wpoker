@@ -31,6 +31,12 @@ class TaskUpdateAll extends SocketListeners {
 
 		// Если голосование уже начато, задача могла поменятся
 		if ($room->stage === 1) {
+			$task = $room->getNextTask();
+
+			$room->stage = 1;
+			$room->active_task_id = $task ? $task->id : null;
+			$room->save();
+
 			$this->sendToAll([
 				'action' => 'room.vote.start',
 				'stage' => $room->stage,
