@@ -12,12 +12,9 @@
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="bg-light" data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
+	@include('header')
 	<div class="container">
-		<div class="text-center">
-			@include('logo')
-			<h1 style="display: none;">Planning Poker</h1>
-			<p class="lead"></p>
-		</div>
+		
 
 		<div id="app">
 			

@@ -61,7 +61,7 @@
 			chart: false,
 			changeNameSwitcher: false,
 			points: ['0.25 sp', '0.5 sp', '1 sp', '2 sp', '3 sp', '5 sp', '8 sp', '13 sp', '0 sp'],
-			colors: ['#9561e2', '#e3342f', '#6cb2eb', '#f6993f', '#38c172', '#ffed4a', '#6574cd'],
+			colors: ['#6574cd', '#e3342f', '#38c172', '#f6993f', '#9561e2', '#ffed4a', '#6cb2eb'],
 			chartOptions: {
 				legend: {
 					'position': 'bottom',
