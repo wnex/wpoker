@@ -6,13 +6,13 @@
 					:html="false"
 					:anchorAttributes="anchorAttributes"
 					:source="task.text"
-					class="card p-2"
+					class="alert alert-primary mb-0 p-2"
 				></vue-markdown>
 			</div>
 		</transition>
 
 		<div class="col-12">
-			<div v-if="approve" class="alert alert-primary mb-0" role="alert">
+			<div v-if="approve" class="alert alert-warning mb-0" role="alert">
 				Approve final grade
 			</div>
 		</div>
