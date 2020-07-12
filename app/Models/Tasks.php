@@ -8,10 +8,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Tasks extends Model {
 
-	protected $fillable = ['text', 'order', 'story_point', 'rooms_id'];
+	protected $fillable = ['text', 'order', 'story_point', 'room_id'];
 
 	public function room() {
-		return $this->belongsTo('App\Models\Rooms', 'rooms_id');
+		return $this->belongsTo('App\Models\Rooms', 'room_id');
 	}
 
 }

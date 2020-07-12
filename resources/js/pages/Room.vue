@@ -1,23 +1,30 @@
 <template>
 	<div class="row">
 		<div class="col-md-4 order-md-2 mb-4" style="position: inherit;">
-			<users :socket="socket" :users="users" :room="hash" :name="name" :isOwner="isOwner" :average="average"></users>
+			<users :socket="socket" :users="users" :room="hash" :isOwner="isOwner" :average="average"></users>
+
 			<chat :socket="socket" :room="hash"></chat>
 		</div>
 		<div class="col-md-8 order-md-1">
 			<h4 class="d-flex justify-content-between align-items-center">
-				{{room.name}}
+				<span>{{room.name}}</span>
 				<span class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
 			</h4>
 
 			<cards ref="cards" :socket="socket" :canVote="canVote" :room="hash" :task="task"></cards>
 
-			<div v-if="isOwner" class="row mb-3 ml-0">
-				<button v-if="stage === 0" class="btn mr-3 col-md-3 btn-primary" @click="startVote">Start vote</button>
-				<button v-if="stage === 1 || stage === 2" class="btn mr-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
-				<button v-if="canNextButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Next</button>
-				<button v-if="canReVoteButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Revote</button>
-			</div>
+			<transition name="fade">
+				<div v-if="isOwner" class="row mb-3 ml-0">
+					<button v-if="stage === 0" class="btn mr-3 col-md-3 btn-primary" @click="startVote">Start vote</button>
+					<button v-if="stage === 1 || stage === 2" class="btn mr-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
+					<transition name="fade">
+						<button v-if="canNextButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Next</button>
+					</transition>
+					<transition name="fade">
+						<button v-if="canReVoteButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Revote</button>
+					</transition>
+				</div>
+			</transition>
 
 			<task-list ref="tasksList" :socket="socket" :room="hash" :id="room.id" :isOwner="isOwner"></task-list>
 		</div>
@@ -123,10 +130,14 @@
 						break;
 					}
 				}
+
+				if (data.id === this.selfId) {
+					this.name = data.name;
+				}
 			});
 
 			this.socket.listener('room.vote.start', (data) => {
-				this.stage = 1;
+				this.stage = data.stage;
 				this.task = data.task;
 			});
 
@@ -239,22 +250,14 @@
 			},
 
 			canNextButton() {
-				return this.stage === 2 && this.haveUnratedTasks && !this.$refs.cards.approve;
+				return this.stage === 2 && this.$refs.tasksList.haveUnratedTasks && !this.$refs.cards.approve;
 			},
 
 			canReVoteButton() {
-				return this.stage === 2 && this.haveUnratedTasks && this.$refs.cards.approve;
+				return this.stage === 2 && this.$refs.tasksList.haveUnratedTasks && this.$refs.cards.approve;
 			},
 
-			haveUnratedTasks() {
-				for (var i = 0; i < this.$refs.tasksList.tasks.length; i++) {
-					if (this.$refs.tasksList.tasks[i].story_point === null) {
-						return true;
-					}
-				}
-
-				return false;
-			},
+			
 		},
 
 		watch: {
@@ -278,5 +281,13 @@
 </script>
 
 <style scoped>
-	
+	.fade-enter-active {
+		transition: all .5s;
+	}
+	.fade-leave-active {
+		transition: all .5s;
+	}
+	.fade-enter, .fade-leave-to {
+		opacity: 0;
+	}
 </style>

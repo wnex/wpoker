@@ -18,7 +18,7 @@ class TasksController extends Controller {
 
 		$task = Tasks::create([
 			'text' => $params['text'],
-			'rooms_id' => $room->id,
+			'room_id' => $room->id,
 			'order' => $params['order'],
 		]);
 
@@ -43,6 +43,15 @@ class TasksController extends Controller {
 				'action' => 'room.task.update',
 				'task' => $task,
 			]), $users_in_room);
+
+			// Если голосование уже начато, задача могла поменятся
+			if ($task->room->haveActiveStage()) {
+				Gateway::sendToAll(json_encode([
+					'action' => 'room.vote.start',
+					'stage' => $task->room->stage,
+					'task' => $task->room->activeTask()->first(),
+				]), $users_in_room);
+			}
 
 			return $task;
 		}

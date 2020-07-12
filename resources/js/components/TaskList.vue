@@ -1,37 +1,39 @@
 <template>
-	<div v-if="tasks.length || isOwner">
-		<h4 class="d-flex justify-content-between align-items-center mb-3">
-			Tasks
-		</h4>
-		<form v-if="isOwner && !edit.enabled" @submit.prevent="add" class="mb-3">
-			<div class="input-group">
-				<textarea
-					rows="2"
-					@keydown.enter.exact.prevent="add"
-					class="form-control"
-					v-model="text"
-					placeholder="Enter text"
-				></textarea>
-				<div class="input-group-append">
-					<button type="submit" class="btn btn-secondary">Add task</button>
+	<transition name="fade">
+		<div v-if="tasks.length || isOwner">
+			<h4 class="d-flex justify-content-between align-items-center mb-3">
+				Tasks
+			</h4>
+			<transition name="fade">
+				<form v-if="isOwner && !edit.enabled" @submit.prevent="add" class="mb-3">
+					<div class="input-group">
+						<textarea
+							rows="2"
+							@keydown.enter.exact.prevent="add"
+							class="form-control"
+							v-model="text"
+							placeholder="Enter text"
+						></textarea>
+						<div class="input-group-append">
+							<button type="submit" class="btn btn-secondary">Add task</button>
+						</div>
+					</div>
+				</form>
+			</transition>
+			<form v-if="isOwner && edit.enabled" @submit.prevent="editSave" class="mb-3">
+				<div class="input-group">
+					<textarea
+						rows="2"
+						@keydown.enter.exact.prevent="editSave"
+						class="form-control text-success"
+						v-model="edit.text"
+						placeholder="Enter text"
+					></textarea>
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-success">Save</button>
+					</div>
 				</div>
-			</div>
-		</form>
-		<form v-if="isOwner && edit.enabled" @submit.prevent="editSave" class="mb-3">
-			<div class="input-group">
-				<textarea
-					rows="2"
-					@keydown.enter.exact.prevent="editSave"
-					class="form-control text-success"
-					v-model="edit.text"
-					placeholder="Enter text"
-				></textarea>
-				<div class="input-group-append">
-					<button type="submit" class="btn btn-success">Save</button>
-				</div>
-			</div>
-		</form>
-		<ul class="list-group mb-3">
+			</form>
 			<draggable
 				v-model="tasks"
 				v-bind="dragOptions"
@@ -39,11 +41,16 @@
 				@end="endDrag"
 				handle=".handle"
 			>
-				<transition-group type="transition" :name="!drag ? 'flip-list' : null">
+				<transition-group
+					tag="ul"
+					class="list-group mb-3"
+					type="transition"
+					:name="!drag ? 'flip-list' : null"
+				>
 					<li
 						v-for="task in tasks"
 						:key="task.id"
-						class="list-group-item d-flex justify-content-between lh-condensed"
+						class="list-group-item d-flex justify-content-between lh-condensed task"
 						:class="{'text-success': task.story_point}"
 					>
 						<div>
@@ -52,18 +59,18 @@
 						</div>
 						
 						<span class="control text-muted">
-							<span v-if="task.story_point" class="story-point">{{task.story_point}} sp</span>
-							<span v-if="isOwner">
-								<i class="fa fa-fw fa-align-justify handle"></i>
-								<i class="fa fa-fw fa-pencil button-icon" @click="editInit(task.id)"></i>
-								<i class="fa fa-fw fa-trash-o button-icon" @click="remove(task.id)"></i>
+							<span v-if="isOwner" class="control-owner">
+								<i class="fa fa-fw fa-align-justify handle" title="Sort"></i>
+								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click="editInit(task.id)"></i>
+								<i class="fa fa-fw fa-trash-o button-icon" title="Delete" @click="remove(task.id)"></i>
 							</span>
+							<span v-if="task.story_point" class="story-point" title="Story points">{{task.story_point}}</span>
 						</span>
 					</li>
 				</transition-group>
 			</draggable>
-		</ul>
-	</div>
+		</div>
+	</transition>
 </template>
 
 <script>
@@ -265,11 +272,24 @@
 					rel: 'nofollow',
 				}
 			},
+
+			haveUnratedTasks() {
+				for (var i = 0; i < this.tasks.length; i++) {
+					if (this.tasks[i].story_point === null || this.tasks[i].story_point === undefined) {
+						return true;
+					}
+				}
+
+				return false;
+			},
 		},
 	}
 </script>
 
 <style scoped>
+	textarea {
+		min-height: 38px;
+	}
 	.button {
 		margin-top: 35px;
 	}
@@ -299,8 +319,22 @@
 	}
 	.story-point {
 		padding: 1px 6px;
-		background-color: #007bff;
+		background-color: #28a745;
 		color: #fff;
 		border-radius: 3px;
+	}
+	.task .control-owner {
+		opacity: 0;
+		transition: opacity .5s;
+	}
+	.task:hover .control-owner {
+		opacity: 1;
+	}
+
+	.fade-enter-active {
+		transition: all .5s;
+	}
+	.fade-enter, .fade-leave-to {
+		opacity: 0;
 	}
 </style>

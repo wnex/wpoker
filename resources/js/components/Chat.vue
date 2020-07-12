@@ -19,32 +19,36 @@
 				</div>
 			</form>
 		</div>
-		<div v-if="messages.length" class="chat-block" aria-live="polite" aria-atomic="true">
-			<div class="mb-2" style="display: flex; flex-direction: column;">
-				<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Clear</button>
-			</div>
-			<div id="message-block" class="message-block">
-				<div
-					v-for="message in messages"
-					:key="message.id"
-					class="toast show"
-					role="alert"
-					aria-live="assertive"
-					aria-atomic="true"
-					data-autohide="false"
-				>
-					<div class="toast-header">
-						<strong class="mr-auto">{{message.author_name}}</strong>
-						<small class="text-muted"><timer :created="message.date"></timer></small>
-						<button type="button" @click="remove(message.id)" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="toast-body"><vue-markdown :html="false" :anchorAttributes="{target: 'blank', rel: 'nofollow'}">{{message.message}}</vue-markdown></div>
+		<transition name="fade">
+			<div v-if="messages.length" class="chat-block" aria-live="polite" aria-atomic="true">
+				<div class="mb-2" style="display: flex; flex-direction: column;">
+					<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Clear</button>
 				</div>
-				<div id="anchor"></div>
+				<div id="message-block" class="message-block">
+					<transition-group name="list">
+						<div
+							v-for="message in messages"
+							:key="message.id"
+							class="toast show"
+							role="alert"
+							aria-live="assertive"
+							aria-atomic="true"
+							data-autohide="false"
+						>
+							<div class="toast-header">
+								<strong class="mr-auto">{{message.author_name}}</strong>
+								<small class="text-muted"><timer :created="message.date"></timer></small>
+								<button type="button" @click="remove(message.id)" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="toast-body"><vue-markdown :html="false" :anchorAttributes="{target: 'blank', rel: 'nofollow'}">{{message.message}}</vue-markdown></div>
+						</div>
+					</transition-group>
+					<div id="anchor"></div>
+				</div>
 			</div>
-		</div>
+		</transition>
 	</div>
 </template>
 
@@ -184,7 +188,7 @@
 	}
 
 	.message-block {
-		overflow-y: hidden;
+		overflow: hidden;
 		max-height: calc(100vh - 58px);
 		overflow-anchor: none;
 	}
@@ -218,5 +222,23 @@
 	}
 	.clear-all:hover {
 		background-color: rgba(108,117,125,.85);
+	}
+
+	.fade-enter-active {
+		transition: opacity .5s;
+	}
+	.fade-leave-active {
+		transition: opacity .5s;
+	}
+	.fade-enter, .fade-leave-to {
+		opacity: 0;
+	}
+
+	.list-enter-active, .list-leave-active {
+		transition: transform .5s, opacity .5s;
+	}
+	.list-enter, .list-leave-to {
+		opacity: 0;
+		transform: translateX(30px);
 	}
 </style>

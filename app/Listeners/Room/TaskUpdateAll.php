@@ -33,7 +33,8 @@ class TaskUpdateAll extends SocketListeners {
 		if ($room->stage === 1) {
 			$this->sendToAll([
 				'action' => 'room.vote.start',
-				'task' => $room->getNextTask(),
+				'stage' => $room->stage,
+				'task' => $room->activeTask()->first(),
 			], $users_in_room);
 		}
 	}

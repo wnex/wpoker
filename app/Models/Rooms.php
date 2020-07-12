@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Rooms extends Model {
 
-	protected $fillable = ['name', 'owner'];
+	protected $fillable = ['name', 'owner', 'active_task_id'];
 
 	protected static function boot() {
 		parent::boot();
@@ -19,14 +19,14 @@ class Rooms extends Model {
 	}
 
 	public function tasks() {
-		return $this->hasMany('App\Models\Tasks');
+		return $this->hasMany('App\Models\Tasks', 'room_id');
+	}
+
+	public function activeTask() {
+		return $this->hasOne('App\Models\Tasks', 'id', 'active_task_id');
 	}
 
 	public function getNextTask() {
-		if ($this->stage === 2) {
-			return $this->tasks()->whereNotNull('story_point')->orderBy('updated_at', 'desc')->first();
-		}
-
 		return $this->tasks()->whereNull('story_point')->orderBy('order', 'asc')->first();
 	}
 

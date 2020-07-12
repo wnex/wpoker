@@ -1,15 +1,21 @@
 <template>
 	<div class="row mb-3 pt-3" :class="{'approve': approve}">
-		<div v-if="task" class="mb-3 col-12">
-			<vue-markdown
-				:html="false"
-				:anchorAttributes="anchorAttributes"
-				:source="task.text"
-				class="card p-2"
-			></vue-markdown>
-		</div>
+		<transition name="fade">
+			<div v-if="task" class="mb-3 col-12">
+				<vue-markdown
+					:html="false"
+					:anchorAttributes="anchorAttributes"
+					:source="task.text"
+					class="card p-2"
+				></vue-markdown>
+			</div>
+		</transition>
 
-		<h4 v-if="approve" class="mb-1 col-12">Approve final grade</h4>
+		<div class="col-12">
+			<div v-if="approve" class="alert alert-primary mb-0" role="alert">
+				Approve final grade
+			</div>
+		</div>
 
 		<div
 			v-for="card in cards"
@@ -166,6 +172,13 @@
 </script>
 
 <style scoped>
+	.fade-enter-active {
+		transition: all .5s;
+	}
+	.fade-enter, .fade-leave-to {
+		opacity: 0;
+	}
+
 	.poker-card img {
 		cursor: pointer;
 		border-radius: 5px;
