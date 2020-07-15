@@ -51,6 +51,10 @@ class Workerman {
 	public static function onMessage($client_id, $data) {
 		$data = json_decode($data, true);
 
+		if (isset($data['type']) AND $data['type'] === 'ping') {
+			return false;
+		}
+
 		if (app('App\Services\SocketRouter')->routing($data, $client_id)) {
 			return false;
 		}
