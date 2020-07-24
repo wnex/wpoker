@@ -51,7 +51,7 @@
 						v-for="task in tasks"
 						:key="task.id"
 						class="list-group-item d-flex justify-content-between lh-condensed task"
-						:class="{'text-success': task.story_point}"
+						:class="{'task-complite': task.story_point}"
 					>
 						<div>
 							<span class="text-muted">#{{task.order}}</span>
@@ -183,7 +183,7 @@
 
 				let promise = this.socket.request('task.create', {
 					text: this.text,
-					owner: this.$root.getUser(),
+					user: this.$root.getUser(),
 					room: this.room,
 					order: this.tasks.length + 1,
 				})
@@ -197,7 +197,7 @@
 				if (confirm("Remove task?")) {
 					let promise = this.socket.request('task.delete', {
 						id: id,
-						owner: this.$root.getUser(),
+						user: this.$root.getUser(),
 					})
 						.then((result) => {
 							for (var i = 0; i < this.tasks.length; i++) {
@@ -226,7 +226,7 @@
 				let promise = this.socket.request('task.update', {
 					id: this.edit.id,
 					text: this.edit.text,
-					owner: this.$root.getUser(),
+					user: this.$root.getUser(),
 				})
 					.then((result) => {
 						this.edit.enabled = false;
@@ -314,12 +314,12 @@
 		top: 10px;
 		right: 10px;
 	}
-	.text-success {
-		background-color: #e1fde8;
+	.task-complite {
+		background-color: #cce5ff;
 	}
 	.story-point {
 		padding: 1px 6px;
-		background-color: #28a745;
+		background-color: #007bff;
 		color: #fff;
 		border-radius: 3px;
 	}

@@ -1,7 +1,7 @@
 <template>
 	<div class="row">
 		<div class="col-md-4 order-md-2 mb-4" style="position: inherit;">
-			<users :socket="socket" :users="users" :room="hash" :isOwner="isOwner" :average="average"></users>
+			<users-list :socket="socket" :users="users" :room="hash" :isOwner="isOwner" :average="average" :selfId="selfId"></users-list>
 
 			<chat :socket="socket" :room="hash"></chat>
 		</div>
@@ -32,7 +32,7 @@
 	import Chat from '@/js/components/Chat';
 	import TaskList from '@/js/components/TaskList';
 	import Cards from '@/js/components/Cards';
-	import Users from '@/js/components/Users';
+	import UsersList from '@/js/components/UsersList';
 
 	import Socket from '@/js/modules/Socket';
 
@@ -44,7 +44,7 @@
 			Chat,
 			TaskList,
 			Cards,
-			Users,
+			UsersList,
 		},
 
 		data: () => ({
@@ -111,12 +111,13 @@
 
 			this.socket.listener('room.parameters', (data) => {
 				this.selfId = data.client_id;
-				this.users = data.users;
 				this.owner = data.owner;
 				this.room.id = data.id;
 				this.room.name = data.name;
 				this.stage = data.stage;
 				this.task = data.task;
+
+				this.setUsers(data.users);
 			});
 
 			this.socket.listener('room.user.changeName', (data) => {
@@ -161,11 +162,12 @@
 			});
 
 			this.socket.listener('room.vote.final', (data) => {
-				this.users = data.users;
 				this.canVote = false;
-				this.average = this.getAverage();
 				this.$refs.stopwatch.stopTimer();
 				this.stage = 2;
+
+				this.setUsers(data.users);
+				this.average = this.getAverage();
 
 				if (this.isOwner) {
 					this.$refs.cards.startApprove();
@@ -234,6 +236,15 @@
 				return Math.round(amount/count*100) / 100;
 			},
 
+			setUsers(users) {
+				this.users = users;
+
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === this.selfId) {
+						this.users[i].isSelf = true;
+					}
+				}
+			},
 		},
 
 		computed: {

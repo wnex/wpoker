@@ -8,7 +8,13 @@ use App\Models\Rooms;
 
 class Vote extends SocketListeners {
 
-	// Оценка [room, vote]
+	/**
+	 * Оценка
+	 * 
+	 * @param  array{room: string, vote: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		Workerman::setUser($client_id, [
 			'isVoted' => true,

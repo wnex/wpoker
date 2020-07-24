@@ -2,12 +2,19 @@ import './bootstrap';
 import Vue from 'vue';
 
 import Routes from '@/js/routes.js';
-import App from '@/js/views/App.vue';
+
+import App from '@/js/views/App';
+import MenuList from '@/js/components/MenuList';
 
 const app = new Vue({
 	el: '#app',
 	router: Routes,
-	render: h => h(App),
+	//render: h => h(App),
+
+	components: {
+		App: App,
+		MenuList: MenuList,
+	},
 
 	data: {
 		name: '',

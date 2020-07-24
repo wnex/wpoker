@@ -8,7 +8,13 @@ use App\Models\Rooms;
 
 class Enter extends SocketListeners {
 
-	// Вход в комнату [room, name, user]
+	/**
+	 * Вход в комнату
+	 * 
+	 * @param  array{room: string, name: string, user: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		Workerman::setUser($client_id, [
 			'id' => $client_id,
@@ -20,6 +26,8 @@ class Enter extends SocketListeners {
 		Rooms::addUser($data['room'], $client_id);
 
 		$room = Rooms::where('hash', $data['room'])->first();
+		if (is_null($room)) return;
+
 		$owner_id = Workerman::getOwnerId($room->owner);
 
 		$users_in_room = Rooms::getUsers($data['room']);

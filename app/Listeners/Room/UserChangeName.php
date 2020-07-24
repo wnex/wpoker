@@ -8,7 +8,13 @@ use App\Models\Rooms;
 
 class UserChangeName extends SocketListeners {
 
-	// Смена имени [room, name]
+	/**
+	 * Смена имени
+	 * 
+	 * @param  array{room: string, name: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		Workerman::setUser($client_id, [
 			'name' => $data['name'],

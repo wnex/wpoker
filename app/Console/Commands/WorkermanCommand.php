@@ -11,10 +11,14 @@ use Workerman\Worker;
 class WorkermanCommand extends Command
 {
 
+	/** @var string */
 	protected $signature = 'workman {action?} {--d} {--g}';
-
+	/** @var string */
 	protected $description = 'Start a Workerman server.';
 
+	/**
+	 * @return void
+	 */
 	public function handle()
 	{
 		global $argv;
@@ -35,6 +39,9 @@ class WorkermanCommand extends Command
 		$this->start();
 	}
 
+	/**
+	 * @return void
+	 */
 	private function start()
 	{
 		$this->startGateWay();
@@ -43,6 +50,9 @@ class WorkermanCommand extends Command
 		Worker::runAll();
 	}
 
+	/**
+	 * @return void
+	 */
 	private function startBusinessWorker()
 	{
 		$worker                  = new BusinessWorker();
@@ -52,6 +62,9 @@ class WorkermanCommand extends Command
 		$worker->eventHandler    = \App\Events\Workerman::class;
 	}
 
+	/**
+	 * @return void
+	 */
 	private function startGateWay()
 	{
 		$gateway = new Gateway("websocket://0.0.0.0:3000", config('websocket.context'));
@@ -66,6 +79,9 @@ class WorkermanCommand extends Command
 		$gateway->registerAddress      = '127.0.0.1:1236';
 	}
 
+	/**
+	 * @return void
+	 */
 	private function startRegister()
 	{
 		new Register('text://0.0.0.0:1236');

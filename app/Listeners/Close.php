@@ -8,7 +8,13 @@ use App\Models\Rooms;
 
 class Close extends SocketListeners {
 
-	// Смена имени [room, name]
+	/**
+	 * Закрытие соединения
+	 * 
+	 * @param  array{room: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($client_id) {
 		foreach (Rooms::getAllRooms() as $hash => $users) {
 			if (in_array($client_id, $users)) {

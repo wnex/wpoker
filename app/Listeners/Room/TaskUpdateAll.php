@@ -9,14 +9,22 @@ use App\Models\Tasks;
 
 class TaskUpdateAll extends SocketListeners {
 
-	// Обновление всех тасков [room, tasks]
+	/**
+	 * Обновление всех тасков
+	 * 
+	 * @param  array{room: string, tasks: array}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		$room = Rooms::where('hash', $data['room'])->first();
+		if (is_null($room)) return;
+
 		$owner_id = Workerman::getOwnerId($room->owner);
 
 		if ($owner_id === $client_id) {
 			foreach ($data['tasks'] as $task) {
-				Tasks::where('id', $task['id'])->update([
+				Tasks::where('id', (string)$task['id'])->update([
 					'text' => $task['text'],
 					'order' => $task['order'],
 				]);

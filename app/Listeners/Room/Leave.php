@@ -8,7 +8,13 @@ use App\Models\Rooms;
 
 class Leave extends SocketListeners {
 
-	// Выход из комнаты [room]
+	/**
+	 * Выход из комнаты
+	 * 
+	 * @param  array{room: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		Rooms::removeUser($data['room'], $client_id);
 

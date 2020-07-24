@@ -9,9 +9,20 @@ use App\Models\Rooms;
 
 class TaskApprove extends SocketListeners {
 
-	// Подтверждение оценки [id, point]
+	/**
+	 * Подтверждение оценки
+	 * 
+	 * @param  array{id: string, point: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		$task = Tasks::where('id', $data['id'])->first();
+
+		if (is_null($task) OR is_null($task->room)) {
+			return;
+		}
+
 		$owner_id = Workerman::getOwnerId($task->room->owner);
 
 		if ($owner_id === $client_id) {

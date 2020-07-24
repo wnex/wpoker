@@ -38,7 +38,14 @@
 							<div class="toast-header">
 								<strong class="mr-auto">{{message.author_name}}</strong>
 								<small class="text-muted"><timer :created="message.date"></timer></small>
-								<button type="button" @click="remove(message.id)" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+								<button
+									type="button"
+									title="Hide this notification"
+									@click="remove(message.id)"
+									class="ml-2 mb-1 close"
+									data-dismiss="toast"
+									aria-label="Close"
+								>
 									<span aria-hidden="true">&times;</span>
 								</button>
 							</div>

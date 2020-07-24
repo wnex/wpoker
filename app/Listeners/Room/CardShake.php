@@ -8,7 +8,13 @@ use App\Models\Rooms;
 
 class CardShake extends SocketListeners {
 
-	// Пасхалки [room, point]
+	/**
+	 * Пасхалки
+	 * 
+	 * @param  array{room: string, point: string}  $data
+	 * @param  string $client_id
+	 * @return void
+	 */
 	public function handle($data, $client_id) {
 		$users_in_room = Rooms::getUsers($data['room']);
 		$this->sendToAll([

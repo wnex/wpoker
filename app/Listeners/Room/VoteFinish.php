@@ -8,7 +8,12 @@ use App\Models\Rooms;
 
 class VoteFinish extends SocketListeners {
 
-	// Оценка [room, vote]
+	/**
+	 * Окончание голосования
+	 * 
+	 * @param  string  $room
+	 * @return void
+	 */
 	public function handle($room) {
 		$users_in_room = Rooms::getUsers($room);
 
