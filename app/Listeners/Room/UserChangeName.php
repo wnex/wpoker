@@ -3,7 +3,6 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Rooms;
 
 class UserChangeName extends SocketListeners {
@@ -16,7 +15,7 @@ class UserChangeName extends SocketListeners {
 	 * @return void
 	 */
 	public function handle($data, $client_id) {
-		Workerman::setUser($client_id, [
+		$this->repository->setUser($client_id, [
 			'name' => $data['name'],
 		]);
 

@@ -11,7 +11,7 @@ class CardShake extends SocketListeners {
 	/**
 	 * Пасхалки
 	 * 
-	 * @param  array{room: string, point: string}  $data
+	 * @param  array{room: string, view: string}  $data
 	 * @param  string $client_id
 	 * @return void
 	 */
@@ -19,7 +19,7 @@ class CardShake extends SocketListeners {
 		$users_in_room = Rooms::getUsers($data['room']);
 		$this->sendToAll([
 			'action' => 'room.card.shake',
-			'point' => $data['point'],
+			'view' => $data['view'],
 		], $users_in_room);
 	}
 

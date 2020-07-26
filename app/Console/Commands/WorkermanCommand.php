@@ -8,8 +8,7 @@ use GatewayWorker\Register;
 use Illuminate\Console\Command;
 use Workerman\Worker;
 
-class WorkermanCommand extends Command
-{
+class WorkermanCommand extends Command {
 
 	/** @var string */
 	protected $signature = 'workman {action?} {--d} {--g}';
@@ -19,8 +18,7 @@ class WorkermanCommand extends Command
 	/**
 	 * @return void
 	 */
-	public function handle()
-	{
+	public function handle() {
 		global $argv;
 		$action = $this->argument('action');
 
@@ -29,11 +27,11 @@ class WorkermanCommand extends Command
 		$argv[2] = '';
 
 		if ($this->option('d')) {
-			$argv[2] = '-d'; 
+			$argv[2] = '-d';
 		}
 
 		if ($this->option('g')) {
-			$argv[2] = '-g'; 
+			$argv[2] = '-g';
 		}
 
 		$this->start();
@@ -42,8 +40,7 @@ class WorkermanCommand extends Command
 	/**
 	 * @return void
 	 */
-	private function start()
-	{
+	private function start() {
 		$this->startGateWay();
 		$this->startBusinessWorker();
 		$this->startRegister();
@@ -53,8 +50,7 @@ class WorkermanCommand extends Command
 	/**
 	 * @return void
 	 */
-	private function startBusinessWorker()
-	{
+	private function startBusinessWorker() {
 		$worker                  = new BusinessWorker();
 		$worker->name            = 'BusinessWorker';
 		$worker->count           = 2;
@@ -65,8 +61,7 @@ class WorkermanCommand extends Command
 	/**
 	 * @return void
 	 */
-	private function startGateWay()
-	{
+	private function startGateWay() {
 		$gateway = new Gateway("websocket://0.0.0.0:3000", config('websocket.context'));
 		$gateway->transport            = config('websocket.transport');
 		$gateway->name                 = 'Gateway';
@@ -82,8 +77,8 @@ class WorkermanCommand extends Command
 	/**
 	 * @return void
 	 */
-	private function startRegister()
-	{
+	private function startRegister() {
 		new Register('text://0.0.0.0:1236');
 	}
+
 }

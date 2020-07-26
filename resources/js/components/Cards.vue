@@ -12,23 +12,23 @@
 		</transition>
 
 		<div class="col-12">
-			<div v-if="approve" class="alert alert-warning mb-0" role="alert">
-				Approve final grade
+			<div v-if="approve" class="font-weight-bolder" role="alert">
+				You must confirm the grade for the current task in order to proceed.
 			</div>
 		</div>
 
 		<div
 			v-for="card in cards"
-			:key="card.point"
+			:key="card.view"
 			class="poker-card mb-3 d-flex col-3 col-md-2 pt-3 justify-content-between"
 		>
 			<div class="flip-container" :class="{'hover': canVote || approve}">
 				<div class="flipper">
 					<div class="front">
-						<img :src="cover" @click="cardShake(card.point)" :class="{'shake': card.shake}" width="100%">
+						<img :src="cover" @click="cardShake(card.view)" :class="{'shake': card.shake}" width="100%">
 					</div>
 					<div class="back">
-						<img :src="card.src" @click="vote(card.point)" width="100%">
+						<img :src="card.src" @click="vote(card.point, card.view)" width="100%">
 					</div>
 				</div>
 			</div>
@@ -60,38 +60,57 @@
 				{
 					src: '/images/cards/0.25.png',
 					point: 0.25,
+					view: '1/4',
 				},
 				{
 					src: '/images/cards/0.5.png',
 					point: 0.5,
+					view: '1/2',
 				},
 				{
 					src: '/images/cards/1.png',
 					point: 1,
+					view: '1',
 				},
 				{
 					src: '/images/cards/2.png',
 					point: 2,
+					view: '2',
 				},
 				{
 					src: '/images/cards/3.png',
 					point: 3,
+					view: '3',
 				},
 				{
 					src: '/images/cards/5.png',
 					point: 5,
+					view: '5',
 				},
 				{
 					src: '/images/cards/8.png',
 					point: 8,
+					view: '8',
 				},
 				{
 					src: '/images/cards/13.png',
 					point: 13,
+					view: '13',
 				},
 				{
 					src: '/images/cards/dragon.png',
 					point: 0,
+					view: '?',
+				},
+				{
+					src: '/images/cards/infinity.png',
+					point: 0,
+					view: 'ထ',
+				},
+				{
+					src: '/images/cards/0.png',
+					point: 0,
+					view: '0',
 				},
 			],
 		}),
@@ -99,7 +118,7 @@
 		mounted: function() {
 			this.socket.listener('room.card.shake', (data) => {
 				for (var i = 0; i < this.cards.length; i++) {
-					if (this.cards[i].point === data.point) {
+					if (this.cards[i].view === data.view) {
 						this.$set(this.cards[i], 'shake', true);
 
 						setTimeout(() => {
@@ -112,13 +131,14 @@
 		},
 
 		methods: {
-			vote(point) {
+			vote(point, view) {
 				if (this.canVote) {
 					this.selectPoint = point;
 					this.socket.send({
 						'action': 'room.vote',
 						'room': this.room,
-						'vote': point,
+						'point': point,
+						'view': view,
 					});
 				}
 
@@ -127,6 +147,7 @@
 						'action': 'room.task.approve',
 						'id': this.task.id,
 						'point': point,
+						'view': view,
 					});
 					this.stopApprove();
 				}
@@ -143,10 +164,10 @@
 			},
 
 			// Easter eggs
-			cardShake(point) {
+			cardShake(view) {
 				this.socket.send({
 					'action': 'room.card.shake',
-					'point': point,
+					'view': view,
 					'room': this.room,
 				});
 			},

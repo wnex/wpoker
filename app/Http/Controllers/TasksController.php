@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Rooms;
 use App\Models\Tasks;
-use GatewayWorker\Lib\Gateway;
+use App\Traits\SocketSendlerMessageTrait;
 use Illuminate\Http\Request;
 
 class TasksController extends Controller {
+
+	use SocketSendlerMessageTrait;
 
 	/**
 	 * @param  array{id: string, user: string, room: string, text: string, order: int}  $params
@@ -27,10 +29,10 @@ class TasksController extends Controller {
 		]);
 
 		$users_in_room = Rooms::getUsers($room->hash);
-		Gateway::sendToAll(json_encode([
+		$this->sendToAll([
 			'action' => 'room.task.add',
 			'task' => $task,
-		]), $users_in_room);
+		], $users_in_room);
 
 		return $task;
 	}
@@ -51,18 +53,18 @@ class TasksController extends Controller {
 			$task->save();
 
 			$users_in_room = Rooms::getUsers($task->room->hash);
-			Gateway::sendToAll(json_encode([
+			$this->sendToAll([
 				'action' => 'room.task.update',
 				'task' => $task,
-			]), $users_in_room);
+			], $users_in_room);
 
 			// Если голосование уже начато, задача могла поменятся
 			if ($task->room->haveActiveStage()) {
-				Gateway::sendToAll(json_encode([
+				$this->sendToAll([
 					'action' => 'room.vote.start',
 					'stage' => $task->room->stage,
 					'task' => $task->room->activeTask()->first(),
-				]), $users_in_room);
+				], $users_in_room);
 			}
 
 			return $task;
@@ -82,10 +84,10 @@ class TasksController extends Controller {
 
 		if ($task->room->isOwner($params['user'])) {
 			$users_in_room = Rooms::getUsers($task->room->hash);
-			Gateway::sendToAll(json_encode([
+			$this->sendToAll([
 				'action' => 'room.task.remove',
 				'id' => $task->id,
-			]), $users_in_room);
+			], $users_in_room);
 
 			return Tasks::where('id', $params['id'])->delete();
 		}

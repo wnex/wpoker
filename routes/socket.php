@@ -10,3 +10,5 @@ $router->add('task.get', '\App\Http\Controllers\TasksController@get');
 $router->add('task.create', '\App\Http\Controllers\TasksController@create');
 $router->add('task.update', '\App\Http\Controllers\TasksController@update');
 $router->add('task.delete', '\App\Http\Controllers\TasksController@delete');
+
+$router->add('new.get', '\App\Http\Controllers\NewsController@get');

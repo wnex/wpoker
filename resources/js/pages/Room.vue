@@ -151,6 +151,7 @@
 				for (var i = 0; i < this.users.length; i++) {
 					if (this.users[i].id === data.id) {
 						this.$set(this.users[i], 'vote', data.vote);
+						this.$set(this.users[i], 'voteView', data.voteView);
 						this.$set(this.users[i], 'isVoted', true);
 						break;
 					}
@@ -180,6 +181,7 @@
 				this.average = null;
 				for (var i = 0; i < this.users.length; i++) {
 					this.$set(this.users[i], 'vote', undefined);
+					this.$set(this.users[i], 'voteView', undefined);
 					this.$set(this.users[i], 'isVoted', false);
 				}
 				this.task = null;
@@ -229,9 +231,13 @@
 				let amount = 0,
 					count = 0;
 				for (var i = 0; i < this.users.length; i++) {
-					amount += this.users[i]['vote'];
-					count++;
+					if (this.users[i]['vote'] != 0) {
+						amount += this.users[i]['vote'];
+						count++;
+					}
 				}
+
+				if (count === 0) return 0;
 
 				return Math.round(amount/count*100) / 100;
 			},

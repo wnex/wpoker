@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 class Tasks extends Model {
 
 	/** @var array<string> */
-	protected $fillable = ['text', 'order', 'story_point', 'room_id'];
+	protected $fillable = ['text', 'order', 'story_point', 'story_point_view', 'room_id'];
 
 	/**
 	 * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

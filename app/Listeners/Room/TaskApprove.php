@@ -3,7 +3,6 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Tasks;
 use App\Models\Rooms;
 
@@ -12,7 +11,7 @@ class TaskApprove extends SocketListeners {
 	/**
 	 * Подтверждение оценки
 	 * 
-	 * @param  array{id: string, point: string}  $data
+	 * @param  array{id: string, point: string, view: string}  $data
 	 * @param  string $client_id
 	 * @return void
 	 */
@@ -23,10 +22,11 @@ class TaskApprove extends SocketListeners {
 			return;
 		}
 
-		$owner_id = Workerman::getOwnerId($task->room->owner);
+		$owner_id = $this->repository->getOwnerId($task->room->owner);
 
 		if ($owner_id === $client_id) {
 			$task->story_point = $data['point'];
+			$task->story_point_view = $data['view'];
 			$task->save();
 
 			$task->room->stage = 2;
@@ -37,6 +37,7 @@ class TaskApprove extends SocketListeners {
 				'action' => 'room.task.approve',
 				'id' => $data['id'],
 				'point' => $data['point'],
+				'view' => $data['view'],
 			], $users_in_room);
 
 			$this->sendToAll([
@@ -44,7 +45,7 @@ class TaskApprove extends SocketListeners {
 				'id' => uniqid(),
 				'author_id' => 0,
 				'author_name' => 'Server notification',
-				'message' => "Approved {$data['point']} story points",
+				'message' => "Approved {$data['view']} story points",
 				'date' => date('c'),
 				'notification' => true,
 			], $users_in_room);

@@ -3,7 +3,6 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Rooms;
 
 class Enter extends SocketListeners {
@@ -16,7 +15,7 @@ class Enter extends SocketListeners {
 	 * @return void
 	 */
 	public function handle($data, $client_id) {
-		Workerman::setUser($client_id, [
+		$this->repository->setUser($client_id, [
 			'id' => $client_id,
 			'room' => $data['room'],
 			'name' => $data['name'],
@@ -28,7 +27,7 @@ class Enter extends SocketListeners {
 		$room = Rooms::where('hash', $data['room'])->first();
 		if (is_null($room)) return;
 
-		$owner_id = Workerman::getOwnerId($room->owner);
+		$owner_id = $this->repository->getOwnerId($room->owner);
 
 		$users_in_room = Rooms::getUsers($data['room']);
 		$this->sendToAll([
@@ -43,7 +42,7 @@ class Enter extends SocketListeners {
 			'client_id' => $client_id,
 			'id' => $room->id,
 			'name' => $room->name,
-			'users' => Workerman::getAllUsers($data['room'], $room->stage === 2),
+			'users' => $this->repository->getAllUsers($data['room'], $room->stage === 2),
 			'owner' => $owner_id,
 			'stage' => $room->stage,
 			'task' => $room->activeTask()->first(),

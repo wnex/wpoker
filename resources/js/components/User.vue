@@ -1,7 +1,7 @@
 <template>
 	<li
 		class="list-group-item"
-		:class="{'d-flex justify-content-between lh-condensed px-4 py-2': !changeNameSwitcher}"
+		:class="{'d-flex justify-content-between lh-condensed px-3 py-2': !changeNameSwitcher}"
 	>
 		<div v-if="!changeNameSwitcherForSelf()" :class="{'text-success': user.isVoted}">
 			<h6 class="my-0">
@@ -27,7 +27,7 @@
 				<i class="fa fa-fw fa-sign-out" aria-hidden="true"></i>
 			</span>
 			<span v-if="user.vote === undefined && user.isVoted" class="empty-card">?</span>
-			<span class="badge user-control badge-primary">{{user.vote}}</span>
+			<span class="badge user-control badge-primary">{{user.voteView}}</span>
 		</span>
 
 		<form v-if="user.isSelf && changeNameSwitcher" @submit.prevent="saveName">
@@ -54,18 +54,8 @@
 
 		data: () => ({
 			name: '',
-			chart: false,
 			changeNameSwitcher: false,
 			changeNameErrorText: null,
-			points: ['0.25 sp', '0.5 sp', '1 sp', '2 sp', '3 sp', '5 sp', '8 sp', '13 sp', '0 sp'],
-			colors: ['#6574cd', '#e3342f', '#38c172', '#f6993f', '#9561e2', '#ffed4a', '#6cb2eb'],
-			chartOptions: {
-				legend: {
-					'position': 'bottom',
-				},
-				/*responsive: true,
-				maintainAspectRatio: false,*/
-			},
 		}),
 
 		mounted: function() {

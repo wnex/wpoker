@@ -3,7 +3,6 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Rooms;
 
 class UserKick extends SocketListeners {
@@ -19,7 +18,7 @@ class UserKick extends SocketListeners {
 		$room = Rooms::where('hash', $data['room'])->first();
 		if (is_null($room)) return;
 
-		$owner_id = Workerman::getOwnerId($room->owner);
+		$owner_id = $this->repository->getOwnerId($room->owner);
 
 		if ($owner_id === $client_id) {
 			Rooms::removeUser($data['room'], $data['id']);

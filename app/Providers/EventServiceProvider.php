@@ -30,11 +30,11 @@ class EventServiceProvider extends ServiceProvider
         'socket.room.task.update.all'       => [\App\Listeners\Room\TaskUpdateAll::class],
         'socket.room.task.approve'          => [\App\Listeners\Room\TaskApprove::class],
 
-
         'socket.room.chat.send'             => [\App\Listeners\Room\ChatSend::class],
 
-
-        'socket.close'                      => [\App\Listeners\Close::class],
+        'server.socket.start'               => [\App\Listeners\Start::class],
+        'server.socket.message'             => [\App\Listeners\Message::class],
+        'server.socket.close'               => [\App\Listeners\Close::class],
 
         'server.room.vote.finish'           => [\App\Listeners\Room\VoteFinish::class],
     ];

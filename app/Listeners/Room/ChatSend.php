@@ -3,7 +3,6 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Rooms;
 
 class ChatSend extends SocketListeners {
@@ -19,7 +18,7 @@ class ChatSend extends SocketListeners {
 		$users_in_room = Rooms::getUsers($data['room']);
 
 		if (empty($data['name'])) {
-			$data['name'] = Workerman::getUser($client_id);
+			$data['name'] = $this->repository->getUser($client_id);
 		}
 
 		$this->sendToAll([

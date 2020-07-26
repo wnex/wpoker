@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Rooms;
 
 class Close extends SocketListeners {
@@ -26,7 +25,7 @@ class Close extends SocketListeners {
 				'id' => $client_id,
 			], $users, [$client_id]);
 		}
-		Workerman::removeUser($client_id);
+		$this->repository->removeUser($client_id);
 	}
 
 }

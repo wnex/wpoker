@@ -2,7 +2,11 @@
 	<transition name="fade">
 		<div v-if="tasks.length || isOwner">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">
-				Tasks
+				<span>Tasks</span>
+				<div>
+					<span class="badge badge-secondary" title="Completed tasks/Number of tasks">{{completedTasks}}/{{tasks.length}}</span>
+					<span class="badge badge-primary" title="Amount story points">{{amount}}</span>
+				</div>
 			</h4>
 			<transition name="fade">
 				<form v-if="isOwner && !edit.enabled" @submit.prevent="add" class="mb-3">
@@ -51,7 +55,7 @@
 						v-for="task in tasks"
 						:key="task.id"
 						class="list-group-item d-flex justify-content-between lh-condensed task"
-						:class="{'task-complite': task.story_point}"
+						:class="{'task-complite': task.story_point_view}"
 					>
 						<div>
 							<span class="text-muted">#{{task.order}}</span>
@@ -64,7 +68,7 @@
 								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click="editInit(task.id)"></i>
 								<i class="fa fa-fw fa-trash-o button-icon" title="Delete" @click="remove(task.id)"></i>
 							</span>
-							<span v-if="task.story_point" class="story-point" title="Story points">{{task.story_point}}</span>
+							<span v-if="task.story_point_view" class="story-point" title="Story points">{{task.story_point_view}}</span>
 						</span>
 					</li>
 				</transition-group>
@@ -96,6 +100,7 @@
 			drag: false,
 			text: '',
 			tasks: [],
+			counter: 1,
 			edit: {
 				enabled: false,
 				text: '',
@@ -154,6 +159,7 @@
 				for (var i = 0; i < this.tasks.length; i++) {
 					if (this.tasks[i].id === data.id) {
 						this.$set(this.tasks[i], 'story_point', data.point);
+						this.$set(this.tasks[i], 'story_point_view', data.view);
 						this.save();
 						break;
 					}
@@ -185,11 +191,13 @@
 					text: this.text,
 					user: this.$root.getUser(),
 					room: this.room,
-					order: this.tasks.length + 1,
+					order: this.counter,
 				})
 					.then((result) => {
 						
 					});
+
+				this.counter++;
 				this.text = '';
 			},
 
@@ -273,6 +281,16 @@
 				}
 			},
 
+			completedTasks() {
+				let count = 0;
+				for (var i = 0; i < this.tasks.length; i++) {
+					if (this.tasks[i].story_point !== null && this.tasks[i].story_point !== undefined) {
+						count++;
+					}
+				}
+				return count;
+			},
+
 			haveUnratedTasks() {
 				for (var i = 0; i < this.tasks.length; i++) {
 					if (this.tasks[i].story_point === null || this.tasks[i].story_point === undefined) {
@@ -281,6 +299,22 @@
 				}
 
 				return false;
+			},
+
+			amount() {
+				let amount = 0;
+				for (var i = 0; i < this.tasks.length; i++) {
+					if (this.tasks[i].story_point !== null && this.tasks[i].story_point !== undefined) {
+						amount += parseFloat(this.tasks[i].story_point);
+					}
+				}
+				return amount;
+			},
+		},
+
+		watch: {
+			tasks() {
+				this.counter = this.tasks.length + 1;
 			},
 		},
 	}

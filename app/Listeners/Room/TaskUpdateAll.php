@@ -3,7 +3,6 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Events\Workerman;
 use App\Models\Rooms;
 use App\Models\Tasks;
 
@@ -20,7 +19,7 @@ class TaskUpdateAll extends SocketListeners {
 		$room = Rooms::where('hash', $data['room'])->first();
 		if (is_null($room)) return;
 
-		$owner_id = Workerman::getOwnerId($room->owner);
+		$owner_id = $this->repository->getOwnerId($room->owner);
 
 		if ($owner_id === $client_id) {
 			foreach ($data['tasks'] as $task) {
