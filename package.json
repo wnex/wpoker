@@ -13,6 +13,7 @@
         "axios": "^0.19",
         "babel-runtime": "^6.26.0",
         "bootstrap": "^4.5.0",
+        "chart.js": "^2.9.3",
         "cross-env": "^7.0",
         "css-loader": "^3.6.0",
         "jquery": "^3.2",
@@ -26,8 +27,10 @@
         "sass-loader": "^8.0.0",
         "style-loader": "^1.2.1",
         "vue": "^2.5.17",
+        "vue-chartjs": "^3.5.0",
         "vue-markdown": "^2.2.4",
-        "vue-template-compiler": "^2.6.10"
+        "vue-template-compiler": "^2.6.10",
+        "vuedraggable": "^2.24.0"
     },
     "dependencies": {
         "ts-loader": "^7.0.5",

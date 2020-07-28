@@ -12,23 +12,30 @@
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="bg-light" data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
-	<div class="container">
-		<div class="text-center">
-			@include('logo')
-			<h1 style="display: none;">Planning Poker</h1>
-			<p class="lead"></p>
-		</div>
 
-		<div id="app">
-			
-		</div>
+	<div id="app">
+		<nav class="navbar navbar-expand-lg navbar-dark mb-3">
+			<div class="container">
+				<a class="navbar-brand" href="/"><img class="logo" src="/images/logo_header.png"></a>
+				<h1 style="display: none;">Planning Poker</h1>
+				<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
 
-		<footer class="my-5 pt-5 text-muted text-center text-small">
-			<p class="mb-1">© {{date('Y') > 2020 ? '2020-'.date('Y') : date('Y')}} wNex</p>
-			<ul class="list-inline">
-				<li class="list-inline-item"><a href="#"></a></li>
-			</ul>
-		</footer>
+				<menu-list></menu-list>
+			</div>
+		</nav>
+
+		<div class="container">
+			<app></app>
+
+			<footer class="my-5 pt-5 text-muted text-center text-small">
+				<p class="mb-1">© {{date('Y') > 2020 ? '2020-'.date('Y') : date('Y')}} wNex</p>
+				<ul class="list-inline">
+					<li class="list-inline-item"><a href="#"></a></li>
+				</ul>
+			</footer>
+		</div>
 	</div>
 
 	<script type="text/javascript" src="{{ mix('js/app.js') }}"></script>

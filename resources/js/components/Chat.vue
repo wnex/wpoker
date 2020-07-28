@@ -11,7 +11,7 @@
 						@keydown.enter.exact.prevent="send"
 						class="form-control"
 						v-model="message"
-						aria-label="Enter your name"
+						placeholder="Enter your message"
 					></textarea>
 					<div class="input-group-append">
 						<button type="submit" class="btn btn-secondary">Send</button>
@@ -19,32 +19,43 @@
 				</div>
 			</form>
 		</div>
-		<div v-if="messages.length" class="chat-block" aria-live="polite" aria-atomic="true">
-			<div class="mb-2" style="display: flex; flex-direction: column;">
-				<button type="submit" @click="clearAll()" class="btn btn-outline-secondary">Clear</button>
-			</div>
-			<div id="message-block" class="message-block">
-				<div
-					v-for="message in messages"
-					:key="message.id"
-					class="toast show"
-					role="alert"
-					aria-live="assertive"
-					aria-atomic="true"
-					data-autohide="false"
-				>
-					<div class="toast-header">
-						<strong class="mr-auto">{{message.author_name}}</strong>
-						<small class="text-muted"><timer :created="message.date"></timer></small>
-						<button type="button" @click="remove(message.id)" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-							<span aria-hidden="true">&times;</span>
-						</button>
-					</div>
-					<div class="toast-body"><vue-markdown :html="false" :anchorAttributes="{target: 'blank', rel: 'nofollow'}">{{message.message}}</vue-markdown></div>
+		<transition name="fade">
+			<div v-if="messages.length" class="chat-block" aria-live="polite" aria-atomic="true">
+				<div class="mb-2" style="display: flex; flex-direction: column;">
+					<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Clear</button>
 				</div>
-				<div id="anchor"></div>
+				<div id="message-block" class="message-block">
+					<transition-group name="list">
+						<div
+							v-for="message in messages"
+							:key="message.id"
+							class="toast show"
+							role="alert"
+							aria-live="assertive"
+							aria-atomic="true"
+							data-autohide="false"
+						>
+							<div class="toast-header">
+								<strong class="mr-auto">{{message.author_name}}</strong>
+								<small class="text-muted"><timer :created="message.date"></timer></small>
+								<button
+									type="button"
+									title="Hide this notification"
+									@click="remove(message.id)"
+									class="ml-2 mb-1 close"
+									data-dismiss="toast"
+									aria-label="Close"
+								>
+									<span aria-hidden="true">&times;</span>
+								</button>
+							</div>
+							<div class="toast-body"><vue-markdown :html="false" :anchorAttributes="{target: 'blank', rel: 'nofollow'}">{{message.message}}</vue-markdown></div>
+						</div>
+					</transition-group>
+					<div id="anchor"></div>
+				</div>
 			</div>
-		</div>
+		</transition>
 	</div>
 </template>
 
@@ -62,7 +73,7 @@
 	import 'prismjs/components/prism-bash';
 
 	export default {
-		props: ['socket', 'hash'],
+		props: ['socket', 'room'],
 
 		components: {
 			Timer,
@@ -79,8 +90,15 @@
 		},
 
 		mounted: function() {
-			if (localStorage['messages-'+this.hash]) {
-				this.messages = JSON.parse(localStorage['messages-'+this.hash]);
+			if (localStorage['messages-'+this.room.hash]) {
+				this.messages = JSON.parse(localStorage['messages-'+this.room.hash]);
+				for (var i = 0; i < this.messages.length; i++) {
+					if (this.messages[i].notification) {
+						setTimeout(() => {
+							this.remove(data.id);
+						}, 5000);
+					}
+				}
 				this.save();
 			}
 
@@ -91,7 +109,14 @@
 					author_name: data.author_name,
 					message: data.message,
 					date: moment().format(),
+					notification: data.notification,
 				});
+
+				if (data.notification) {
+					setTimeout(() => {
+						this.remove(data.id);
+					}, 10000);
+				}
 
 				this.save();
 
@@ -108,7 +133,7 @@
 				if (this.message !== '') {
 					this.socket.send({
 						'action': 'room.chat.send',
-						'room': this.hash,
+						'room': this.room.hash,
 						'name': this.$root.name,
 						'message': this.message,
 					});
@@ -127,7 +152,7 @@
 			},
 
 			save() {
-				localStorage['messages-'+this.hash] = JSON.stringify(this.messages);
+				localStorage['messages-'+this.room.hash] = JSON.stringify(this.messages);
 
 				this.$nextTick(() => {
 					var block = document.getElementById('anchor');
@@ -170,7 +195,7 @@
 	}
 
 	.message-block {
-		overflow-y: hidden;
+		overflow: hidden;
 		max-height: calc(100vh - 58px);
 		overflow-anchor: none;
 	}
@@ -195,5 +220,32 @@
 
 	textarea {
 		min-height: 38px;
+	}
+
+	.clear-all {
+		background-color: rgba(255,255,255,.85);
+		border: 1px solid rgba(0,0,0,.1);
+		backdrop-filter: blur(10px);
+	}
+	.clear-all:hover {
+		background-color: rgba(108,117,125,.85);
+	}
+
+	.fade-enter-active {
+		transition: opacity .5s;
+	}
+	.fade-leave-active {
+		transition: opacity .5s;
+	}
+	.fade-enter, .fade-leave-to {
+		opacity: 0;
+	}
+
+	.list-enter-active, .list-leave-active {
+		transition: transform .5s, opacity .5s;
+	}
+	.list-enter, .list-leave-to {
+		opacity: 0;
+		transform: translateX(30px);
 	}
 </style>

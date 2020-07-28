@@ -12,7 +12,6 @@ interface Listeners {
 export default class Socket {
 
 	public socket !: WebSocket;
-	//private listeners : Function[] = [];
 	private listeners : Listeners = {};
 
 	private openFunc : Function = () => {};
@@ -20,6 +19,9 @@ export default class Socket {
 
 	private requests : Data[] = [];
 	private response : Listeners = {};
+
+	private pingPong !: NodeJS.Timeout;
+	private pingPongTimeout : number = 30;
 
 	constructor (address : string, port? : number, reconnect : boolean = true) {
 		if (port === undefined) {
@@ -43,6 +45,12 @@ export default class Socket {
 				}
 				this.requests = [];
 			}
+
+			this.pingPong = setInterval(() => {
+				this.send({
+					type: 'ping',
+				});
+			}, this.pingPongTimeout * 1000);
 		}, false);
 
 		if (reconnect) {
@@ -116,6 +124,7 @@ export default class Socket {
 	}
 
 	public close(callback : Function) {
+		clearInterval(this.pingPong);
 		this.closeFunc = callback;
 	}
 

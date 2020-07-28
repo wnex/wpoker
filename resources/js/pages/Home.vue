@@ -2,15 +2,29 @@
 	<div class="row">
 		<div class="col-md-4 order-md-2 mb-4">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">Your name</h4>
-			<div class="input-group">
-				<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
-				<div class="input-group-append">
-					<button type="submit" @click.prevent="saveName" class="btn btn-secondary">Save</button>
+
+			<form @submit.prevent="saveName">
+				<text-error :text="changeNameErrorText"></text-error>
+				<div class="input-group">
+					<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-secondary">Save</button>
+					</div>
 				</div>
-			</div>
+			</form>
 		</div>
 		<div class="col-md-8 order-md-1">
 			<h4 class="mb-3">Room list</h4>
+			<form @submit.prevent="createRoom">
+				<text-error :text="roomErrorText"></text-error>
+				<div class="input-group mb-4">
+					<input type="text" v-model="nameNewRoom" class="form-control" placeholder="Room name">
+					<div class="input-group-append">
+						<button type="submit" class="btn btn-primary">New room</button>
+					</div>
+				</div>
+			</form>
+
 			<ul v-if="rooms.length > 0" class="list-group mb-3">
 				<li v-for="room in rooms" class="list-group-item d-flex justify-content-between lh-condensed">
 					<router-link link :to="{name: 'room', params: {hash: room.hash}}" style="cursor: pointer;">
@@ -21,31 +35,28 @@
 					</span>
 				</li>
 			</ul>
-			<form @submit.prevent="createRoom">
-				<div class="input-group mb-4">
-					<input type="text" v-model="nameNewRoom" class="form-control" placeholder="Room name">
-					<div class="input-group-append">
-						<button type="submit" class="btn btn-primary">New room</button>
-					</div>
-				</div>
-			</form>
+			
 		</div>
 	</div>
 </template>
 
 <script>
 	import Socket from '@/js/modules/Socket';
+	import TextError from '@/js/components/TextError';
 
 	export default {
-		components: {
+		props: ['socket'],
 
+		components: {
+			TextError,
 		},
 
 		data: () => ({
 			rooms: [],
 			name: '',
+			roomErrorText: null,
+			changeNameErrorText: null,
 			nameNewRoom: '',
-			socket: null,
 			loading: false,
 		}),
 
@@ -57,8 +68,6 @@
 			if (localStorage.rooms) {
 				this.rooms = JSON.parse(localStorage.rooms);
 			}
-
-			this.socket = new Socket(document.body.dataset.socket);
 
 			let promise = this.socket.request('room.get', {
 				owner: this.$root.getUser(),
@@ -78,16 +87,17 @@
 		methods: {
 			saveName() {
 				if (this.name === '') {
-					alert('Error! Empty name.');
+					this.changeNameErrorText = 'Empty name.';
 					return false;
 				}
 
 				localStorage.name = this.name;
+				this.changeNameErrorText = null;
 			},
 
 			createRoom() {
 				if (this.nameNewRoom === '') {
-					alert('Error! Empty name.');
+					this.roomErrorText = 'Empty name.';
 					return false;
 				}
 
@@ -100,6 +110,8 @@
 						localStorage.rooms = JSON.stringify(this.rooms);
 						this.nameNewRoom = '';
 					});
+
+				this.roomErrorText = null;
 			},
 
 			deleteRoom(id) {

@@ -1,17 +1,21 @@
 <?php
-
 namespace App\Listeners;
 
-use GatewayWorker\Lib\Gateway;
+use App\Repositories\ClientRepository;
+use App\Traits\SocketSendlerMessageTrait;
 
 class SocketListeners {
 
-	public function sendToAll($data, $client_id_array = null, $exclude_client_id = null) {
-		return Gateway::sendToAll(json_encode($data), $client_id_array, $exclude_client_id);
-	}
+	use SocketSendlerMessageTrait;
 
-	public function sendToCurrentClient($data) {
-		return Gateway::sendToCurrentClient(json_encode($data));
+	/** @var ClientRepository */
+	protected $repository;
+
+	/**
+	 * @param ClientRepository $repository
+	 */
+	public function __construct(ClientRepository $repository) {
+		$this->repository = $repository;
 	}
 
 }

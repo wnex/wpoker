@@ -8,15 +8,17 @@ use GatewayWorker\Register;
 use Illuminate\Console\Command;
 use Workerman\Worker;
 
-class WorkermanCommand extends Command
-{
+class WorkermanCommand extends Command {
 
+	/** @var string */
 	protected $signature = 'workman {action?} {--d} {--g}';
-
+	/** @var string */
 	protected $description = 'Start a Workerman server.';
 
-	public function handle()
-	{
+	/**
+	 * @return void
+	 */
+	public function handle() {
 		global $argv;
 		$action = $this->argument('action');
 
@@ -25,26 +27,30 @@ class WorkermanCommand extends Command
 		$argv[2] = '';
 
 		if ($this->option('d')) {
-			$argv[2] = '-d'; 
+			$argv[2] = '-d';
 		}
 
 		if ($this->option('g')) {
-			$argv[2] = '-g'; 
+			$argv[2] = '-g';
 		}
 
 		$this->start();
 	}
 
-	private function start()
-	{
+	/**
+	 * @return void
+	 */
+	private function start() {
 		$this->startGateWay();
 		$this->startBusinessWorker();
 		$this->startRegister();
 		Worker::runAll();
 	}
 
-	private function startBusinessWorker()
-	{
+	/**
+	 * @return void
+	 */
+	private function startBusinessWorker() {
 		$worker                  = new BusinessWorker();
 		$worker->name            = 'BusinessWorker';
 		$worker->count           = 2;
@@ -52,22 +58,27 @@ class WorkermanCommand extends Command
 		$worker->eventHandler    = \App\Events\Workerman::class;
 	}
 
-	private function startGateWay()
-	{
+	/**
+	 * @return void
+	 */
+	private function startGateWay() {
 		$gateway = new Gateway("websocket://0.0.0.0:3000", config('websocket.context'));
 		$gateway->transport            = config('websocket.transport');
 		$gateway->name                 = 'Gateway';
 		$gateway->count                = 1;
 		$gateway->lanIp                = '127.0.0.1';
 		$gateway->startPort            = 2300;
-		//$gateway->pingInterval         = 30;
-		//$gateway->pingNotResponseLimit = 0;
-		//$gateway->pingData             = '{"type":"@heart@"}';
+		$gateway->pingInterval         = 30;
+		$gateway->pingNotResponseLimit = 1;
+		$gateway->pingData             = '';
 		$gateway->registerAddress      = '127.0.0.1:1236';
 	}
 
-	private function startRegister()
-	{
+	/**
+	 * @return void
+	 */
+	private function startRegister() {
 		new Register('text://0.0.0.0:1236');
 	}
+
 }
