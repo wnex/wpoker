@@ -1,10 +1,8 @@
-<p align="center">
-
-</p>
-
 ## Planning Poker
 
 Sprint planning project.
+
+Site: [poker.wnex.ru](https://poker.wnex.ru)
 
 Author Dmitriy Tyugaev.
 
