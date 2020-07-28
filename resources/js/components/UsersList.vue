@@ -6,7 +6,7 @@
 				<span class="badge badge-secondary">{{users.length}}</span>
 			</h4>
 			<ul class="list-group mb-3">
-				<user v-for="user in users" :key="user.id" :socket="socket" :user="user" :isOwner="isOwner" :room="room"></user>
+				<user v-for="user in users" :key="user.id" :socket="socket" :user="user" :room="room"></user>
 
 				<li v-if="average !== null" class="list-group-item d-flex justify-content-between px-3 py-2">
 					<span>Average</span>
@@ -26,7 +26,7 @@
 	import User from '@/js/components/User';
 
 	export default {
-		props: ['socket', 'users', 'room', 'isOwner', 'average', 'selfId'],
+		props: ['socket', 'users', 'room', 'average'],
 
 		components: {
 			User,
@@ -35,7 +35,6 @@
 
 		data: () => ({
 			chart: false,
-			//points: ['0.25 sp', '0.5 sp', '1 sp', '2 sp', '3 sp', '5 sp', '8 sp', '13 sp', '0 sp'],
 			colors: ['#6574cd', '#e3342f', '#38c172', '#f6993f', '#9561e2', '#ffed4a', '#6cb2eb'],
 			chartOptions: {
 				legend: {

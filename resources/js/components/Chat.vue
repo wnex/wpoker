@@ -90,8 +90,8 @@
 		},
 
 		mounted: function() {
-			if (localStorage['messages-'+this.room]) {
-				this.messages = JSON.parse(localStorage['messages-'+this.room]);
+			if (localStorage['messages-'+this.room.hash]) {
+				this.messages = JSON.parse(localStorage['messages-'+this.room.hash]);
 				for (var i = 0; i < this.messages.length; i++) {
 					if (this.messages[i].notification) {
 						setTimeout(() => {
@@ -133,7 +133,7 @@
 				if (this.message !== '') {
 					this.socket.send({
 						'action': 'room.chat.send',
-						'room': this.room,
+						'room': this.room.hash,
 						'name': this.$root.name,
 						'message': this.message,
 					});
@@ -152,7 +152,7 @@
 			},
 
 			save() {
-				localStorage['messages-'+this.room] = JSON.stringify(this.messages);
+				localStorage['messages-'+this.room.hash] = JSON.stringify(this.messages);
 
 				this.$nextTick(() => {
 					var block = document.getElementById('anchor');

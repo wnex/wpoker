@@ -6,7 +6,16 @@
 	import moment from 'moment';
 
 	export default {
-		props: ['created'],
+		props: {
+			created: {
+				type: String,
+				required: true,
+			},
+			refreshEvery : {
+				type: Number,
+				default: 5,
+			},
+		},
 
 		data () {
 			return {
@@ -15,7 +24,7 @@
 		},
 		created () {
 			this.getTimeFromNow();
-			setInterval(this.getTimeFromNow, 1000);
+			setInterval(this.getTimeFromNow, this.refreshEvery * 1000);
 		},
 		destroyed () {
 			clearInterval(this.getTimeFromNow);

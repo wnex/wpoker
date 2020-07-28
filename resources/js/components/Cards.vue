@@ -1,11 +1,11 @@
 <template>
 	<div class="row mb-3 pt-3" :class="{'approve': approve}">
 		<transition name="fade">
-			<div v-if="task" class="mb-3 col-12">
+			<div v-if="room.task" class="mb-3 col-12">
 				<vue-markdown
 					:html="false"
 					:anchorAttributes="anchorAttributes"
-					:source="task.text"
+					:source="room.task.text"
 					class="alert alert-primary mb-0 p-2"
 				></vue-markdown>
 			</div>
@@ -47,7 +47,7 @@
 	import 'prismjs/components/prism-bash';
 
 	export default {
-		props: ['socket', 'canVote', 'room', 'task'],
+		props: ['socket', 'canVote', 'room'],
 
 		components: {
 			VueMarkdown,
@@ -136,7 +136,7 @@
 					this.selectPoint = point;
 					this.socket.send({
 						'action': 'room.vote',
-						'room': this.room,
+						'room': this.room.hash,
 						'point': point,
 						'view': view,
 					});
@@ -145,7 +145,7 @@
 				if (this.approve) {
 					this.socket.send({
 						'action': 'room.task.approve',
-						'id': this.task.id,
+						'id': this.room.task.id,
 						'point': point,
 						'view': view,
 					});
@@ -154,7 +154,7 @@
 			},
 
 			startApprove() {
-				if (this.task !== null) {
+				if (this.room.task !== null) {
 					this.approve = true;
 				}
 			},
@@ -168,7 +168,7 @@
 				this.socket.send({
 					'action': 'room.card.shake',
 					'view': view,
-					'room': this.room,
+					'room': this.room.hash,
 				});
 			},
 		},

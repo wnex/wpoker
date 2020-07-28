@@ -19,7 +19,7 @@
 				<i class="fa fa-fw fa-pencil" aria-hidden="true"></i>
 			</span>
 			<span
-				v-if="isOwner && !user.isOwner"
+				v-if="room.isOwner && !user.isOwner"
 				title="Kick this user"
 				class="badge user-control pointer"
 				@click="kickOut(user.id)"
@@ -46,7 +46,7 @@
 	import TextError from '@/js/components/TextError';
 
 	export default {
-		props: ['socket', 'user', 'isOwner', 'room'],
+		props: ['socket', 'user', 'room'],
 
 		components: {
 			TextError,
@@ -81,7 +81,7 @@
 				this.socket.send({
 					'action': 'room.user.changeName',
 					'name': this.name,
-					'room': this.room,
+					'room': this.room.hash,
 				});
 
 				this.changeNameErrorText = null;
@@ -96,7 +96,7 @@
 					this.socket.send({
 						'action': 'room.user.kick',
 						'id': client_id,
-						'room': this.room,
+						'room': this.room.hash,
 					});
 				}
 			},

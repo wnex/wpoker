@@ -1,6 +1,6 @@
 <template>
 	<transition name="fade">
-		<div v-if="tasks.length || isOwner">
+		<div v-if="tasks.length || room.isOwner">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">
 				<span>Tasks</span>
 				<div>
@@ -9,7 +9,7 @@
 				</div>
 			</h4>
 			<transition name="fade">
-				<form v-if="isOwner && !edit.enabled" @submit.prevent="add" class="mb-3">
+				<form v-if="room.isOwner && !edit.enabled" @submit.prevent="add" class="mb-3">
 					<div class="input-group">
 						<textarea
 							rows="2"
@@ -24,7 +24,7 @@
 					</div>
 				</form>
 			</transition>
-			<form v-if="isOwner && edit.enabled" @submit.prevent="editSave" class="mb-3">
+			<form v-if="room.isOwner && edit.enabled" @submit.prevent="editSave" class="mb-3">
 				<div class="input-group">
 					<textarea
 						rows="2"
@@ -63,7 +63,7 @@
 						</div>
 						
 						<span class="control text-muted">
-							<span v-if="isOwner" class="control-owner">
+							<span v-if="room.isOwner" class="control-owner">
 								<i class="fa fa-fw fa-align-justify handle" title="Sort"></i>
 								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click="editInit(task.id)"></i>
 								<i class="fa fa-fw fa-trash-o button-icon" title="Delete" @click="remove(task.id)"></i>
@@ -89,7 +89,7 @@
 	import 'prismjs/components/prism-bash';
 	
 	export default {
-		props: ['socket', 'room', 'id', 'isOwner'],
+		props: ['socket', 'room'],
 
 		components: {
 			VueMarkdown,
@@ -109,12 +109,12 @@
 		}),
 
 		mounted: function() {
-			if (localStorage['tasks-'+this.room]) {
-				this.tasks = JSON.parse(localStorage['tasks-'+this.room]);
+			if (localStorage['tasks-'+this.room.hash]) {
+				this.tasks = JSON.parse(localStorage['tasks-'+this.room.hash]);
 			}
 
 			let promise = this.socket.request('task.get', {
-				room: this.room,
+				room: this.room.hash,
 			})
 				.then((result) => {
 					this.tasks = result.data;
@@ -190,7 +190,7 @@
 				let promise = this.socket.request('task.create', {
 					text: this.text,
 					user: this.$root.getUser(),
-					room: this.room,
+					room: this.room.hash,
 					order: this.counter,
 				})
 					.then((result) => {
@@ -244,13 +244,13 @@
 			},
 
 			save() {
-				localStorage['tasks-'+this.room] = JSON.stringify(this.tasks);
+				localStorage['tasks-'+this.room.hash] = JSON.stringify(this.tasks);
 			},
 
 			saveInServer() {
 				this.socket.send({
 					action: 'room.task.update.all',
-					room: this.room,
+					room: this.room.hash,
 					tasks: this.tasks,
 					owner: this.$root.getUser(),
 				});
