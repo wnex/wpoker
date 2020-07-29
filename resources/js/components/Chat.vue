@@ -125,7 +125,9 @@
 				});
 			});
 
-			
+			this.$nextTick(() => {
+				Prism.highlightAll();
+			});
 		},
 
 		methods: {

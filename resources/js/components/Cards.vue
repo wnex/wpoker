@@ -183,7 +183,7 @@
 		},
 
 		watch: {
-			task() {
+			'room.task'() {
 				this.$nextTick(() => {
 					Prism.highlightAll();
 				});
