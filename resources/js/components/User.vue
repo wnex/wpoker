@@ -9,11 +9,11 @@
 			</h6>
 			<small class="text-muted">{{user.isOwner ? 'Owner' : 'Guest'}}</small>
 		</div>
-		<span v-if="!changeNameSwitcher" class="text-muted">
+		<span v-if="!changeNameSwitcher" class="text-muted d-flex panel-buttons">
 			<span
 				v-if="user.isSelf"
 				title="Change name"
-				class="badge user-control pointer"
+				class="badge pr-0 user-control pointer"
 				@click.prevent="changeName"
 			>
 				<i class="fa fa-fw fa-pencil" aria-hidden="true"></i>
@@ -21,13 +21,13 @@
 			<span
 				v-if="room.isOwner && !user.isOwner"
 				title="Kick this user"
-				class="badge user-control pointer"
+				class="badge pr-0 user-control pointer"
 				@click="kickOut(user.id)"
 			>
 				<i class="fa fa-fw fa-sign-out" aria-hidden="true"></i>
 			</span>
-			<span v-if="user.vote === undefined && user.isVoted" class="empty-card">?</span>
-			<span class="badge user-control badge-primary">{{user.voteView}}</span>
+			<span v-if="user.vote === undefined && user.isVoted" class="empty-card ml-1"></span>
+			<span class="badge user-control badge-primary ml-1">{{user.voteView}}</span>
 		</span>
 
 		<form v-if="user.isSelf && changeNameSwitcher" @submit.prevent="saveName">
@@ -105,6 +105,10 @@
 </script>
 
 <style scoped>
+	.panel-buttons {
+		align-items: flex-start;
+	}
+
 	.pointer {
 		cursor: pointer;
 	}
@@ -114,6 +118,7 @@
 	}
 
 	.empty-card {
+		text-align: center;
 		width: 22px;
 		height: 24px;
 		color: #007bff;

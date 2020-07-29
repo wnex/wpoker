@@ -8,10 +8,6 @@
 			socket: {
 				required: true,
 			},
-			refreshEvery: {
-				type: Number,
-				default: 5,
-			},
 		},
 
 		data() {

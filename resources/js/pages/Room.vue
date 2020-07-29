@@ -264,8 +264,6 @@
 			canReVoteButton() {
 				return this.stage === 2 && this.$refs.tasksList.haveUnratedTasks && this.$refs.cards.approve;
 			},
-
-			
 		},
 
 		watch: {

@@ -1,3 +1,5 @@
+import HashGenerator from './HashGenerator';
+
 interface Data {
 	action: string,
 	type?: string,
@@ -10,8 +12,7 @@ interface Listeners {
 }
 
 export default class Socket {
-
-	public socket !: WebSocket;
+	public socket : WebSocket;
 	private listeners : Listeners = {};
 
 	private openFunc : Function = () => {};
@@ -23,6 +24,8 @@ export default class Socket {
 	private pingPong !: NodeJS.Timeout;
 	private pingPongTimeout : number = 30;
 
+	private hashGenerator : HashGenerator;
+
 	constructor (address : string, port? : number, reconnect : boolean = true) {
 		if (port === undefined) {
 			let parts = address.split(':');
@@ -30,13 +33,15 @@ export default class Socket {
 			port = parseInt(parts[2]);
 		}
 
-		this.connect(address, port, reconnect);
+		this.hashGenerator = new HashGenerator;
+
+		this.socket = this.connect(address, port, reconnect);
 	}
 
-	public connect(address : string, port : number, reconnect : boolean = true) {
-		this.socket = new WebSocket(address+":"+port);
+	public connect(address : string, port : number, reconnect : boolean = true) : WebSocket {
+		let socket = new WebSocket(address+":"+port);
 
-		this.socket.addEventListener('open', () => {
+		socket.addEventListener('open', () => {
 			this.openFunc.call(this);
 
 			if (this.requests.length > 0) {
@@ -50,13 +55,13 @@ export default class Socket {
 		}, false);
 
 		if (reconnect) {
-			this.socket.addEventListener('close', () => {
+			socket.addEventListener('close', () => {
 				this.closeFunc.call(this);
 				setTimeout(() => this.connect(address, port, reconnect), 1000);
 			}, false);
 		}
 
-		this.socket.addEventListener('message', (etv) => {
+		socket.addEventListener('message', (etv) => {
 			let data : Data = JSON.parse(etv.data);
 
 			if (
@@ -75,6 +80,8 @@ export default class Socket {
 				this.listeners[data.action].call(this, data);
 			}
 		});
+
+		return socket;
 	}
 
 	private setPongPongTimeout() {
@@ -97,7 +104,7 @@ export default class Socket {
 
 	public request(action : string, params : any) : Promise<Data> {
 		return new Promise((resolve, reject) => {
-			let request_id = this.generateId(16),
+			let request_id = this.hashGenerator.generate(16),
 				data : Data = {
 					'action': action,
 					'type': 'request',
@@ -132,20 +139,6 @@ export default class Socket {
 	public close(callback : Function) {
 		clearInterval(this.pingPong);
 		this.closeFunc = callback;
-	}
-
-
-	private dec2hex(dec : number) : string {
-		return dec < 10
-			? '0' + String(dec)
-			: dec.toString(16)
-	}
-
-	// generateId :: Integer -> String
-	public generateId(length : number) {
-		var arr = new Uint32Array((length || 40) / 2);
-		window.crypto.getRandomValues(arr);
-		return Array.from(arr, this.dec2hex).join('').substr(0, length);;
 	}
 
 }

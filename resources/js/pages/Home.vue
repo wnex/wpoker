@@ -133,14 +133,6 @@
 			},
 			
 		},
-
-		computed: {
-			
-		},
-
-		watch: {
-
-		},
 	}
 </script>
 
