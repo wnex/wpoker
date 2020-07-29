@@ -1,10 +1,12 @@
 import './bootstrap';
 import Vue from 'vue';
 
+import Socket from '@/js/modules/Socket';
 import Routes from '@/js/routes.js';
 
 import App from '@/js/views/App';
 import MenuList from '@/js/components/MenuList';
+import Statistics from '@/js/components/Statistics';
 
 const app = new Vue({
 	el: '#app',
@@ -12,12 +14,18 @@ const app = new Vue({
 	//render: h => h(App),
 
 	components: {
-		App: App,
-		MenuList: MenuList,
+		App,
+		MenuList,
+		Statistics,
 	},
 
 	data: {
 		name: '',
+		socket: null,
+	},
+
+	created: function() {
+		this.socket = new Socket(document.body.dataset.socket);
 	},
 
 	mounted: function() {

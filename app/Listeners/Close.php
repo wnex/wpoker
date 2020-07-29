@@ -26,6 +26,8 @@ class Close extends SocketListeners {
 			], $users, [$client_id]);
 		}
 		$this->repository->removeUser($client_id);
+
+		event('server.online.update');
 	}
 
 }

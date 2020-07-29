@@ -3,15 +3,15 @@
 </template>
 
 <script>
-	import Socket from '@/js/modules/Socket';
-
 	export default {
-		data: () => ({
-			socket: null,
-		}),
-
-		created: function() {
-			this.socket = new Socket(document.body.dataset.socket);
+		props: {
+			socket: {
+				required: true,
+			},
 		},
+
+		data: () => ({
+			
+		}),
 	}
 </script>

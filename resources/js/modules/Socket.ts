@@ -46,11 +46,7 @@ export default class Socket {
 				this.requests = [];
 			}
 
-			this.pingPong = setInterval(() => {
-				this.send({
-					type: 'ping',
-				});
-			}, this.pingPongTimeout * 1000);
+			this.setPongPongTimeout();
 		}, false);
 
 		if (reconnect) {
@@ -81,8 +77,18 @@ export default class Socket {
 		});
 	}
 
+	private setPongPongTimeout() {
+		clearTimeout(this.pingPong);
+		this.pingPong = setTimeout(() => {
+			this.send({
+				type: 'ping',
+			});
+		}, this.pingPongTimeout * 1000);
+	}
+
 	public send(data : any) {
 		this.socket.send(JSON.stringify(data));
+		this.setPongPongTimeout();
 	}
 
 	public listener(action : string, callback : Function) {

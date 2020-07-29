@@ -5,7 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Rooms;
 use App\Models\Tasks;
 use App\Traits\SocketSendlerMessageTrait;
-use Illuminate\Http\Request;
 
 class TasksController extends Controller {
 

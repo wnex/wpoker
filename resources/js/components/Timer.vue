@@ -11,7 +11,7 @@
 				type: String,
 				required: true,
 			},
-			refreshEvery : {
+			refreshEvery: {
 				type: Number,
 				default: 5,
 			},

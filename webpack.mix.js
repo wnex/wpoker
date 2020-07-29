@@ -15,7 +15,7 @@ const webpack = require('webpack');
 mix.js('resources/js/app.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css');
 
-mix.version();
+mix.version().extract();
 
 mix.webpackConfig({
 	module: {

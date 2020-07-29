@@ -13,6 +13,8 @@
 </head>
 <body class="bg-light" data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
 
+	@include('analytics')
+
 	<div id="app">
 		<nav class="navbar navbar-expand-lg navbar-dark mb-3">
 			<div class="container">
@@ -27,9 +29,10 @@
 		</nav>
 
 		<div class="container">
-			<app></app>
+			<app :socket="socket"></app>
 
 			<footer class="my-5 pt-5 text-muted text-center text-small">
+				<statistics :socket="socket" :refresh-every="300"></statistics>
 				<p class="mb-1">© {{date('Y') > 2020 ? '2020-'.date('Y') : date('Y')}} wNex</p>
 				<ul class="list-inline">
 					<li class="list-inline-item"><a href="#"></a></li>
@@ -38,6 +41,8 @@
 		</div>
 	</div>
 
+	<script type="text/javascript" src="{{ mix('js/manifest.js') }}"></script>
+	<script type="text/javascript" src="{{ mix('js/vendor.js') }}"></script>
 	<script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
 </body>
 </html>
