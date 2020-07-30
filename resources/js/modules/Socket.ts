@@ -26,7 +26,7 @@ export default class Socket {
 
 	private hashGenerator : HashGenerator;
 
-	constructor (address : string, port? : number, reconnect : boolean = true) {
+	constructor(address : string, port? : number, reconnect : boolean = true) {
 		if (port === undefined) {
 			let parts = address.split(':');
 			address = parts[0]+':'+parts[1];
