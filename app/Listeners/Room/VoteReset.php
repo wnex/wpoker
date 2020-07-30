@@ -18,6 +18,7 @@ class VoteReset extends SocketListeners {
 		$room = Rooms::where('hash', $data['room'])->first();
 		if (is_null($room)) return;
 
+		$room->active_task_id = null;
 		$room->stage = 0;
 		$room->save();
 

@@ -86,7 +86,7 @@
 		}),
 
 		created: function() {
-			setTimeout(this.scrollToBottom, 500);
+
 		},
 
 		mounted: function() {
@@ -94,9 +94,7 @@
 				this.messages = JSON.parse(localStorage['messages-'+this.room.hash]);
 				for (var i = 0; i < this.messages.length; i++) {
 					if (this.messages[i].notification) {
-						setTimeout(() => {
-							this.remove(data.id);
-						}, 5000);
+						setTimeout(this.remove.bind(this, this.messages[i].id), 5000);
 					}
 				}
 				this.save();
@@ -113,9 +111,7 @@
 				});
 
 				if (data.notification) {
-					setTimeout(() => {
-						this.remove(data.id);
-					}, 10000);
+					setTimeout(this.remove.bind(this, data.id), 10000);
 				}
 
 				this.save();
@@ -164,12 +160,12 @@
 				});
 			},
 
-			scrollToBottom() {
+			/*scrollToBottom() {
 				var block = document.getElementById('anchor');
 				if (block !== null) {
 					block.scrollIntoView();
 				}
-			},
+			},*/
 
 			clearAll() {
 				this.messages = [];
