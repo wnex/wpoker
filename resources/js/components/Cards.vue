@@ -260,21 +260,21 @@
 	}
 
 	img.shake {
-		animation: shake 0.5s;
+		animation: shake .5s;
 		animation-iteration-count: 1;
 	}
 
 	@keyframes shake {
-		0% { transform: translate(1px, 1px) rotate(0deg); }
-		10% { transform: translate(-1px, -2px) rotate(0deg); }
-		20% { transform: translate(-2px, 0px) rotate(0deg); }
-		30% { transform: translate(2px, 1px) rotate(0deg); }
-		40% { transform: translate(1px, -1px) rotate(0deg); }
-		50% { transform: translate(-1px, 2px) rotate(0deg); }
-		60% { transform: translate(-2px, 1px) rotate(0deg); }
-		70% { transform: translate(2px, 1px) rotate(0deg); }
-		80% { transform: translate(-1px, -1px) rotate(0deg); }
-		90% { transform: translate(1px, 1px) rotate(0deg); }
-		100% { transform: translate(1px, -1px) rotate(0deg); }
+		0% { transform:   rotate(0deg); }
+		10% { transform:  rotate(2deg); }
+		20% { transform:  rotate(4deg); }
+		30% { transform:  rotate(2deg); }
+		40% { transform:  rotate(0deg); }
+		50% { transform:  rotate(-2deg); }
+		60% { transform:  rotate(-4deg); }
+		70% { transform:  rotate(-2deg); }
+		80% { transform:  rotate(0deg); }
+		90% { transform:  rotate(2deg); }
+		100% { transform: rotate(0deg); }
 	}
 </style>
