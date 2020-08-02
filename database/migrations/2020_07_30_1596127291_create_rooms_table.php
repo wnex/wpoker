@@ -6,6 +6,9 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateRoomsTable extends Migration
 {
+	/**
+	 * @return void
+	 */
 	public function up()
 	{
 		Schema::create('rooms', function(Blueprint $table) {
@@ -18,6 +21,9 @@ class CreateRoomsTable extends Migration
 		});
 	}
 
+	/**
+	 * @return void
+	 */
 	public function down()
 	{
 		Schema::dropIfExists('rooms');

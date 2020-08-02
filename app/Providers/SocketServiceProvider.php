@@ -14,8 +14,8 @@ class SocketServiceProvider extends ServiceProvider
     public function register()
     {
         /** @psalm-suppress MissingClosureParamType */
-        $this->app->singleton('App\Services\SocketRouter', function ($app) {
-            return new \App\Services\SocketRouter();
+        $this->app->singleton('App\Services\SocketRouterContract', function($container, $parameters) {
+            return $this->app->make(\App\Services\SocketRouter::class, $parameters);
         });
     }
 

@@ -11,7 +11,7 @@ class TasksController extends Controller {
 	use SocketSendlerMessageTrait;
 
 	/**
-	 * @param  array{id: string, user: string, room: string, text: string, order: int}  $params
+	 * @param  array{id: string, user: string, room: string, text: string}  $params
 	 * @return Tasks|null
 	 */
 	public function create($params) {
@@ -21,10 +21,18 @@ class TasksController extends Controller {
 			return null;
 		}
 
+		$last = $room->tasks()->orderBy('order', 'desc')->first();
+
+		if (is_null($last)) {
+			$order = 1;
+		} else {
+			$order = $last->order + 1;
+		}
+
 		$task = Tasks::create([
 			'text' => $params['text'],
 			'room_id' => $room->id,
-			'order' => $params['order'],
+			'order' => $order,
 		]);
 
 		$users_in_room = Rooms::getUsers($room->hash);

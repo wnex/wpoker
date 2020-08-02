@@ -73,7 +73,16 @@
 	import 'prismjs/components/prism-bash';
 
 	export default {
-		props: ['socket', 'room'],
+		props: {
+			socket: {
+				type: Object,
+				required: true,
+			},
+			room: {
+				type: Object,
+				required: true,
+			},
+		},
 
 		components: {
 			Timer,

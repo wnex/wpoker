@@ -100,7 +100,6 @@
 			drag: false,
 			text: '',
 			tasks: [],
-			counter: 1,
 			edit: {
 				enabled: false,
 				text: '',
@@ -191,13 +190,11 @@
 					text: this.text,
 					user: this.$root.getUser(),
 					room: this.room.hash,
-					order: this.counter,
 				})
 					.then((result) => {
 						
 					});
 
-				this.counter++;
 				this.text = '';
 			},
 
@@ -313,9 +310,7 @@
 		},
 
 		watch: {
-			tasks() {
-				this.counter = this.tasks.length + 1;
-			},
+			
 		},
 	}
 </script>

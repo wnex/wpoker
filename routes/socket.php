@@ -1,6 +1,6 @@
 <?php
 
-$router = $this->app->make('App\Services\SocketRouter');
+$router = $this->app->make('App\Services\SocketRouterContract');
 
 $router->add('room.get', '\App\Http\Controllers\RoomsController@get');
 $router->add('room.create', '\App\Http\Controllers\RoomsController@create');

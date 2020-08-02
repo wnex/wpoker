@@ -1,24 +1,36 @@
 <?php
-
 namespace App\Services;
 
 use GatewayWorker\Lib\Gateway;
 use Illuminate\Container\Container;
+//use Illuminate\Contracts\Container\Container;
 
-class SocketRouter {
+class SocketRouter implements SocketRouterContract {
 	/** @var array<string, string> */
 	private $routes = [];
+
+	/** @var Container */
+	private $container;
+
+	public function __construct(Container $container)
+	{
+		$this->container = $container;
+	}
 
 	/**
 	 * @param  array  $data
 	 * @param  string $client_id
 	 * @return bool
 	 */
-	public function routing($data, $client_id) {
+	public function routing($data, $client_id)
+	{
 		if (isset($data['type']) AND $data['type'] === 'request' AND isset($data['action'])) {
 			if (isset($this->routes[$data['action']])) {
-				$container = Container::getInstance();
-				$response = $container->call($this->routes[$data['action']], ['params' => $data['params'], 'client_id' => $client_id]);
+				$response = $this->container->call($this->routes[$data['action']], [
+					'params' => $data['params'],
+					'client_id' => $client_id,
+				]);
+
 				$this->sendResponse($response, $data, $client_id);
 				return true;
 			}
@@ -32,7 +44,8 @@ class SocketRouter {
 	 * @param  string $class
 	 * @return void
 	 */
-	public function add($route, $class) {
+	public function add($route, $class)
+	{
 		$this->routes[$route] = $class;
 	}
 
@@ -42,7 +55,8 @@ class SocketRouter {
 	 * @param  string $client_id
 	 * @return void
 	 */
-	private function sendResponse($response, $data, $client_id) {
+	private function sendResponse($response, $data, $client_id)
+	{
 		Gateway::sendToAll(json_encode([
 			'type' => 'request',
 			'action' => $data['action'],

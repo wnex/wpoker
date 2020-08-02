@@ -5,7 +5,7 @@ namespace App\Listeners;
 use App\Listeners\SocketListeners;
 use App\Models\Rooms;
 use App\Repositories\ClientRepository;
-use App\Services\SocketRouter;
+use App\Services\SocketRouterContract as SocketRouter;
 use Illuminate\Events\Dispatcher;
 
 class Message extends SocketListeners {
