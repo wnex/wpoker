@@ -2,8 +2,8 @@
 namespace App\Services;
 
 use GatewayWorker\Lib\Gateway;
-use Illuminate\Container\Container;
-//use Illuminate\Contracts\Container\Container;
+use Illuminate\Events\Dispatcher;
+use Illuminate\Contracts\Container\Container;
 
 class SocketRouter implements SocketRouterContract {
 	/** @var array<string, string> */
@@ -12,9 +12,13 @@ class SocketRouter implements SocketRouterContract {
 	/** @var Container */
 	private $container;
 
-	public function __construct(Container $container)
+	/** @var Dispatcher */
+	private $event;
+
+	public function __construct(Container $container, Dispatcher $event)
 	{
 		$this->container = $container;
+		$this->event = $event;
 	}
 
 	/**
@@ -57,12 +61,12 @@ class SocketRouter implements SocketRouterContract {
 	 */
 	private function sendResponse($response, $data, $client_id)
 	{
-		Gateway::sendToAll(json_encode([
+		$this->event->dispatch('server.socket.sendToAll', [[
 			'type' => 'request',
 			'action' => $data['action'],
 			'request_id' => $data['request_id'],
 			'data' => $response,
-		]), [$client_id]);
+		], [$client_id]]);
 	}
 
 }

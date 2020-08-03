@@ -1,20 +1,20 @@
 <?php
 namespace App\Listeners;
 
-use App\Repositories\ClientRepository;
+use App\Repositories\ClientsRepository;
 use App\Traits\SocketSendlerMessageTrait;
 
 class SocketListeners {
 
 	use SocketSendlerMessageTrait;
 
-	/** @var ClientRepository */
+	/** @var ClientsRepository */
 	protected $repository;
 
 	/**
-	 * @param ClientRepository $repository
+	 * @param ClientsRepository $repository
 	 */
-	public function __construct(ClientRepository $repository) {
+	public function __construct(ClientsRepository $repository) {
 		$this->repository = $repository;
 	}
 

@@ -24,7 +24,7 @@ class CreateTasksTable extends Migration
 
 		Schema::table('rooms', function(Blueprint $table) {
 			$table->bigInteger('active_task_id')->unsigned()->nullable()->after('owner');
-			$table->foreign('active_task_id')->references('id')->on('tasks');
+			$table->foreign('active_task_id')->references('id')->on('tasks')->onDelete('set null');
 		});
 	}
 

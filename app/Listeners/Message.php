@@ -4,7 +4,7 @@ namespace App\Listeners;
 
 use App\Listeners\SocketListeners;
 use App\Models\Rooms;
-use App\Repositories\ClientRepository;
+use App\Repositories\ClientsRepository;
 use App\Services\SocketRouterContract as SocketRouter;
 use Illuminate\Events\Dispatcher;
 
@@ -23,7 +23,7 @@ class Message extends SocketListeners {
 	 * @param SocketRouter $router
 	 * @param Dispatcher   $event
 	 */
-	public function __construct(SocketRouter $router, Dispatcher $event, ClientRepository $repository) {
+	public function __construct(SocketRouter $router, Dispatcher $event, ClientsRepository $repository) {
 		$this->router = $router;
 		$this->event = $event;
 

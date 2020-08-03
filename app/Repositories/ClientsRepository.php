@@ -5,7 +5,7 @@ use App\Models\Rooms;
 use Illuminate\Support\Arr;
 use App\Services\WebSocketData;
 
-class ClientRepository {
+class ClientsRepository {
 
 	/** @var WebSocketData */
 	private $storage;

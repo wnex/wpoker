@@ -37,6 +37,8 @@ class EventServiceProvider extends ServiceProvider
         'server.socket.message'             => [\App\Listeners\Message::class],
         'server.socket.close'               => [\App\Listeners\Close::class],
 
+        'server.socket.sendToAll'           => [\App\Listeners\Socket\SendToAll::class],
+
         'server.room.vote.finish'           => [\App\Listeners\Room\VoteFinish::class],
         'server.online.update'              => [\App\Listeners\OnlineUpdate::class],
     ];
