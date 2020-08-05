@@ -5,7 +5,8 @@ use GatewayWorker\Lib\Gateway;
 use Illuminate\Events\Dispatcher;
 use Illuminate\Contracts\Container\Container;
 
-class SocketRouter implements SocketRouterContract {
+class SocketRouter implements SocketRouterContract
+{
 	/** @var array<string, string> */
 	private $routes = [];
 
@@ -51,6 +52,14 @@ class SocketRouter implements SocketRouterContract {
 	public function add($route, $class)
 	{
 		$this->routes[$route] = $class;
+	}
+
+	/**
+	 * @return array<string, string>
+	 */
+	public function all()
+	{
+		return $this->routes;
 	}
 
 	/**
