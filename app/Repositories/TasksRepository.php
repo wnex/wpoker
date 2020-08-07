@@ -58,7 +58,7 @@ class TasksRepository implements TasksRepositoryInterface {
 	}
 
 	/**
-	 * @param  array{id: int, user: string, text: string} $params
+	 * @param  array{id: int, user: string, text: string, order?: int} $params
 	 * @return Tasks|null
 	 */
 	public function update($params)
@@ -71,6 +71,9 @@ class TasksRepository implements TasksRepositoryInterface {
 
 		if ($task->room->isOwner($params['user'])) {
 			$task->text = $params['text'];
+			if (isset($params['order'])) {
+				$task->order = $params['order'];
+			}
 			$task->save();
 
 			$this->rooms->sendToRoom($task->room->hash, [
@@ -89,6 +92,25 @@ class TasksRepository implements TasksRepositoryInterface {
 
 			return $task;
 		}
+	}
+
+	/**
+	 * @param  int $id
+	 * @param  int $newOrder
+	 * @return Tasks|null
+	 */
+	public function updateOrder($id, $newOrder)
+	{
+		$task = $this->first(['id' => $id]);
+
+		if (is_null($task) OR is_null($task->room)) {
+			return null;
+		}
+
+		$task->order = $newOrder;
+		$task->save();
+
+		return $task;
 	}
 
 	/**

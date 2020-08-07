@@ -1,12 +1,17 @@
 <?php
-
 namespace App\Listeners\Room;
 
-use App\Listeners\SocketListeners;
-use App\Events\Workerman;
-use App\Models\Rooms;
+use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 
-class VoteStart extends SocketListeners {
+class VoteStart
+{
+	/** @var RoomsRepInt */
+	private $rooms;
+
+	public function __construct(RoomsRepInt $rooms)
+	{
+		$this->rooms = $rooms;
+	}
 
 	/**
 	 * Старт голосования
@@ -15,8 +20,9 @@ class VoteStart extends SocketListeners {
 	 * @param  string $client_id
 	 * @return void
 	 */
-	public function handle($data, $client_id) {
-		$room = Rooms::where('hash', $data['room'])->first();
+	public function handle($data, $client_id)
+	{
+		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
 		$task = $room->getNextTask();
@@ -25,12 +31,11 @@ class VoteStart extends SocketListeners {
 		$room->active_task_id = $task ? $task->id : null;
 		$room->save();
 
-		$users_in_room = Rooms::getUsers($data['room']);
-		$this->sendToAll([
+		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.vote.start',
 			'stage' => $room->stage,
 			'task' => $room->activeTask()->first(),
-		], $users_in_room);
+		]);
 	}
 
 }

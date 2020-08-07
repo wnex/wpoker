@@ -1,11 +1,25 @@
 <?php
-
 namespace App\Listeners;
 
 use App\Listeners\SocketListeners;
-use App\Models\Rooms;
+use App\Repositories\ClientsRepository;
+use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
+use Illuminate\Contracts\Events\Dispatcher;
 
-class Close extends SocketListeners {
+class Close extends SocketListeners
+{
+	/** @var RoomsRepInt */
+	private $rooms;
+
+	/** @var Dispatcher */
+	private $event;
+
+	public function __construct(RoomsRepInt $rooms, Dispatcher $event, ClientsRepository $clients)
+	{
+		$this->rooms = $rooms;
+		$this->event = $event;
+		parent::__construct($clients);
+	}
 
 	/**
 	 * Закрытие соединения
@@ -14,10 +28,11 @@ class Close extends SocketListeners {
 	 * @param  string $client_id
 	 * @return void
 	 */
-	public function handle($client_id) {
-		foreach (Rooms::getAllRooms() as $hash => $users) {
+	public function handle($client_id)
+	{
+		foreach ($this->rooms->getAllClientsByRooms() as $hash => $users) {
 			if (in_array($client_id, $users)) {
-				Rooms::removeUser($hash, $client_id);
+				$this->rooms->removeClientFromRoom($hash, $client_id);
 			}
 
 			$this->sendToAll([
@@ -25,9 +40,9 @@ class Close extends SocketListeners {
 				'id' => $client_id,
 			], $users, [$client_id]);
 		}
-		$this->repository->removeUser($client_id);
+		$this->clients->removeUser($client_id);
 
-		event('server.online.update');
+		$this->event->dispatch('server.online.update');
 	}
 
 }

@@ -4,18 +4,19 @@ namespace App\Listeners;
 use App\Repositories\ClientsRepository;
 use App\Traits\SocketSendlerMessageTrait;
 
-class SocketListeners {
-
+class SocketListeners
+{
 	use SocketSendlerMessageTrait;
 
 	/** @var ClientsRepository */
-	protected $repository;
+	protected $clients;
 
 	/**
-	 * @param ClientsRepository $repository
+	 * @param ClientsRepository $clients
 	 */
-	public function __construct(ClientsRepository $repository) {
-		$this->repository = $repository;
+	public function __construct(ClientsRepository $clients)
+	{
+		$this->clients = $clients;
 	}
 
 }

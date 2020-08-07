@@ -1,11 +1,20 @@
 <?php
-
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Models\Rooms;
+use App\Repositories\ClientsRepository;
+use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 
-class ChatSend extends SocketListeners {
+class ChatSend extends SocketListeners
+{
+	/** @var RoomsRepInt */
+	private $rooms;
+
+	public function __construct(RoomsRepInt $rooms, ClientsRepository $clients)
+	{
+		$this->rooms = $rooms;
+		parent::__construct($clients);
+	}
 
 	/**
 	 * Сообщение в чат
@@ -14,14 +23,13 @@ class ChatSend extends SocketListeners {
 	 * @param  string $client_id
 	 * @return void
 	 */
-	public function handle($data, $client_id) {
-		$users_in_room = Rooms::getUsers($data['room']);
-
+	public function handle($data, $client_id)
+	{
 		if (empty($data['name'])) {
-			$data['name'] = $this->repository->getUser($client_id);
+			$data['name'] = $this->clients->getUser($client_id);
 		}
 
-		$this->sendToAll([
+		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.chat.message',
 			'id' => uniqid(),
 			'author_id' => $client_id,
@@ -29,7 +37,7 @@ class ChatSend extends SocketListeners {
 			'message' => $data['message'],
 			'date' => date('c'),
 			'notification' => false,
-		], $users_in_room);
+		]);
 	}
 
 }

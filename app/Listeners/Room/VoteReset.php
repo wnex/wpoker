@@ -1,11 +1,20 @@
 <?php
-
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Models\Rooms;
+use App\Repositories\ClientsRepository;
+use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 
-class VoteReset extends SocketListeners {
+class VoteReset extends SocketListeners
+{
+	/** @var RoomsRepInt */
+	private $rooms;
+
+	public function __construct(RoomsRepInt $rooms, ClientsRepository $clients)
+	{
+		$this->rooms = $rooms;
+		parent::__construct($clients);
+	}
 
 	/**
 	 * Сброс оценок
@@ -14,26 +23,27 @@ class VoteReset extends SocketListeners {
 	 * @param  string $client_id
 	 * @return void
 	 */
-	public function handle($data, $client_id) {
-		$room = Rooms::where('hash', $data['room'])->first();
+	public function handle($data, $client_id)
+	{
+		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
 		$room->active_task_id = null;
 		$room->stage = 0;
 		$room->save();
 
-		$users_in_room = Rooms::getUsers($data['room']);
+		$users_in_room = $this->rooms->getClientsFromRoom($data['room']);
 		foreach ($users_in_room as $user_id) {
-			if (isset($this->repository->getUser($user_id)['vote'])) {
-				$this->repository->setUser($user_id, [
+			if (isset($this->clients->getUser($user_id)['vote'])) {
+				$this->clients->setUser($user_id, [
 					'isVoted' => null,
 					'vote' => null,
 				]);
 			}
 		}
-		$this->sendToAll([
+		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.vote.reset',
-		], $users_in_room);
+		]);
 	}
 
 }

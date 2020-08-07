@@ -4,7 +4,8 @@ namespace App\Listeners;
 use GatewayWorker\Lib\Gateway;
 use App\Listeners\SocketListeners;
 
-class OnlineUpdate extends SocketListeners {
+class OnlineUpdate extends SocketListeners
+{
 
 	/**
 	 * Обновление онлайна

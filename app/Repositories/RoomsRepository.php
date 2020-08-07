@@ -5,7 +5,7 @@ use App\Models\Rooms;
 use App\Models\Tasks;
 use App\Services\WebSocketData;
 use Illuminate\Support\Arr;
-use Illuminate\Events\Dispatcher;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class RoomsRepository implements RoomsRepositoryInterface {
 	/** @var WebSocketData */
@@ -100,7 +100,7 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	 * 
 	 * @return array
 	 */
-	public function getAllRooms()
+	public function getAllClientsByRooms()
 	{
 		return $this->storage->get('rooms', []);
 	}
@@ -111,9 +111,9 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	 * @param  string $hash
 	 * @return array
 	 */
-	public function getUsers($hash)
+	public function getClientsFromRoom($hash)
 	{
-		return Arr::get($this->getAllRooms(), $hash, []);
+		return Arr::get($this->getAllClientsByRooms(), $hash, []);
 	}
 
 	/**
@@ -123,13 +123,13 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	 * @param string $client_id
 	 * @return void
 	 */
-	public function addUser($hash, $client_id)
+	public function addClientToRoom($hash, $client_id)
 	{
-		if (!in_array($client_id, $this->getUsers($hash))) {
-			$rooms = $this->getAllRooms();
-			$room = $this->getUsers($hash);
-			$room[] = $client_id;
-			Arr::set($rooms, $hash, $room);
+		if (!in_array($client_id, $this->getClientsFromRoom($hash))) {
+			$rooms = $this->getAllClientsByRooms();
+			$clients = $this->getClientsFromRoom($hash);
+			$clients[] = $client_id;
+			Arr::set($rooms, $hash, $clients);
 			$this->storage->put('rooms', $rooms);
 		}
 	}
@@ -141,13 +141,13 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	 * @param  string $client_id
 	 * @return void
 	 */
-	public function removeUser($hash, $client_id)
+	public function removeClientFromRoom($hash, $client_id)
 	{
-		if (in_array($client_id, $this->getUsers($hash))) {
-			$rooms = $this->getAllRooms();
-			$room = $this->getUsers($hash);
-			unset($room[array_search($client_id, $room)]);
-			Arr::set($rooms, $hash, $room);
+		if (in_array($client_id, $this->getClientsFromRoom($hash))) {
+			$rooms = $this->getAllClientsByRooms();
+			$clients = $this->getClientsFromRoom($hash);
+			unset($clients[array_search($client_id, $clients)]);
+			Arr::set($rooms, $hash, $clients);
 			$this->storage->put('rooms', $rooms);
 		}
 	}
@@ -155,12 +155,13 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	/**
 	 * @param  string $hash
 	 * @param  array  $params
+	 * @param  array  $exclude
 	 * @return void
 	 */
-	public function sendToRoom($hash, $params)
+	public function sendToRoom($hash, $params, $exclude = [])
 	{
-		$users_in_room = $this->rooms->getUsers($hash);
-		$this->event->dispatch('server.socket.sendToAll', [$params, $users_in_room]);
+		$users_in_room = $this->getClientsFromRoom($hash);
+		$this->event->dispatch('server.socket.sendToAll', [$params, $users_in_room, $exclude]);
 	}
 
 }

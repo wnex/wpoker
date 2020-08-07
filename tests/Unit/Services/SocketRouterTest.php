@@ -4,7 +4,7 @@ namespace Tests\Unit;
 
 use App\Services\SocketRouter;
 use Illuminate\Contracts\Container\Container;
-use Illuminate\Events\Dispatcher;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Str;
 use Tests\TestCase;
 

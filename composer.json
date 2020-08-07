@@ -2,6 +2,13 @@
     "name": "wnex/wpoker",
     "type": "project",
     "description": "Planning Poker.",
+    "authors": [
+        {
+            "name": "Dmitriy Tyugaev",
+            "homepage": "https://wnex.ru",
+            "role": "Developer"
+        }
+    ],
     "keywords": [
         "scrum",
         "plannung",

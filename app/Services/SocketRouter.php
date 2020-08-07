@@ -2,7 +2,7 @@
 namespace App\Services;
 
 use GatewayWorker\Lib\Gateway;
-use Illuminate\Events\Dispatcher;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Contracts\Container\Container;
 
 class SocketRouter implements SocketRouterContract

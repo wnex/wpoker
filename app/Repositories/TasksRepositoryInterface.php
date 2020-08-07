@@ -11,10 +11,17 @@ interface TasksRepositoryInterface {
 	public function create($params);
 
 	/**
-	 * @param  array{id: int, user: string, text: string} $params
+	 * @param  array{id: int, user: string, text: string, order?: int} $params
 	 * @return Tasks|null
 	 */
 	public function update($params);
+
+	/**
+	 * @param  int $id
+	 * @param  int $newOrder
+	 * @return Tasks|null
+	 */
+	public function updateOrder($id, $newOrder);
 
 	/**
 	 * @param  @param  array{id: int, owner: string} $params

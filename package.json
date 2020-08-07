@@ -17,6 +17,7 @@
         "cross-env": "^7.0",
         "css-loader": "^3.6.0",
         "jquery": "^3.2",
+        "jquery-slim": "^3.0.0",
         "laravel-mix": "^5.0.1",
         "lodash": "^4.17.19",
         "moment": "^2.27.0",

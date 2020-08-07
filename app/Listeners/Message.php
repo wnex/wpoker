@@ -3,7 +3,7 @@
 namespace App\Listeners;
 
 use App\Services\SocketRouterContract as SocketRouter;
-use Illuminate\Events\Dispatcher;
+use Illuminate\Contracts\Events\Dispatcher;
 
 class Message
 {
