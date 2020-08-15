@@ -62,6 +62,8 @@
 			stage: 0,
 			average: null,
 			canVote: false,
+			soundStart: null,
+			soundFinal: null,
 		}),
 
 		created: function() {
@@ -74,6 +76,11 @@
 			this.socket.open(() => {
 				this.enterRoom();
 			});
+
+			this.soundStart = new Audio('../sounds/all-eyes-on-me.mp3');
+			this.soundStart.volume = 0.1;
+			this.soundFinal = new Audio('../sounds/time-is-now.mp3');
+			this.soundFinal.volume = 0.1;
 		},
 
 		beforeRouteUpdate(to, from, next) {
@@ -140,6 +147,10 @@
 			this.socket.listener('room.vote.start', (data) => {
 				this.stage = data.stage;
 				this.room.task = data.task;
+
+				this.soundStart.pause();
+				this.soundStart.currentTime = 0;
+				this.soundStart.play();
 			});
 
 			this.socket.listener('room.vote', (data) => {
@@ -177,6 +188,10 @@
 				if (this.room.isOwner) {
 					this.$refs.cards.startApprove();
 				}
+
+				this.soundFinal.pause();
+				this.soundFinal.currentTime = 0;
+				this.soundFinal.play();
 			});
 
 			this.socket.listener('room.vote.reset', (data) => {

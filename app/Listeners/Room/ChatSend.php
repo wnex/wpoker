@@ -26,7 +26,11 @@ class ChatSend extends SocketListeners
 	public function handle($data, $client_id)
 	{
 		if (empty($data['name'])) {
-			$data['name'] = $this->clients->getUser($client_id);
+			if (empty($this->clients->getUser($client_id)['name'])) {
+				$data['name'] = 'User #' . $this->clients->getUser($client_id)['id'];
+			} else {
+				$data['name'] = $this->clients->getUser($client_id)['name'];
+			}
 		}
 
 		$this->rooms->sendToRoom($data['room'], [

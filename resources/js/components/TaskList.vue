@@ -8,36 +8,27 @@
 					<span class="badge badge-primary" title="Amount story points">{{amount}}</span>
 				</div>
 			</h4>
+
 			<transition name="fade">
-				<form v-if="room.isOwner && !edit.enabled" @submit.prevent="add" class="mb-3">
-					<div class="input-group">
-						<textarea
-							rows="2"
-							@keydown.enter.exact.prevent="add"
-							class="form-control"
-							v-model="text"
-							placeholder="Enter text"
-						></textarea>
-						<div class="input-group-append">
-							<button type="submit" class="btn btn-secondary">Add task</button>
-						</div>
-					</div>
-				</form>
+				<task-form 
+					v-show="room.isOwner && !edit.enabled"
+					@submit="add"
+					:text="text"
+					placeholder="Enter text new task"
+					button="Add task"
+				></task-form>
 			</transition>
-			<form v-if="room.isOwner && edit.enabled" @submit.prevent="editSave" class="mb-3">
-				<div class="input-group">
-					<textarea
-						rows="2"
-						@keydown.enter.exact.prevent="editSave"
-						class="form-control text-success"
-						v-model="edit.text"
-						placeholder="Enter text"
-					></textarea>
-					<div class="input-group-append">
-						<button type="submit" class="btn btn-success">Save</button>
-					</div>
-				</div>
-			</form>
+
+			<task-form 
+				v-show="room.isOwner && edit.enabled"
+				@submit="editSave"
+				:text="edit.text"
+				placeholder="Enter text"
+				button="Save"
+				:isEdit="true"
+				ref="editForm"
+			></task-form>
+				
 			<draggable
 				v-model="tasks"
 				v-bind="dragOptions"
@@ -65,7 +56,7 @@
 						<span class="control text-muted">
 							<span v-if="room.isOwner" class="control-owner">
 								<i class="fa fa-fw fa-align-justify handle" title="Sort"></i>
-								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click="editInit(task.id)"></i>
+								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click.stop="editInit(task.id)"></i>
 								<i class="fa fa-fw fa-trash-o button-icon" title="Delete" @click="remove(task.id)"></i>
 							</span>
 							<span v-if="task.story_point_view" class="story-point" title="Story points">{{task.story_point_view}}</span>
@@ -79,7 +70,12 @@
 
 <script>
 	import VueMarkdown from 'vue-markdown';
-	import Draggable from 'vuedraggable'
+	import Draggable from 'vuedraggable';
+	import TaskForm from '@/js/components/TaskForm';
+
+	/*import Vue from 'vue';
+	import VueAutosize from 'autosize-vue';
+	Vue.use(VueAutosize);*/
 
 	import Prism from 'prismjs';
 	import 'prismjs/themes/prism.css';
@@ -94,6 +90,7 @@
 		components: {
 			VueMarkdown,
 			Draggable,
+			TaskForm,
 		},
 
 		data: () => ({
@@ -105,6 +102,7 @@
 				text: '',
 				id: '',
 			},
+			textFocused: false,
 		}),
 
 		mounted: function() {
@@ -180,9 +178,10 @@
 				this.save();
 			},
 
-			add() {
+			add(data) {
+				this.text = data.text;
+
 				if (this.text === '') {
-					alert('Error! Empty text task.');
 					return false;
 				}
 
@@ -192,10 +191,8 @@
 					room: this.room.hash,
 				})
 					.then((result) => {
-						
+						this.text = '';
 					});
-
-				this.text = '';
 			},
 
 			remove(id) {
@@ -222,12 +219,17 @@
 						this.edit.enabled = true;
 						this.edit.id = this.tasks[i].id;
 						this.edit.text = this.tasks[i].text;
+						this.$nextTick(() => {
+							this.$refs.editForm.focus();
+						});
 						break;
 					}
 				}
 			},
 
-			editSave() {
+			editSave(data) {
+				this.edit.text = data.text;
+
 				let promise = this.socket.request('task.update', {
 					id: this.edit.id,
 					text: this.edit.text,
@@ -316,9 +318,6 @@
 </script>
 
 <style scoped>
-	textarea {
-		min-height: 38px;
-	}
 	.button {
 		margin-top: 35px;
 	}
@@ -343,8 +342,11 @@
 		top: 10px;
 		right: 10px;
 	}
+	.task {
+		padding: 10px;
+	}
 	.task-complite {
-		background-color: #cce5ff;
+		background-color: #eef6ff;
 	}
 	.story-point {
 		padding: 1px 6px;

@@ -8,12 +8,12 @@
 			<ul class="list-group mb-3">
 				<user v-for="user in users" :key="user.id" :socket="socket" :user="user" :room="room"></user>
 
-				<li v-if="average !== null" class="list-group-item d-flex justify-content-between px-3 py-2">
+				<li v-if="average !== null" class="list-group-item d-flex justify-content-between">
 					<span>Average</span>
 					<strong>{{average}}</strong>
 				</li>
 
-				<li v-if="chart" class="list-group-item d-flex justify-content-between px-3 py-2">
+				<li v-if="chart" class="list-group-item d-flex justify-content-between">
 					<div style="width: 100%;"><chart ref="chart" :chartdata="chartData()" :options="chartOptions" /></div>
 				</li>
 			</ul>
@@ -97,6 +97,10 @@
 </script>
 
 <style scoped>
+	.list-group-item {
+		padding: 10px;
+	}
+
 	.fade-enter-active {
 		transition: all .5s;
 	}

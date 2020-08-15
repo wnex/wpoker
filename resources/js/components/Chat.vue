@@ -3,31 +3,38 @@
 		<h4 class="d-flex justify-content-between align-items-center mb-2">
 			<span class="text-muted">Chat</span>
 		</h4>
-		<div class="card p-2 mb-4">
+		<focusable class="pt-2 pl-2 pr-2 mb-4" ref="focusable">
 			<form @submit.prevent="send">
 				<div class="input-group">
 					<textarea
-						rows="1"
 						@keydown.enter.exact.prevent="send"
-						class="form-control"
+						@focus="$refs.focusable.focus()"
+						class="message-box" ref="message"
 						v-model="message"
 						placeholder="Enter your message"
+						v-autosize="message" rows="1"
 					></textarea>
-					<div class="input-group-append">
-						<button type="submit" class="btn btn-secondary">Send</button>
-					</div>
 				</div>
 			</form>
-		</div>
+
+			<template v-slot:footer>
+				<button class="btn btn-outline-info btn-sm" @click="showAll">
+					<i class="fa fa-history" aria-hidden="true"></i>
+				</button>
+				<button @click.prevent="send" class="btn btn-primary btn-sm float-right" :disabled="message.length === 0">Send</button>
+			</template>
+		</focusable>
+
 		<transition name="fade">
-			<div v-if="messages.length" class="chat-block" aria-live="polite" aria-atomic="true">
+			<div v-if="showMessagesLength > 0" class="chat-block" aria-live="polite" aria-atomic="true">
 				<div class="mb-2" style="display: flex; flex-direction: column;">
-					<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Clear</button>
+					<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Hide all</button>
 				</div>
 				<div id="message-block" class="message-block">
 					<transition-group name="list">
 						<div
 							v-for="message in messages"
+							v-if="message.isShow"
 							:key="message.id"
 							class="toast show"
 							role="alert"
@@ -40,7 +47,7 @@
 								<small class="text-muted"><timer :created="message.date"></timer></small>
 								<button
 									type="button"
-									title="Hide this notification"
+									title="Remove this notification"
 									@click="remove(message.id)"
 									class="ml-2 mb-1 close"
 									data-dismiss="toast"
@@ -61,7 +68,12 @@
 
 <script>
 	import Timer from '@/js/components/Timer';
+	import Focusable from '@/js/components/Focusable';
 	import moment from 'moment';
+
+	import Vue from 'vue';
+	import VueAutosize from 'autosize-vue';
+	Vue.use(VueAutosize);
 
 	import VueMarkdown from 'vue-markdown';
 
@@ -87,29 +99,40 @@
 		components: {
 			Timer,
 			VueMarkdown,
+			Focusable,
 		},
 
 		data: () => ({
 			message: '',
 			messages: [],
+			sound: null,
 		}),
 
 		created: function() {
-
+			this.sound = new Audio('../sounds/intuition.mp3');
+			this.sound.volume = 0.3;
 		},
 
 		mounted: function() {
 			if (localStorage['messages-'+this.room.hash]) {
 				this.messages = JSON.parse(localStorage['messages-'+this.room.hash]);
 				for (var i = 0; i < this.messages.length; i++) {
-					if (this.messages[i].notification) {
-						setTimeout(this.remove.bind(this, this.messages[i].id), 5000);
+					if (this.messages[i].isShow) {
+						if (this.messages[i].notification) {
+							setTimeout(this.remove.bind(this, this.messages[i].id), 5000);
+						} else {
+							setTimeout(this.hide.bind(this, this.messages[i].id), 10000);
+						}
 					}
 				}
 				this.save();
 			}
 
 			this.socket.listener('room.chat.message', (data) => {
+				if (this.messages.length >= 30) {
+					this.messages.shift();
+				}
+
 				this.messages.push({
 					id: data.id,
 					author_id: data.author_id,
@@ -117,13 +140,22 @@
 					message: data.message,
 					date: moment().format(),
 					notification: data.notification,
+					isShow: true,
 				});
 
 				if (data.notification) {
 					setTimeout(this.remove.bind(this, data.id), 10000);
+				} else {
+					setTimeout(this.hide.bind(this, data.id), 20000);
 				}
 
 				this.save();
+
+				if (data.author_id !== this.room.clientId) {
+					this.sound.pause();
+					this.sound.currentTime = 0;
+					this.sound.play();
+				}
 
 				this.$nextTick(() => {
 					Prism.highlightAll();
@@ -158,6 +190,16 @@
 				}
 			},
 
+			hide(id) {
+				for (var i = 0; i < this.messages.length; i++) {
+					if (this.messages[i].id === id) {
+						this.messages[i].isShow = false;
+						this.save();
+						break;
+					}
+				}
+			},
+
 			save() {
 				localStorage['messages-'+this.room.hash] = JSON.stringify(this.messages);
 
@@ -169,15 +211,17 @@
 				});
 			},
 
-			/*scrollToBottom() {
-				var block = document.getElementById('anchor');
-				if (block !== null) {
-					block.scrollIntoView();
-				}
-			},*/
-
 			clearAll() {
-				this.messages = [];
+				for (var i = 0; i < this.messages.length; i++) {
+					this.messages[i].isShow = false;
+				}
+				this.save();
+			},
+
+			showAll() {
+				for (var i = 0; i < this.messages.length; i++) {
+					this.messages[i].isShow = true;
+				}
 				this.save();
 			},
 
@@ -188,6 +232,15 @@
 		},
 
 		computed: {
+			showMessagesLength() {
+				let length = 0;
+				for (var i = 0; i < this.messages.length; i++) {
+					if (this.messages[i].isShow) {
+						length++;
+					}
+				}
+				return length;
+			}
 		},
 	}
 </script>
@@ -225,8 +278,23 @@
 		}
 	}
 
-	textarea {
-		min-height: 38px;
+	textarea.message-box {
+		position: relative;
+		flex: 1 1 auto;
+		width: 1%;
+		min-width: 0;
+		overflow: hidden;
+		overflow-wrap: break-word;
+		min-height: 20px;
+		line-height: 20px;
+		font-size: 14px;
+		border: none;
+		outline: 0;
+		resize: none;
+	}
+
+	.show-all {
+		cursor: pointer;
 	}
 
 	.clear-all {

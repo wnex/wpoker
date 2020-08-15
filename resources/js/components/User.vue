@@ -1,7 +1,7 @@
 <template>
 	<li
 		class="list-group-item"
-		:class="{'d-flex justify-content-between lh-condensed px-3 py-2': !changeNameSwitcher}"
+		:class="{'d-flex justify-content-between lh-condensed': !changeNameSwitcher}"
 	>
 		<div v-if="!changeNameSwitcherForSelf()" :class="{'text-success': user.isVoted}">
 			<h6 class="my-0">
