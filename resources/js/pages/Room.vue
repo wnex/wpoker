@@ -14,11 +14,11 @@
 			<cards ref="cards" :socket="socket" :canVote="canVote" :room="room"></cards>
 
 			<transition name="fade">
-				<div v-if="room.isOwner" class="row mb-3 ml-0">
-					<button v-if="stage === 0" class="btn mr-3 col-md-3 btn-primary" @click="startVote">Start vote</button>
-					<button v-if="stage === 1 || stage === 2" class="btn mr-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
-					<button v-if="canNextButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Next</button>
-					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 btn-primary" @click="nextVote">Revote</button>
+				<div v-if="room.isOwner" class="row ml-0">
+					<button v-if="stage === 0" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="startVote">Start vote</button>
+					<button v-if="stage === 1 || stage === 2" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
+					<button v-if="canNextButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="nextVote">Next</button>
+					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="nextVote">Revote</button>
 				</div>
 			</transition>
 

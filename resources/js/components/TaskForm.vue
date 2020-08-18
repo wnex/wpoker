@@ -1,5 +1,5 @@
 <template>
-	<focusable class="pt-2 pl-2 pr-2 mb-4" ref="focusable">
+	<focusable class="pt-2 pl-2 pr-2 mb-4" ref="focusable" @blurred="onBlurred">
 		<form v-show="!isPreview" @submit.prevent="submit">
 			<div class="input-group">
 				<textarea
@@ -30,9 +30,8 @@
 				</label>
 			</div>
 
-			<button class="btn btn-light btn-sm" disabled>
+			<button class="btn btn-light btn-sm" data-toggle="tooltip" data-placement="bottom" title="Markdown supported" disabled>
 				<i class="fa fa-question-circle-o" aria-hidden="true"></i>
-				Markdown supported
 			</button>
 
 			<button
@@ -107,14 +106,14 @@
 				this.$emit('submit', {text: this.textLocal});
 			},
 
-			preview() {
-				this.isPreview = true;
-			},
-
 			focus() {
 				this.$refs.text.focus();
 				this.$refs.focusable.focus();
 			},
+
+			onBlurred() {
+				this.isPreview = false;
+			}
 		},
 
 		computed: {
@@ -129,6 +128,14 @@
 		watch: {
 			text() {
 				this.textLocal = this.text;
+			},
+
+			isPreview() {
+				if (this.isPreview) {
+					this.$nextTick(() => {
+						Prism.highlightAll();
+					});
+				}
 			},
 		},
 	}

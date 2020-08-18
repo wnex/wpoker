@@ -7,7 +7,7 @@
 			<h6 class="my-0">
 				{{user.name === '' ? 'User #'+user.id : user.name}}
 			</h6>
-			<small class="text-muted">{{user.isOwner ? 'Owner' : 'Guest'}}</small>
+			<small v-show="user.isOwner" class="text-muted">{{user.isOwner ? 'Owner' : 'Guest'}}</small>
 		</div>
 		<span v-if="!changeNameSwitcher" class="text-muted d-flex panel-buttons">
 			<span

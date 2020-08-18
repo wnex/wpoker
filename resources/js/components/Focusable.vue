@@ -37,10 +37,12 @@
 		methods: {
 			focus() {
 				this.focused = true;
+				this.$emit('focused');
 			},
 
 			blur() {
 				this.focused = false;
+				this.$emit('blurred');
 			},
 		},
 	}

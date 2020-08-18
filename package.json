@@ -13,19 +13,19 @@
         "autosize-vue": "^1.0.1",
         "axios": "^0.19",
         "babel-runtime": "^6.26.0",
-        "bootstrap": "^4.5.0",
+        "bootstrap": "^4.5.2",
         "chart.js": "^2.9.3",
         "cross-env": "^7.0",
         "css-loader": "^3.6.0",
         "jquery": "^3.2",
         "jquery-slim": "^3.0.0",
         "laravel-mix": "^5.0.1",
-        "lodash": "^4.17.19",
+        "lodash": "^4.17.20",
         "moment": "^2.27.0",
         "popper.js": "^1.12",
-        "prismjs": "^1.20.0",
+        "prismjs": "^1.21.0",
         "resolve-url-loader": "^2.3.1",
-        "sass": "^1.20.1",
+        "sass": "^1.26.10",
         "sass-loader": "^8.0.0",
         "style-loader": "^1.2.1",
         "vue": "^2.5.17",
@@ -36,7 +36,7 @@
     },
     "dependencies": {
         "ts-loader": "^7.0.5",
-        "typescript": "^3.9.5",
-        "vue-router": "^3.3.4"
+        "typescript": "^3.9.7",
+        "vue-router": "^3.4.3"
     }
 }

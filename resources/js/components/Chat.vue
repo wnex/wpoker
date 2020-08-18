@@ -36,7 +36,7 @@
 							v-for="message in messages"
 							v-if="message.isShow"
 							:key="message.id"
-							class="toast show"
+							class="toast show mb-2"
 							role="alert"
 							aria-live="assertive"
 							aria-atomic="true"
@@ -159,11 +159,13 @@
 
 				this.$nextTick(() => {
 					Prism.highlightAll();
+					this.scrollToBottom();
 				});
 			});
 
 			this.$nextTick(() => {
 				Prism.highlightAll();
+				this.scrollToBottom();
 			});
 		},
 
@@ -211,6 +213,13 @@
 				});
 			},
 
+			scrollToBottom() {
+				var block = document.getElementById('anchor');
+				if (block !== null) {
+					block.scrollIntoView();
+				}
+			},
+
 			clearAll() {
 				for (var i = 0; i < this.messages.length; i++) {
 					this.messages[i].isShow = false;
@@ -223,6 +232,11 @@
 					this.messages[i].isShow = true;
 				}
 				this.save();
+
+				this.$nextTick(() => {
+					Prism.highlightAll();
+					this.scrollToBottom();
+				});
 			},
 
 			getDate(date) {
@@ -267,6 +281,15 @@
 
 	.toast {
 		min-width: 350px;
+		box-shadow: none;
+	}
+
+	.toast-header {
+		padding: 4px 10px;
+	}
+
+	.toast-body {
+		padding: 10px;
 	}
 
 	@media (max-width: 576px) {
