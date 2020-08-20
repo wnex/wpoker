@@ -18,7 +18,7 @@
 		</div>
 
 		<div
-			v-for="card in cards"
+			v-for="(card, index) in cards"
 			:key="card.view"
 			class="poker-card mb-3 d-flex col-3 col-md-2 pt-3 justify-content-between"
 		>
@@ -28,7 +28,10 @@
 						<img :src="cover" @click="cardShake(card.view)" :class="{'shake': card.shake}" width="100%">
 					</div>
 					<div class="back">
-						<img :src="card.src" @click="vote(card.point, card.view)" width="100%">
+						<div class="poker-card-front" :style="'background-color: '+colors[index]+';'"  @click="vote(card.point, card.view)">
+							<div class="poker-card-inner-border"></div>
+							<span>{{card.view}}</span>
+						</div>
 					</div>
 				</div>
 			</div>
@@ -56,59 +59,53 @@
 		data: () => ({
 			approve: false,
 			cover: '/images/cards/cover.png',
+			colors: [
+				'#8CCB5E', '#e87f6d', '#6992c8', '#f7abaa',
+				'#b0c4d1', '#1db6a1', '#7575b3', '#f5e8b6',
+				'#f9a12f', '#76ccea', '#f8d37b',
+			],
 			cards: [
 				{
-					src: '/images/cards/0.25.png',
 					point: 0.25,
 					view: '1/4',
 				},
 				{
-					src: '/images/cards/0.5.png',
 					point: 0.5,
 					view: '1/2',
 				},
 				{
-					src: '/images/cards/1.png',
 					point: 1,
 					view: '1',
 				},
 				{
-					src: '/images/cards/2.png',
 					point: 2,
 					view: '2',
 				},
 				{
-					src: '/images/cards/3.png',
 					point: 3,
 					view: '3',
 				},
 				{
-					src: '/images/cards/5.png',
 					point: 5,
 					view: '5',
 				},
 				{
-					src: '/images/cards/8.png',
 					point: 8,
 					view: '8',
 				},
 				{
-					src: '/images/cards/13.png',
 					point: 13,
 					view: '13',
 				},
 				{
-					src: '/images/cards/dragon.png',
 					point: 0,
 					view: '?',
 				},
 				{
-					src: '/images/cards/infinity.png',
 					point: 0,
 					view: 'ထ',
 				},
 				{
-					src: '/images/cards/0.png',
 					point: 0,
 					view: '0',
 				},
@@ -200,8 +197,55 @@
 		opacity: 0;
 	}
 
-	.poker-card img {
+	.poker-card > div {
 		cursor: pointer;
+		border-radius: 5px;
+		overflow: hidden;
+	}
+
+	.poker-card-front {
+		position: relative;
+		width: 100%;
+		height: 100%;
+		text-align: center;
+		line-height: 100%;
+		font-size: 3.3rem;
+		letter-spacing: 0px;
+		color: #eee;
+		white-space: nowrap;
+		-webkit-text-stroke: 1px rgba(0,0,0,1);
+
+		background: linear-gradient(to left top, rgba(0, 0, 0, 0) 48.9%, rgba(0, 0, 0, .1) 51%, rgba(0, 0, 0, .1) 78%, rgba(0, 0, 0, 0) 80%), linear-gradient(to left top, rgba(0, 0, 0, .1) 28%, rgba(0, 0, 0, 0) 30%);
+		background-size: .5em 1.5em;
+	}
+
+	@media (max-width: 576px) {
+		.poker-card-front {
+			font-size: 2rem;
+		}
+	}
+
+	@media (max-width: 992px) {
+		.poker-card-front {
+			font-size: 2rem;
+		}
+	}
+
+	.poker-card-front span {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+	}
+
+	.poker-card-inner-border {
+		position: absolute;
+		top: 50%;
+		left: 50%;
+		transform: translate(-50%, -50%);
+		width: calc(100% - 10px);
+		height: calc(100% - 10px);
+		border: 1px solid rgba(0, 0, 0, .3);
 		border-radius: 5px;
 	}
 
@@ -219,10 +263,7 @@
 		}
 
 	.flip-container, .front, .back {
-		/* width: 96px;
-		height: 144px; */
 		width: 100%;
-		/* height: 100vh; */
 	}
 
 	/* flip speed goes here */
@@ -233,13 +274,13 @@
 		position: relative;
 
 		width: 100%;
-		padding-top: 150%; /* 3:4 Aspect Ratio */
+		/* 3:4 Aspect Ratio */
+		padding-top: 150%;
 	}
 
 	/* hide back of pane during swap */
 	.front, .back {
 		backface-visibility: hidden;
-
 		position: absolute;
 		top: 0;
 		left: 0;
