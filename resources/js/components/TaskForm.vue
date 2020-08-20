@@ -99,11 +99,9 @@
 					for (var i = 0; i < texts.length; i++) {
 						this.$emit('submit', {text: texts[i]});
 					}
-
-					return;
+				} else {
+					this.$emit('submit', {text: this.textLocal});
 				}
-
-				this.$emit('submit', {text: this.textLocal});
 			},
 
 			focus() {
