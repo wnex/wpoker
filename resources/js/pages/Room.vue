@@ -6,7 +6,7 @@
 			<chat :socket="socket" :room="room"></chat>
 		</div>
 		<div class="col-md-8 order-md-1">
-			<h4 class="d-flex justify-content-between align-items-center">
+			<h4 class="d-flex justify-content-between align-items-center mb-2">
 				<span>{{room.name}}</span>
 				<span class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
 			</h4>
