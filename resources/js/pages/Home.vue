@@ -30,8 +30,13 @@
 					<router-link link :to="{name: 'room', params: {hash: room.hash}}" style="cursor: pointer;">
 						<h6 class="my-0">{{room.name}}</h6>
 					</router-link>
-					<span class="badge badge-secondary delete" @click="deleteRoom(room.id)">
-						<i class="fa fa-times" aria-hidden="true"></i>
+					<span>
+						<span class="badge badge-secondary delete" @click="">
+							<i class="fa fa-unlock-alt" aria-hidden="true"></i>
+						</span>
+						<span class="badge badge-secondary delete" @click="deleteRoom(room.id)">
+							<i class="fa fa-times" aria-hidden="true"></i>
+						</span>
 					</span>
 				</li>
 			</ul>
