@@ -46,7 +46,7 @@
 						v-for="task in tasks"
 						:key="task.id"
 						class="list-group-item d-flex justify-content-between lh-condensed task"
-						:class="{'task-complite': task.story_point_view}"
+						:class="{'task-complite': task.story_point_view, 'task-active': task.id === (room.task ? room.task.id : 0)}"
 					>
 						<div>
 							<span class="text-muted">#{{task.order}}</span>
@@ -347,6 +347,9 @@
 	}
 	.task-complite {
 		background-color: #eef6ff;
+	}
+	.task-active {
+		background-color: #bbdbff;
 	}
 	.story-point {
 		padding: 1px 6px;
