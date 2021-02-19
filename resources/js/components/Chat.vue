@@ -2,7 +2,31 @@
 	<div>
 		<h4 class="d-flex justify-content-between align-items-center mb-2">
 			<span class="text-muted">Chat</span>
+			<button class="btn btn-sm btn-outline-secondary mb-0" @click="switchShowChatHistory">History</button>
 		</h4>
+
+		<div class="history mb-2">
+			<div v-if="showChatHistory" class="mb-0">
+				<vue-custom-scrollbar id="message-block" class="message-block" :settings="scrollSettings">
+					<div>
+						<div
+							v-for="message in messages"
+							v-if="!message.notification"
+							:key="message.id"
+							class="toast show mb-1"
+						>
+							<div class="toast-body">
+								<strong class="mr-auto">{{message.author_name}}:</strong>
+								<small class="text-muted"><timer :created="message.date"></timer></small>
+								<vue-markdown :html="false" :anchorAttributes="{target: 'blank', rel: 'nofollow'}">{{message.message}}</vue-markdown>
+							</div>
+						</div>
+					</div>
+					<div class="chat-anchor"></div>
+				</vue-custom-scrollbar>
+			</div>
+		</div>
+
 		<focusable class="pt-2 pl-2 pr-2 mb-4" ref="focusable">
 			<form @submit.prevent="send">
 				<div class="input-group">
@@ -18,9 +42,6 @@
 			</form>
 
 			<template v-slot:footer>
-				<button class="btn btn-outline-info btn-sm" @click="showAll">
-					<i class="fa fa-history" aria-hidden="true"></i>
-				</button>
 				<button @click.prevent="send" class="btn btn-primary btn-sm float-right" :disabled="message.length === 0">Send</button>
 			</template>
 		</focusable>
@@ -45,21 +66,11 @@
 							<div class="toast-header">
 								<strong class="mr-auto">{{message.author_name}}</strong>
 								<small class="text-muted"><timer :created="message.date"></timer></small>
-								<button
-									type="button"
-									title="Remove this notification"
-									@click="remove(message.id)"
-									class="ml-2 mb-1 close"
-									data-dismiss="toast"
-									aria-label="Close"
-								>
-									<span aria-hidden="true">&times;</span>
-								</button>
 							</div>
 							<div class="toast-body"><vue-markdown :html="false" :anchorAttributes="{target: 'blank', rel: 'nofollow'}">{{message.message}}</vue-markdown></div>
 						</div>
 					</transition-group>
-					<div id="anchor"></div>
+					<div class="chat-anchor"></div>
 				</div>
 			</div>
 		</transition>
@@ -84,6 +95,9 @@
 	import 'prismjs/components/prism-php';
 	import 'prismjs/components/prism-bash';
 
+	import VueCustomScrollbar from 'vue-custom-scrollbar';
+	import 'vue-custom-scrollbar/dist/vueScrollbar.css';
+
 	export default {
 		props: {
 			socket: {
@@ -100,17 +114,24 @@
 			Timer,
 			VueMarkdown,
 			Focusable,
+			VueCustomScrollbar,
 		},
 
 		data: () => ({
 			message: '',
 			messages: [],
 			sound: null,
+			showChatHistory: false,
+			scrollSettings: {
+				suppressScrollY: false,
+				suppressScrollX: true,
+				wheelPropagation: false
+			},
 		}),
 
 		created: function() {
 			this.sound = new Audio('../sounds/intuition.mp3');
-			this.sound.volume = 0.3;
+			this.sound.volume = 0.4;
 		},
 
 		mounted: function() {
@@ -140,7 +161,7 @@
 					message: data.message,
 					date: moment().format(),
 					notification: data.notification,
-					isShow: true,
+					isShow: !this.showChatHistory || data.notification,
 				});
 
 				if (data.notification) {
@@ -206,17 +227,16 @@
 				localStorage['messages-'+this.room.hash] = JSON.stringify(this.messages);
 
 				this.$nextTick(() => {
-					var block = document.getElementById('anchor');
-					if (block !== null) {
-						block.scrollIntoView();
-					}
+					this.scrollToBottom();
 				});
 			},
 
 			scrollToBottom() {
-				var block = document.getElementById('anchor');
-				if (block !== null) {
-					block.scrollIntoView();
+				var blocks = document.querySelectorAll('.chat-anchor');
+				if (blocks !== null) {
+					for (var i = 0; i < blocks.length; i++) {
+						blocks[i].scrollIntoView({behavior: 'auto', block: 'nearest', inline: 'start'});
+					}
 				}
 			},
 
@@ -227,12 +247,8 @@
 				this.save();
 			},
 
-			showAll() {
-				for (var i = 0; i < this.messages.length; i++) {
-					this.messages[i].isShow = true;
-				}
-				this.save();
-
+			switchShowChatHistory() {
+				this.showChatHistory = !this.showChatHistory;
 				this.$nextTick(() => {
 					Prism.highlightAll();
 					this.scrollToBottom();
@@ -274,7 +290,7 @@
 		overflow-anchor: none;
 	}
 
-	#anchor {
+	.chat-anchor {
 		overflow-anchor: auto;
 		height: 1px;
 	}
@@ -345,5 +361,27 @@
 	.list-enter, .list-leave-to {
 		opacity: 0;
 		transform: translateX(30px);
+	}
+
+	.history .btn {
+
+	}
+
+	.history .message-block {
+		overflow-y: auto;
+		overflow-x: hidden;
+		max-height: 400px;
+	}
+
+	.history .toast {
+		min-width: 100%;
+	}
+
+	.history .toast:last-of-type {
+		margin-bottom: 0 !important;
+	}
+
+	.history .toast-body {
+		padding: 5px 10px;
 	}
 </style>

@@ -86,6 +86,7 @@ class ClientsRepository {
 				'name' => $client['name'],
 				'isVoted' => isset($client['isVoted']) ? $client['isVoted'] : false,
 				'isOwner' => $roomModel->isOwner($client['user']),
+				'hasVote' => $client['hasVote'],
 			];
 
 			if ($withVote AND isset($client['vote'])) {

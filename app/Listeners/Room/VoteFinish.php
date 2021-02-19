@@ -26,6 +26,12 @@ class VoteFinish extends SocketListeners
 	{
 		$users_in_room = $this->rooms->getClientsFromRoom($room);
 
+		foreach ($users_in_room as $key => $user_id) {
+			if (!$this->clients->getUser($user_id)['hasVote']) {
+				unset($users_in_room[$key]);
+			}
+		}
+
 		$voted = 0;
 		foreach ($users_in_room as $user_id) {
 			if (isset($this->clients->getUser($user_id)['vote'])) {

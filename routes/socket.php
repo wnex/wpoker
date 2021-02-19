@@ -4,6 +4,7 @@ $router = $this->app->make('App\Services\SocketRouterContract');
 
 $router->add('room.get', '\App\Http\Controllers\RoomsController@get');
 $router->add('room.create', '\App\Http\Controllers\RoomsController@create');
+$router->add('room.update', '\App\Http\Controllers\RoomsController@update');
 $router->add('room.delete', '\App\Http\Controllers\RoomsController@delete');
 
 $router->add('task.get', '\App\Http\Controllers\TasksController@get');

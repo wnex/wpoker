@@ -31,10 +31,10 @@
 						<h6 class="my-0">{{room.name}}</h6>
 					</router-link>
 					<span>
-						<span class="badge badge-secondary delete" @click="">
-							<i class="fa fa-unlock-alt" aria-hidden="true"></i>
+						<span class="badge badge-secondary wn-button" @click="setPassword(room.id)" title="Set password">
+							<i class="fa fa-fw" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 						</span>
-						<span class="badge badge-secondary delete" @click="deleteRoom(room.id)">
+						<span class="badge badge-secondary wn-button" @click="deleteRoom(room.id)" title="Delete the room">
 							<i class="fa fa-times" aria-hidden="true"></i>
 						</span>
 					</span>
@@ -85,7 +85,9 @@
 
 		mounted: function() {
 			if(this.$route.query.kicked) {
-				alert('Kicked you out.');
+				this.$nextTick(() => {
+					alert('Kicked you out.');
+				});
 			}
 		},
 
@@ -137,12 +139,32 @@
 				}
 			},
 			
+			setPassword(id) {
+				let password = prompt(`Enter the password for the room. Empty password will unlock the room.`);
+
+				if (password !== null) {
+					let promise = this.socket.request('room.update', {
+						id: id,
+						owner: this.$root.getUser(),
+						password: password,
+					})
+						.then((result) => {
+							for (var i = 0; i < this.rooms.length; i++) {
+								if (this.rooms[i].id == result.data.id) {
+									this.rooms.splice(i, 1, result.data);
+									break;
+								}
+							}
+							localStorage.rooms = JSON.stringify(this.rooms);
+						});
+				}
+			}
 		},
 	}
 </script>
 
 <style scoped>
-	.delete {
+	.wn-button {
 		cursor: pointer;
 	}
 </style>

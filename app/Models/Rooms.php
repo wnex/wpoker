@@ -15,6 +15,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $stage
  * @property string $owner
  * @property int|null $active_task_id
+ * @property string $password
  * @property \Illuminate\Support\Carbon|null $created_at
  * @property \Illuminate\Support\Carbon|null $updated_at
  * @property-read \App\Models\Tasks|null $activeTask
@@ -38,6 +39,9 @@ class Rooms extends Model {
 	/** @var array<string> */
 	protected $fillable = ['name', 'owner', 'active_task_id'];
 
+	protected $appends = ['hasPassword'];
+	protected $hidden = ['password'];
+
 	/**
 	 * @return void
 	 */
@@ -54,6 +58,10 @@ class Rooms extends Model {
 	 */
 	public function tasks() {
 		return $this->hasMany(Tasks::class, 'room_id');
+	}
+
+	public function getHasPasswordAttribute() {
+	    return !empty($this->password);
 	}
 
 	/**

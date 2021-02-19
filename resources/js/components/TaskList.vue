@@ -73,10 +73,6 @@
 	import Draggable from 'vuedraggable';
 	import TaskForm from '@/js/components/TaskForm';
 
-	/*import Vue from 'vue';
-	import VueAutosize from 'autosize-vue';
-	Vue.use(VueAutosize);*/
-
 	import Prism from 'prismjs';
 	import 'prismjs/themes/prism.css';
 
@@ -106,18 +102,6 @@
 		}),
 
 		mounted: function() {
-			if (localStorage['tasks-'+this.room.hash]) {
-				this.tasks = JSON.parse(localStorage['tasks-'+this.room.hash]);
-			}
-
-			let promise = this.socket.request('task.get', {
-				room: this.room.hash,
-			})
-				.then((result) => {
-					this.tasks = result.data;
-					this.tasksSort();
-				});
-
 			this.socket.listener('room.task.add', (data) => {
 				this.tasks.push(data.task);
 				this.tasksSort();
@@ -165,6 +149,20 @@
 		},
 
 		methods: {
+			init() {
+				if (localStorage['tasks-'+this.room.hash]) {
+					this.tasks = JSON.parse(localStorage['tasks-'+this.room.hash]);
+				}
+
+				let promise = this.socket.request('task.get', {
+					room: this.room.hash,
+				})
+					.then((result) => {
+						this.tasks = result.data;
+						this.tasksSort();
+					});
+			},
+
 			endDrag() {
 				this.drag = false;
 
@@ -312,7 +310,11 @@
 		},
 
 		watch: {
-			
+			'room.id'() {
+				if (this.room.id !== undefined && this.room.id !== null) {
+					this.init();
+				}
+			}
 		},
 	}
 </script>

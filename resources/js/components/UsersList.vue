@@ -53,15 +53,16 @@
 					count = [];
 
 				for (var i = 0; i < this.users.length; i++) {
-					let k = list.indexOf(this.users[i].voteView);
-					if (k === -1) {
-						k = list.length;
-						list[k] = this.users[i].voteView;
-						count[k] = 1;
-					} else {
-						count[k]++;
+					if (this.users[i]['hasVote']) {
+						let k = list.indexOf(this.users[i].voteView);
+						if (k === -1) {
+							k = list.length;
+							list[k] = this.users[i].voteView;
+							count[k] = 1;
+						} else {
+							count[k]++;
+						}
 					}
-					
 				}
 
 				return {

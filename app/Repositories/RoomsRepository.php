@@ -29,11 +29,44 @@ class RoomsRepository implements RoomsRepositoryInterface {
 
 	/**
 	 * @param  array{name: string, owner: string} $params
-	 * @return Rooms
+	 * @return \Illuminate\Database\Eloquent\Model
 	 */
 	public function create($params)
 	{
 		return $this->rooms->query()->create($params);
+	}
+
+	/**
+	 * @param  array{id: int, owner: string, name?: string, password?: string} $params
+	 * @return Rooms|null
+	 */
+	public function update($params)
+	{
+		$room = $this->first(['id' => $params['id']]);
+
+		if (is_null($room)) {
+			return null;
+		}
+
+		if ($room->isOwner($params['owner'])) {
+			if (isset($params['name'])) {
+				$room->name = $params['name'];
+			}
+
+			if (isset($params['password'])) {
+				$room->password = $params['password'];
+			}
+
+			$room->save();
+
+			$this->sendToRoom($room->hash, [
+				'action' => 'room.update',
+				'name' => $room->name,
+				'hasPassword' => $room->hasPassword,
+			]);
+
+			return $room;
+		}
 	}
 
 	/**

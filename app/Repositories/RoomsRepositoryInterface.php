@@ -7,9 +7,15 @@ use App\Models\Tasks;
 interface RoomsRepositoryInterface {
 	/**
 	 * @param  array{name: string, owner: string} $params
-	 * @return Rooms
+	 * @return \Illuminate\Database\Eloquent\Model
 	 */
 	public function create($params);
+
+	/**
+	 * @param  array{id: int, owner: string, name?: string, password?: string} $params
+	 * @return Rooms|null
+	 */
+	public function update($params);
 
 	/**
 	 * @param  array{id?: int, owner?: string} $conditions

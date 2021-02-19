@@ -19,7 +19,7 @@ class Enter extends SocketListeners
 	/**
 	 * Вход в комнату
 	 * 
-	 * @param  array{room: string, name: string, user: string}  $data
+	 * @param  array{room: string, name: string, user: string, password: string}  $data
 	 * @param  string $client_id
 	 * @return void
 	 */
@@ -30,20 +30,37 @@ class Enter extends SocketListeners
 			'room' => $data['room'],
 			'name' => $data['name'],
 			'user' => $data['user'],
+			'hasVote' => true,
 		]);
-
-		$this->rooms->addClientToRoom($data['room'], $client_id);
 
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
 		$owner_id = $this->clients->getOwnerId($room->owner);
 
+		if ($owner_id !== $client_id AND !empty($room->password) AND $data['password'] !== $room->password) {
+			$wrong = false;
+			if (!empty($data['password']) AND $data['password'] !== $room->password) {
+				$wrong = true;
+			}
+
+			$this->sendToCurrentClient([
+				'action' => 'room.wait.password',
+				'name' => $room->name,
+				'wrong' => $wrong,
+			]);
+
+			return;
+		}
+
+		$this->rooms->addClientToRoom($data['room'], $client_id);
+
 		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.entered.user',
 			'id' => $client_id,
 			'name' => $data['name'],
 			'isOwner' => $owner_id === $client_id,
+			'hasVote' => true,
 		], [$client_id]);
 
 		$this->sendToCurrentClient([
@@ -54,6 +71,8 @@ class Enter extends SocketListeners
 			'users' => $this->clients->getAllUsers($data['room'], $room->stage === 2),
 			'owner' => $owner_id,
 			'stage' => $room->stage,
+			'hasPassword' => $room->hasPassword,
+			'hasVote' => true,
 			'task' => $room->activeTask()->first(),
 		]);
 	}

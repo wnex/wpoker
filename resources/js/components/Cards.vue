@@ -28,7 +28,7 @@
 						<img :src="cover" @click="cardShake(card.view)" :class="{'shake': card.shake}" width="100%">
 					</div>
 					<div class="back">
-						<div class="poker-card-front" :style="'background-color: '+colors[index]+';'"  @click="vote(card.point, card.view)">
+						<div class="poker-card-front" :style="'background-color: '+card.color+';'"  @click="vote(card.point, card.view)">
 							<div class="poker-card-inner-border"></div>
 							<span>{{card.view}}</span>
 						</div>
@@ -59,24 +59,19 @@
 		data: () => ({
 			approve: false,
 			cover: '/images/cards/cover_min.png',
-			colors: [
-				'#8CCB5E', '#e87f6d', '#6992c8', '#f7abaa',
-				'#b0c4d1', '#1db6a1', '#7575b3', '#f5e8b6',
-				'#f9a12f', '#76ccea', '#f8d37b', '#cccaff',
-			],
 			cards: [
-				{point: 0.25, view: '1/4'},
-				{point: 0.5, view: '1/2'},
-				{point: 1, view: '1'},
-				{point: 2, view: '2'},
-				{point: 3, view: '3'},
-				{point: 5, view: '5'},
-				{point: 8, view: '8'},
-				{point: 13, view: '13'},
-				{point: 21, view: '21'},
-				{point: 0, view: '?'},
-				{point: 0, view: 'ထ'},
-				{point: 0, view: '0'},
+				{point: 0.25, view: '1/4', color: '#8CCB5E'},
+				{point: 0.5, view: '1/2', color: '#e87f6d'},
+				{point: 1, view: '1', color: '#6992c8'},
+				{point: 2, view: '2', color: '#f7abaa'},
+				{point: 3, view: '3', color: '#b0c4d1'},
+				{point: 5, view: '5', color: '#1db6a1'},
+				{point: 8, view: '8', color: '#7575b3'},
+				{point: 13, view: '13', color: '#f5e8b6'},
+				{point: 21, view: '21', color: '#f9a12f'},
+				{point: 0, view: '?', color: '#76ccea'},
+				{point: 0, view: 'ထ', color: '#f8d37b'},
+				{point: 0, view: '0', color: '#cccaff'},
 			],
 		}),
 

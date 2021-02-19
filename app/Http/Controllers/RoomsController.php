@@ -31,6 +31,15 @@ class RoomsController extends Controller {
 	}
 
 	/**
+	 * @param  array{id: int, owner: string, name?: string, password?: string} $params
+	 * @return Rooms|null
+	 */
+	public function update($params)
+	{
+		return $this->rooms->update($params);
+	}
+
+	/**
 	 * @param  array{owner: string, id: int}  $params
 	 * @return bool
 	 */

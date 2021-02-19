@@ -26,6 +26,14 @@
 			>
 				<i class="fa fa-fw fa-sign-out" aria-hidden="true"></i>
 			</span>
+			<span
+				v-if="user.isSelf || room.isOwner && !user.isOwner"
+				title="Has vote"
+				class="badge pr-0 user-control pointer"
+				@click="toggleUserHasVote(user.id, !user.hasVote)"
+			>
+				<i class="fa fa-fw" :class="{'fa-toggle-on': user.hasVote, 'fa-toggle-off': !user.hasVote}" aria-hidden="true"></i>
+			</span>
 			<span v-if="user.vote === undefined && user.isVoted" class="empty-card ml-1"></span>
 			<span class="badge user-control badge-primary ml-1">{{user.voteView}}</span>
 		</span>
@@ -99,6 +107,15 @@
 						'room': this.room.hash,
 					});
 				}
+			},
+
+			toggleUserHasVote(client_id, value) {
+				this.socket.send({
+					'action': 'room.user.toggle.hasVote',
+					'id': client_id,
+					'value': value,
+					'room': this.room.hash,
+				});
 			},
 		},
 	}
