@@ -40,7 +40,7 @@ class VoteFinish extends SocketListeners
 		}
 
 		// Все проголосовали
-		if ($voted === count($users_in_room)) {
+		if ($voted !== 0 AND $voted === count($users_in_room)) {
 			$this->rooms->sendToRoom($room, [
 				'action' => 'room.vote.final',
 				'users' => $this->clients->getAllUsers($room, true),
