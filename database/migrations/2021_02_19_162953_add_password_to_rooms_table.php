@@ -14,7 +14,7 @@ class AddPasswordToRoomsTable extends Migration
     public function up()
     {
         Schema::table('rooms', function (Blueprint $table) {
-            $table->string('password', 50)->after('owner');
+            $table->string('password', 50)->nullable()->after('owner');
         });
     }
 
