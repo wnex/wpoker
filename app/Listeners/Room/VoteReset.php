@@ -29,7 +29,7 @@ class VoteReset extends SocketListeners
 		if (is_null($room)) return;
 
 		$room->active_task_id = null;
-		$room->stage = 0;
+		$room->stage = \App\Enums\StagesOfRoom::wait;
 		$room->save();
 
 		$users_in_room = $this->rooms->getClientsFromRoom($data['room']);

@@ -14,9 +14,6 @@
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
 <body class="bg-light" data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
-
-	@include('analytics')
-
 	<div id="app">
 		<nav class="navbar navbar-expand-lg navbar-dark mb-3">
 			<div class="container">
@@ -41,10 +38,16 @@
 				</ul>
 			</footer>
 		</div>
+
+		<div v-if="disconnect" class="disconnect-alert alert alert-danger" role="alert">
+			Connecting...
+		</div>
 	</div>
 
 	<script type="text/javascript" src="{{ mix('js/manifest.js') }}"></script>
 	<script type="text/javascript" src="{{ mix('js/vendor.js') }}"></script>
 	<script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
+
+	@include('analytics')
 </body>
 </html>

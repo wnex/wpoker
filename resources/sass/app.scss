@@ -36,3 +36,10 @@ p:last-of-type {
 .navbar .logo {
 	width: 200px;
 }
+
+.disconnect-alert {
+	position: fixed !important;
+	left: 10px;
+	bottom: 0px;
+	width: auto;
+}

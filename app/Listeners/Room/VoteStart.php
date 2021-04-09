@@ -27,7 +27,7 @@ class VoteStart
 
 		$task = $room->getNextTask();
 
-		$room->stage = 1;
+		$room->stage = \App\Enums\StagesOfRoom::vote;
 		$room->active_task_id = $task ? $task->id : null;
 		$room->save();
 

@@ -61,7 +61,7 @@ class Rooms extends Model {
 	}
 
 	public function getHasPasswordAttribute() {
-	    return !empty($this->password);
+		return !empty($this->password);
 	}
 
 	/**

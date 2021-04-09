@@ -1,6 +1,7 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Enums\StagesOfRoom;
 use App\Listeners\SocketListeners;
 use App\Repositories\ClientsRepository;
 use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
@@ -47,10 +48,10 @@ class TaskUpdateAll extends SocketListeners
 		], [$client_id]);
 
 		// Если голосование уже начато, задача могла поменятся
-		if ($room->stage === 1) {
+		if ($room->stage === StagesOfRoom::vote) {
 			$task = $room->getNextTask();
 
-			$room->stage = 1;
+			$room->stage = StagesOfRoom::vote;
 			$room->active_task_id = $task ? $task->id : null;
 			$room->save();
 

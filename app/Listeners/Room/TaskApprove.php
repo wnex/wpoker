@@ -43,7 +43,7 @@ class TaskApprove extends SocketListeners
 			$task->story_point_view = $data['view'];
 			$task->save();
 
-			$task->room->stage = 2;
+			$task->room->stage = \App\Enums\StagesOfRoom::result;
 			$task->room->save();
 
 			$this->rooms->sendToRoom($task->room->hash, [

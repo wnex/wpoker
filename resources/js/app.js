@@ -22,10 +22,19 @@ const app = new Vue({
 	data: {
 		name: '',
 		socket: null,
+		disconnect: false,
 	},
 
 	created: function() {
 		this.socket = new Socket(document.body.dataset.socket);
+
+		this.socket.close(() => {
+			this.disconnect = true;
+		});
+
+		this.socket.open(() => {
+			this.disconnect = false;
+		});
 	},
 
 	mounted: function() {

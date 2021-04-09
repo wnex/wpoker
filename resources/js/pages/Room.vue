@@ -61,8 +61,6 @@
 	import UsersList from '@/js/components/UsersList';
 	import TextError from '@/js/components/TextError';
 
-	import Socket from '@/js/modules/Socket';
-
 	export default {
 		props: ['socket', 'hash'],
 

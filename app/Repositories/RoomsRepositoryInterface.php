@@ -7,7 +7,7 @@ use App\Models\Tasks;
 interface RoomsRepositoryInterface {
 	/**
 	 * @param  array{name: string, owner: string} $params
-	 * @return \Illuminate\Database\Eloquent\Model
+	 * @return Rooms
 	 */
 	public function create($params);
 

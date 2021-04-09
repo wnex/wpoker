@@ -15,8 +15,8 @@ export default class Socket {
 	public socket : WebSocket;
 	private listeners : Listeners = {};
 
-	private openFunc : Function = () => {};
-	private closeFunc : Function = () => {};
+	private openFuncs : Function[] = [];
+	private closeFuncs : Function[] = [];
 
 	private requests : Data[] = [];
 	private response : Listeners = {};
@@ -39,10 +39,14 @@ export default class Socket {
 	}
 
 	public connect(address : string, port : number, reconnect : boolean = true) : WebSocket {
-		let socket = new WebSocket(address+":"+port);
+		this.socket = new WebSocket(address+":"+port);
 
-		socket.addEventListener('open', () => {
-			this.openFunc.call(this);
+		this.socket.addEventListener('open', () => {
+			if (this.openFuncs.length > 0) {
+				for (var i = 0; i < this.openFuncs.length; i++) {
+					this.openFuncs[i].call(this);
+				}
+			}
 
 			if (this.requests.length > 0) {
 				for (var i = 0; i < this.requests.length; i++) {
@@ -55,13 +59,17 @@ export default class Socket {
 		}, false);
 
 		if (reconnect) {
-			socket.addEventListener('close', () => {
-				this.closeFunc.call(this);
-				setTimeout(() => this.connect(address, port, reconnect), 1000);
+			this.socket.addEventListener('close', () => {
+				if (this.closeFuncs.length > 0) {
+					for (var i = 0; i < this.closeFuncs.length; i++) {
+						this.closeFuncs[i].call(this);
+					}
+				}
+				this.connect(address, port, reconnect);
 			}, false);
 		}
 
-		socket.addEventListener('message', (etv) => {
+		this.socket.addEventListener('message', (etv) => {
 			let data : Data = JSON.parse(etv.data);
 
 			if (
@@ -81,7 +89,7 @@ export default class Socket {
 			}
 		});
 
-		return socket;
+		return this.socket;
 	}
 
 	private setPongPongTimeout() {
@@ -94,7 +102,12 @@ export default class Socket {
 	}
 
 	public send(data : any) {
-		this.socket.send(JSON.stringify(data));
+		if (this.isOpen()) {
+			this.socket.send(JSON.stringify(data));
+		} else {
+			this.requests.push(data);
+		}
+		
 		this.setPongPongTimeout();
 	}
 
@@ -131,14 +144,17 @@ export default class Socket {
 	public open(callback : Function) {
 		if (this.isOpen()) {
 			callback.call(this);
-		} else {
-			this.openFunc = callback;
 		}
+
+		this.openFuncs.push(callback);
 	}
 
 	public close(callback : Function) {
-		clearInterval(this.pingPong);
-		this.closeFunc = callback;
+		if (!this.isOpen()) {
+			callback.call(this);
+		}
+
+		this.closeFuncs.push(callback);
 	}
 
 }

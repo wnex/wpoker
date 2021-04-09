@@ -19,7 +19,7 @@ class CreateTasksTable extends Migration
 			$table->string('story_point', 50)->nullable();
 			$table->string('story_point_view', 50)->nullable();
 			$table->timestamps();
-			$table->foreign('room_id')->references('id')->on('rooms');
+			$table->foreign('room_id')->references('id')->on('rooms')->onDelete('cascade');
 		});
 
 		Schema::table('rooms', function(Blueprint $table) {
