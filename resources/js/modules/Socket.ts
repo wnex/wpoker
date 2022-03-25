@@ -8,6 +8,10 @@ interface Data {
 }
 
 interface Listeners {
+    [key:string]: Function[];
+}
+
+interface Response {
     [key:string]: Function;
 }
 
@@ -19,7 +23,7 @@ export default class Socket {
 	private closeFuncs : Function[] = [];
 
 	private requests : Data[] = [];
-	private response : Listeners = {};
+	private response : Response = {};
 
 	private pingPong !: NodeJS.Timeout;
 	private pingPongTimeout : number = 30;
@@ -82,10 +86,12 @@ export default class Socket {
 				return false;
 			}
 
-			if (
-				this.listeners[data.action] !== undefined
-			) {
-				this.listeners[data.action].call(this, data);
+			if (this.listeners[data.action] !== undefined) {
+				if (this.listeners[data.action].length > 0) {
+					for (var i = 0; i < this.listeners[data.action].length; i++) {
+						this.listeners[data.action][i].call(this, data);
+					}
+				}
 			}
 		});
 
@@ -112,7 +118,11 @@ export default class Socket {
 	}
 
 	public listener(action : string, callback : Function) {
-		this.listeners[action] = callback;
+		if (this.listeners[action] === undefined) {
+			this.listeners[action] = [];
+		}
+
+		this.listeners[action].push(callback);
 	}
 
 	public request(action : string, params : any) : Promise<Data> {

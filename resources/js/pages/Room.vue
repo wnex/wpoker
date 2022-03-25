@@ -43,8 +43,9 @@
 				<div v-if="room.isOwner" class="row ml-0">
 					<button v-if="stage === 0" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="startVote">Start vote</button>
 					<button v-if="stage === 1 || stage === 2" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
+					<button v-if="canSkipButton" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="skipVote">Skip</button>
 					<button v-if="canNextButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="nextVote">Next</button>
-					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="nextVote">Revote</button>
+					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="revote">Revote</button>
 				</div>
 			</transition>
 
@@ -207,6 +208,22 @@
 				this.soundStart.play();
 			});
 
+			this.socket.listener('room.vote.revote', (data) => {
+				this.stage = data.stage;
+				this.room.task = data.task;
+
+				this.average = null;
+				for (var i = 0; i < this.users.length; i++) {
+					this.$set(this.users[i], 'vote', undefined);
+					this.$set(this.users[i], 'voteView', undefined);
+					this.$set(this.users[i], 'isVoted', false);
+				}
+
+				this.soundStart.pause();
+				this.soundStart.currentTime = 0;
+				this.soundStart.play();
+			});
+
 			this.socket.listener('room.vote', (data) => {
 				for (var i = 0; i < this.users.length; i++) {
 					if (this.users[i].id === data.id) {
@@ -233,7 +250,6 @@
 
 			this.socket.listener('room.vote.final', (data) => {
 				this.canVote = false;
-				this.$refs.stopwatch.stopTimer();
 				this.stage = 2;
 
 				this.setUsers(data.users);
@@ -285,6 +301,10 @@
 					this.$router.push({name: 'home'});
 				}
 			});
+
+			this.socket.listener('room.task.approve', (data) => {
+				this.$refs.stopwatch.stopTimer();
+			});
 		},
 
 		methods: {
@@ -321,9 +341,32 @@
 				this.$refs.cards.stopApprove();
 			},
 
+			skipVote() {
+				if (confirm('Skip the current task?')) {
+					this.socket.send({
+						'action': 'room.task.approve',
+						'id': this.room.task.id,
+						'point': 0,
+						'view': 'skipped',
+					});
+
+					this.$refs.cards.stopApprove();
+					this.nextVote();
+				}
+			},
+
 			nextVote() {
 				this.resetVote();
 				this.startVote();
+			},
+
+			revote() {
+				this.socket.send({
+					'action': 'room.vote.revote',
+					'room': this.hash,
+				});
+
+				this.$refs.cards.stopApprove();
 			},
 
 			getAverage() {
@@ -408,7 +451,9 @@
 						} else {
 							this.canVote = false;
 						}
-						this.$refs.stopwatch.startTimer();
+						if (!this.$refs.stopwatch.isRunning) {
+							this.$refs.stopwatch.startTimer();
+						}
 						break;
 					case 2:
 						this.canVote = false;
@@ -420,6 +465,10 @@
 		computed: {
 			canNextButton() {
 				return this.stage === 2 && this.$refs.tasksList.haveUnratedTasks && !this.$refs.cards.approve;
+			},
+
+			canSkipButton() {
+				return !this.canNextButton && this.room.task !== null && (this.stage === 1 || this.stage === 2);
 			},
 
 			canReVoteButton() {
