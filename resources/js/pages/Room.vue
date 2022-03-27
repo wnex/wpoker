@@ -6,7 +6,7 @@
 			<chat :socket="socket" :room="room"></chat>
 		</div>
 		<div class="col-md-8 order-md-1">
-			<h4 class="d-flex justify-content-between align-items-center mb-2">
+			<h4 class="d-flex justify-content-between align-items-center mb-3">
 				<div>
 					<span v-if="!changeRoomNameSwitcher">{{room.name}}</span>
 					<form v-if="room.isOwner && changeRoomNameSwitcher" @submit.prevent="saveRoomName">
@@ -49,7 +49,7 @@
 				</div>
 			</transition>
 
-			<task-list ref="tasksList" :socket="socket" :room="room"></task-list>
+			<task-list ref="tasksList" :socket="socket" :room="room" @approve="onApprove"></task-list>
 		</div>
 	</div>
 </template>
@@ -85,6 +85,7 @@
 				clientId: null,
 				isOwner: false,
 				hasPassword: false,
+				cardset: null,
 			},
 			users: [],
 			stage: 0,
@@ -155,6 +156,7 @@
 				this.room.clientId = data.client_id;
 				this.room.task = data.task;
 				this.room.hasPassword = data.hasPassword;
+				this.room.cardset = JSON.parse(data.cardset) || {name: 'Default'};
 				this.hasVote = data.hasVote;
 				this.stage = data.stage;
 
@@ -169,6 +171,7 @@
 			this.socket.listener('room.update', (data) => {
 				this.room.name = data.name;
 				this.room.hasPassword = data.hasPassword;
+				this.room.cardset = JSON.parse(data.cardset) || {name: 'Default'};
 				this.setTitle(this.room.name);
 			});
 
@@ -301,13 +304,13 @@
 					this.$router.push({name: 'home'});
 				}
 			});
-
-			this.socket.listener('room.task.approve', (data) => {
-				this.$refs.stopwatch.stopTimer();
-			});
 		},
 
 		methods: {
+			onApprove() {
+				this.$refs.stopwatch.stopTimer();
+			},
+
 			enterRoom() {
 				this.socket.send({
 					'action': 'room.enter',

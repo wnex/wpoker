@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Model;
  * @property string $hash
  * @property int $stage
  * @property string $owner
+ * @property string $cardset
  * @property int|null $active_task_id
  * @property string $password
  * @property \Illuminate\Support\Carbon|null $created_at
@@ -36,8 +37,8 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Rooms extends Model {
 
-	/** @var array<string> */
-	protected $fillable = ['name', 'owner', 'active_task_id'];
+	/** @var array */
+	protected $fillable = ['name', 'owner', 'active_task_id', 'cardset'];
 
 	protected $appends = ['hasPassword'];
 	protected $hidden = ['password'];
@@ -49,7 +50,7 @@ class Rooms extends Model {
 		parent::boot();
 
 		static::creating(function (Model $query) {
-			$query->hash = mb_strimwidth(hash('sha256', (string)time() . (string)rand()), 2, 10);
+			$query->hash = trim(file_get_contents('/proc/sys/kernel/random/uuid'));
 		});
 	}
 

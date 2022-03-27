@@ -7,6 +7,8 @@
 	<link rel="icon" href="/favicon.png">
 
 	<title>Planning Poker</title>
+	<meta name="description" content="Free website for poker planning online.">
+	<meta name="author" content="Dmitriy Tyugaev">
 
 	<!-- Styles -->
 	<link rel="stylesheet" type="text/css" href="{{ mix('css/app.css') }}">

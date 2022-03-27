@@ -37,7 +37,7 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	}
 
 	/**
-	 * @param  array{id: int, owner: string, name?: string, password?: string} $params
+	 * @param  array{id: int, owner: string, name?: string, password?: string, cardset?: string} $params
 	 * @return Rooms|null
 	 */
 	public function update($params)
@@ -57,11 +57,16 @@ class RoomsRepository implements RoomsRepositoryInterface {
 				$room->password = $params['password'];
 			}
 
+			if (isset($params['cardset'])) {
+				$room->cardset = $params['cardset'];
+			}
+
 			$room->save();
 
 			$this->sendToRoom($room->hash, [
 				'action' => 'room.update',
 				'name' => $room->name,
+				'cardset' => $room->cardset,
 				'hasPassword' => $room->hasPassword,
 			]);
 

@@ -33,7 +33,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class Tasks extends Model {
 
-	/** @var array<string> */
+	/** @var array */
 	protected $fillable = ['text', 'order', 'story_point', 'story_point_view', 'room_id'];
 
 	/**

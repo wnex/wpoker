@@ -1,4 +1,4 @@
-import HashGenerator from './HashGenerator';
+import { v4 as uuidv4, v5 as uuidv5 } from 'uuid';
 
 interface Data {
 	action: string,
@@ -8,7 +8,7 @@ interface Data {
 }
 
 interface Listeners {
-    [key:string]: Function[];
+    [key:string]: Function;
 }
 
 interface Response {
@@ -28,16 +28,12 @@ export default class Socket {
 	private pingPong !: NodeJS.Timeout;
 	private pingPongTimeout : number = 30;
 
-	private hashGenerator : HashGenerator;
-
 	constructor(address : string, port? : number, reconnect : boolean = true) {
 		if (port === undefined) {
 			let parts = address.split(':');
 			address = parts[0]+':'+parts[1];
 			port = parseInt(parts[2]);
 		}
-
-		this.hashGenerator = new HashGenerator;
 
 		this.socket = this.connect(address, port, reconnect);
 	}
@@ -87,11 +83,7 @@ export default class Socket {
 			}
 
 			if (this.listeners[data.action] !== undefined) {
-				if (this.listeners[data.action].length > 0) {
-					for (var i = 0; i < this.listeners[data.action].length; i++) {
-						this.listeners[data.action][i].call(this, data);
-					}
-				}
+				this.listeners[data.action].call(this, data);
 			}
 		});
 
@@ -118,16 +110,12 @@ export default class Socket {
 	}
 
 	public listener(action : string, callback : Function) {
-		if (this.listeners[action] === undefined) {
-			this.listeners[action] = [];
-		}
-
-		this.listeners[action].push(callback);
+		this.listeners[action] = callback;
 	}
 
 	public request(action : string, params : any) : Promise<Data> {
 		return new Promise((resolve, reject) => {
-			let request_id = this.hashGenerator.generate(16),
+			let request_id = uuidv5('request', uuidv4()),
 				data : Data = {
 					'action': action,
 					'type': 'request',

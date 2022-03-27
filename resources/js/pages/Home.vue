@@ -3,7 +3,7 @@
 		<div class="col-md-4 order-md-2 mb-4">
 			<h4 class="d-flex justify-content-between align-items-center mb-3">Your name</h4>
 
-			<form @submit.prevent="saveName">
+			<form @submit.prevent="saveName" class="mb-4">
 				<text-error :text="changeNameErrorText"></text-error>
 				<div class="input-group">
 					<input type="text" v-model="name" class="form-control" placeholder="Enter your name">
@@ -12,6 +12,25 @@
 					</div>
 				</div>
 			</form>
+
+			<h4 class="d-flex justify-content-between align-items-center mb-3">Your secret UID</h4>
+			<div class="input-group mb-3">
+				<input :type="uidVisibility ? 'text' : 'password'" @focus="$event.target.select()" :value="$root.getUser()" readonly class="form-control">
+				<div class="input-group-append">
+					<button @click="uidVisibility = !uidVisibility" type="button" class="btn btn-outline-secondary">
+						<i class="fa" :class="{'fa-eye': !uidVisibility, 'fa-eye-slash': uidVisibility}" aria-hidden="true"></i>
+					</button>
+					<button @click="changeUid" type="button" class="btn btn-outline-secondary">
+						<i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+					</button>
+					<button @click="copyUid" type="button" class="btn btn-outline-secondary">Copy</button>
+				</div>
+			</div>
+			<div class="">
+				<p>This is your unique user ID. Your rooms are tied to it and your owner rights are determined by it.</p>
+				<p>You can copy and paste it on your other devices so you can access your rooms from all your devices.</p>
+				<p>Do not share this code with other people.</p>
+			</div>
 		</div>
 		<div class="col-md-8 order-md-1">
 			<h4 class="mb-3">Room list</h4>
@@ -48,6 +67,7 @@
 <script>
 	import Socket from '@/js/modules/Socket';
 	import TextError from '@/js/components/TextError';
+	import { validate as uuidValidate } from 'uuid';
 
 	export default {
 		props: ['socket'],
@@ -63,6 +83,7 @@
 			changeNameErrorText: null,
 			nameNewRoom: '',
 			loading: false,
+			uidVisibility: false,
 		}),
 
 		created: function() {
@@ -74,13 +95,7 @@
 				this.rooms = JSON.parse(localStorage.rooms);
 			}
 
-			let promise = this.socket.request('room.get', {
-				owner: this.$root.getUser(),
-			})
-				.then((result) => {
-					this.rooms = result.data;
-					localStorage.rooms = JSON.stringify(this.rooms);
-				});
+			this.roomsUpdate();
 		},
 
 		mounted: function() {
@@ -92,6 +107,15 @@
 		},
 
 		methods: {
+			roomsUpdate() {
+				let promise = this.socket.request('room.get', {
+					owner: this.$root.getUser(),
+				}).then((result) => {
+					this.rooms = result.data;
+					localStorage.rooms = JSON.stringify(this.rooms);
+				});
+			},
+
 			saveName() {
 				if (this.name === '') {
 					this.changeNameErrorText = 'Empty name.';
@@ -158,7 +182,35 @@
 							localStorage.rooms = JSON.stringify(this.rooms);
 						});
 				}
-			}
+			},
+
+			copyUid() {
+				global.navigator.clipboard.writeText(this.$root.getUser());
+			},
+
+			changeUid() {
+				let uid = prompt(`Enter UID`);
+
+				if (uid === null || uid === '') {
+					return alert('Empty UID.');
+				}
+
+				if (!uuidValidate(uid)) {
+					return alert('Not a valid UID.');
+				}
+
+				if (confirm('Are you confident? All your current data will be rebound to the new UID.')) {
+					let promise = this.socket.request('room.rebind', {
+						owner: this.$root.getUser(),
+						new_uid: uid,
+					}).then((result) => {
+						if (result.data) {
+							this.$cookies.set('uid', uid, 10000000);
+							this.roomsUpdate();
+						}
+					});
+				}
+			},
 		},
 	}
 </script>

@@ -1,5 +1,22 @@
 <template>
-	<div class="row mb-3 pt-0" :class="{'approve': approve}">
+	<div class="row mb-0 pt-0" :class="{'approve': approve}">
+		<div v-if="room.isOwner" class="btn-toolbar col-12 d-flex justify-content-between align-items-center mb-2">
+			<div class="btn-group mr-3" role="group">
+				<div class="btn-group" role="group">
+					<button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ (room.cardset && room.cardset.name) || 'Default' }}</button>
+					<div class="dropdown-menu">
+						<button v-for="(cardset, index) in cardsets" :key="index" @click="setCardSet(index)" class="dropdown-item btn-sm" type="button">
+							{{ index }}
+						</button>
+					</div>
+				</div>
+			</div>
+			<div class="btn-group" role="group">
+				<button v-if="!editing" type="button" @click="editing = !editing" class="btn btn-sm" :class="{'btn-success': editing, 'btn-outline-success': !editing}">Edit card set</button>
+				<button v-if="editing" type="button" @click="saveCardSet" class="btn btn-sm btn-success">Save card set</button>
+			</div>
+		</div>
+
 		<transition name="fade">
 			<div v-if="room.task" class="mb-2 col-12">
 				<vue-markdown
@@ -12,7 +29,7 @@
 		</transition>
 
 		<div class="col-12">
-			<div v-if="approve" class="alert alert-warning mt-3 mb-2" role="alert">
+			<div v-if="approve" class="alert alert-warning mb-2" role="alert">
 				You must confirm the grade for the current task in order to proceed.
 			</div>
 		</div>
@@ -20,17 +37,54 @@
 		<div
 			v-for="(card, index) in cards"
 			:key="card.view"
-			class="poker-card mb-2 d-flex col-3 col-md-2 pt-3 justify-content-between"
+			class="poker-card mb-3 d-flex col-3 col-md-2 justify-content-between"
 		>
-			<div class="flip-container" :class="{'hover': canVote || approve}">
+			<div class="flip-container" :class="{'hover': canVote || approve || editing}">
 				<div class="flipper">
 					<div class="front">
 						<img :src="cover" @click="cardShake(card.view)" :class="{'shake': card.shake}" width="100%">
 					</div>
-					<div class="back">
-						<div class="poker-card-front" :style="'background-color: '+card.color+';'"  @click="vote(card.point, card.view)">
+					<div class="back" :class="{'editable': editing}">
+						<div class="poker-card-front" :style="'background-color: '+card.color+';'"  @click.prevent="vote(card.point, card.view)">
 							<div class="poker-card-inner-border"></div>
-							<span>{{card.view}}</span>
+							<vue-markdown
+								v-if="!editing"
+								class="view"
+								:inline="true"
+								:html="false"
+								:anchorAttributes="anchorAttributes"
+								:source="card.view"
+							></vue-markdown>
+							<div v-if="editing">
+								<div class="input-group input-group-sm mb-1">
+									<input v-model="card.view" type="text" class="form-control" aria-label="Small" aria-describedby="view">
+								</div>
+								<div class="input-group input-group-sm mb-1">
+									<input v-model="card.point" type="text" class="form-control" aria-label="Small" aria-describedby="point">
+								</div>
+								<div class="input-group input-group-sm mb-1">
+									<input v-model="card.color" type="text" class="form-control" aria-label="Small" aria-describedby="color">
+								</div>
+								<div class="input-group input-group-sm mb-1">
+									<button type="button" @click="deleteCard(index)" class="btn btn-danger btn-sm">Delete card</button>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<div v-if="editing" class="poker-card mb-2 d-flex col-3 col-md-2 pt-3 justify-content-between">
+			<div class="flip-container hover">
+				<div class="flipper">
+					<div class="front">
+						<img :src="cover" width="100%">
+					</div>
+					<div class="back">
+						<div class="poker-card-front new-card" @click="newCard()">
+							<div class="poker-card-inner-border"></div>
+							<span>New</span>
 						</div>
 					</div>
 				</div>
@@ -49,30 +103,79 @@
 	import 'prismjs/components/prism-php';
 	import 'prismjs/components/prism-bash';
 
+	import Editable from '@/js/components/Editable';
+
 	export default {
 		props: ['socket', 'canVote', 'room'],
 
 		components: {
+			Editable,
 			VueMarkdown,
 		},
 
 		data: () => ({
 			approve: false,
 			cover: '/images/cards/cover_min.png',
-			cards: [
-				{point: 0.25, view: '1/4', color: '#8CCB5E'},
-				{point: 0.5, view: '1/2', color: '#e87f6d'},
-				{point: 1, view: '1', color: '#6992c8'},
-				{point: 2, view: '2', color: '#f7abaa'},
-				{point: 3, view: '3', color: '#b0c4d1'},
-				{point: 5, view: '5', color: '#1db6a1'},
-				{point: 8, view: '8', color: '#7575b3'},
-				{point: 13, view: '13', color: '#f5e8b6'},
-				{point: 21, view: '21', color: '#f9a12f'},
-				{point: 0, view: '?', color: '#76ccea'},
-				{point: 0, view: 'ထ', color: '#f8d37b'},
-				{point: 0, view: '0', color: '#cccaff'},
-			],
+			editing: false,
+			cards: [],
+			cardsets: {
+				'Default': [
+					{point: 0, view: '0', color: '#cccaff'},
+					{point: 0.25, view: '1/4', color: '#8CCB5E'},
+					{point: 0.5, view: '1/2', color: '#e87f6d'},
+					{point: 1, view: '1', color: '#6992c8'},
+					{point: 2, view: '2', color: '#f7abaa'},
+					{point: 3, view: '3', color: '#b0c4d1'},
+					{point: 5, view: '5', color: '#1db6a1'},
+					{point: 8, view: '8', color: '#7575b3'},
+					{point: 13, view: '13', color: '#f5e8b6'},
+					{point: 0, view: '?', color: '#f9a12f'},
+					{point: 0, view: ':coffee:', color: '#76ccea'},
+					{point: 0, view: ':dragon:', color: '#f8d37b'},
+				],
+				'Alternative': [
+					{point: 0, view: '0', color: '#cccaff'},
+					{point: 0.5, view: '1/2', color: '#8CCB5E'},
+					{point: 1, view: '1', color: '#e87f6d'},
+					{point: 2, view: '2', color: '#6992c8'},
+					{point: 3, view: '3', color: '#f7abaa'},
+					{point: 5, view: '5', color: '#b0c4d1'},
+					{point: 8, view: '8', color: '#1db6a1'},
+					{point: 13, view: '13', color: '#7575b3'},
+					{point: 20, view: '20', color: '#f5e8b6'},
+					{point: 40, view: '40', color: '#f9a12f'},
+					{point: 100, view: '100', color: '#76ccea'},
+					{point: 0, view: ':dragon:', color: '#f8d37b'},
+				],
+				'Fibonacci Sequence': [
+					{point: 0, view: '0', color: '#cccaff'},
+					{point: 1, view: '1', color: '#6992c8'},
+					{point: 2, view: '2', color: '#f7abaa'},
+					{point: 3, view: '3', color: '#b0c4d1'},
+					{point: 5, view: '5', color: '#1db6a1'},
+					{point: 8, view: '8', color: '#7575b3'},
+					{point: 13, view: '13', color: '#f5e8b6'},
+					{point: 21, view: '21', color: '#f9a12f'},
+					{point: 0, view: '?', color: '#76ccea'},
+					{point: 0, view: 'ထ', color: '#f8d37b'},
+				],
+				'Numerical Sequence': [
+					{point: 0, view: '0', color: '#cccaff'},
+					{point: 1, view: '1', color: '#6992c8'},
+					{point: 2, view: '2', color: '#f7abaa'},
+					{point: 3, view: '3', color: '#b0c4d1'},
+					{point: 4, view: '4', color: '#1db6a1'},
+					{point: 5, view: '5', color: '#7575b3'},
+					{point: 6, view: '6', color: '#f5e8b6'},
+					{point: 7, view: '7', color: '#f9a12f'},
+					{point: 0, view: '?', color: '#76ccea'},
+					{point: 0, view: 'ထ', color: '#f8d37b'},
+				],
+				'Yes/No': [
+					{point: 0, view: 'Yes', color: '#8CCB5E'},
+					{point: 0, view: 'No', color: '#e87f6d'},
+				],
+			},
 		}),
 
 		mounted: function() {
@@ -88,10 +191,16 @@
 					}
 				}
 			});
+
+			//this.cards = this.cardsets.Default;
 		},
 
 		methods: {
 			vote(point, view) {
+				if (this.editing) {
+					return false;
+				}
+
 				if (this.canVote) {
 					this.selectPoint = point;
 					this.socket.send({
@@ -131,6 +240,49 @@
 					'room': this.room.hash,
 				});
 			},
+
+			newCard() {
+				this.cards.push({view: 'Card '+(this.cards.length+1), point: '0', color: '#'});
+			},
+
+			deleteCard(id) {
+				if (this.cards.length === 2) {
+					alert('Minimum number of cards in a set 2.');
+					return false;
+				}
+
+				if (confirm('Delete this card?')) {
+					this.cards.splice(id, 1);
+				}
+			},
+
+			saveCardSet() {
+				if (this.room.isOwner) {
+					let promise = this.socket.request('room.update', {
+						id: this.room.id,
+						owner: this.$root.getUser(),
+						cardset: JSON.stringify({name: 'Custom', 'cards': this.cards}),
+					}).then((result) => {
+						this.editing = false;
+					});
+				}
+			},
+
+			canselEditing() {
+				this.editing = false;
+			},
+
+			setCardSet(name) {
+				if (this.room.isOwner) {
+					let promise = this.socket.request('room.update', {
+						id: this.room.id,
+						owner: this.$root.getUser(),
+						cardset: JSON.stringify({name: name}),
+					}).then((result) => {
+						this.editing = false;
+					});
+				}
+			},
 		},
 
 		computed: {
@@ -147,6 +299,22 @@
 				this.$nextTick(() => {
 					Prism.highlightAll();
 				});
+			},
+			'room.cardset'(n, o) {
+				if (n.name !== undefined) {
+					if (n.name === 'Custom') {
+						this.cards = n.cards;
+					} else {
+						for (let name in this.cardsets) {
+							if (name === n.name) {
+								this.cards = this.cardsets[name];
+								break;
+							}
+						}
+					}
+				} else {
+					this.cards = this.cardsets.Default;
+				}
 			},
 		},
 	}
@@ -180,6 +348,13 @@
 
 		background: linear-gradient(to left top, rgba(0, 0, 0, 0) 48.9%, rgba(0, 0, 0, .08) 51%, rgba(0, 0, 0, .08) 78%, rgba(0, 0, 0, 0) 80%), linear-gradient(to left top, rgba(0, 0, 0, .08) 28%, rgba(0, 0, 0, 0) 30%);
 		background-size: .5em 1.5em;
+
+		-webkit-touch-callout: none; /* iOS Safari */
+		-webkit-user-select: none;   /* Chrome/Safari/Opera */
+		-khtml-user-select: none;    /* Konqueror */
+		-moz-user-select: none;      /* Firefox */
+		-ms-user-select: none;       /* Internet Explorer/Edge */
+		user-select: none; 
 	}
 
 	@media (max-width: 576px) {
@@ -194,7 +369,7 @@
 		}
 	}
 
-	.poker-card-front span {
+	.poker-card-front div.view {
 		position: absolute;
 		top: 50%;
 		left: 50%;
@@ -264,6 +439,23 @@
 	.back {
 		transform: rotateY(180deg);
 		transition: all 0.5s;
+	}
+
+	.editable {
+		
+	}
+	.editable .poker-card-front {
+		font-size:  0.7rem;
+		font-weight: 100;
+		line-height: 10px;
+		padding: 5px;
+		-webkit-text-stroke: 0;
+	}
+	.editable input {
+		width: 50px;
+	}
+	.new-card {
+		font-size:  2rem;
 	}
 
 	img.shake {

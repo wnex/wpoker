@@ -59,7 +59,15 @@
 								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click.stop="editInit(task.id)"></i>
 								<i class="fa fa-fw fa-trash-o button-icon" title="Delete" @click="remove(task.id)"></i>
 							</span>
-							<span v-if="task.story_point_view" class="story-point" title="Story points">{{task.story_point_view}}</span>
+							<span v-if="task.story_point_view" class="story-point" title="Story points">
+								<vue-markdown
+									class="view"
+									:inline="true"
+									:html="false"
+									:anchorAttributes="anchorAttributes"
+									:source="task.story_point_view"
+								></vue-markdown>
+							</span>
 						</span>
 					</li>
 				</transition-group>
@@ -145,6 +153,7 @@
 						break;
 					}
 				}
+				this.$emit('approve', data);
 			});
 		},
 
@@ -358,6 +367,9 @@
 		background-color: #007bff;
 		color: #fff;
 		border-radius: 3px;
+	}
+	.story-point div {
+		display: inline-block;
 	}
 	.task .control-owner {
 		opacity: 0;

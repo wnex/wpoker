@@ -12,7 +12,7 @@ interface RoomsRepositoryInterface {
 	public function create($params);
 
 	/**
-	 * @param  array{id: int, owner: string, name?: string, password?: string} $params
+	 * @param  array{id: int, owner: string, name?: string, password?: string, cardset?: string} $params
 	 * @return Rooms|null
 	 */
 	public function update($params);

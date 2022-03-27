@@ -28,7 +28,7 @@ use Illuminate\Database\Eloquent\Model;
  */
 class News extends Model {
 
-	/** @var array<string> */
+	/** @var array */
 	protected $fillable = ['title', 'text', 'active'];
 
 }

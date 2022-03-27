@@ -31,7 +31,7 @@ class RoomsController extends Controller {
 	}
 
 	/**
-	 * @param  array{id: int, owner: string, name?: string, password?: string} $params
+	 * @param  array{id: int, owner: string, name?: string, password?: string, cardset?: string} $params
 	 * @return Rooms|null
 	 */
 	public function update($params)
@@ -62,6 +62,26 @@ class RoomsController extends Controller {
 		}
 
 		return $this->rooms->get(['owner' => $params['owner']])->toArray();
+	}
+
+	/**
+	 * @param  array{owner: string, new_uid: string}  $params
+	 * @return boolean
+	 */
+	public function rebind($params)
+	{
+		if (!isset($params['owner']) OR !isset($params['new_uid'])) {
+			return false;
+		}
+
+		$rooms = $this->rooms->get(['owner' => $params['owner']]);
+
+		foreach ($rooms as $key => $room) {
+			$room->owner = $params['new_uid'];
+			$room->save();
+		}
+
+		return true;
 	}
 
 }

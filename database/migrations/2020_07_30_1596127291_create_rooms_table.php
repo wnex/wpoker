@@ -14,9 +14,10 @@ class CreateRoomsTable extends Migration
 		Schema::create('rooms', function(Blueprint $table) {
 			$table->id()->unsigned();
 			$table->string('name', 50);
-			$table->string('hash', 10)->unique();
+			$table->string('hash', 36)->unique();
 			$table->tinyInteger('stage')->default(0);
 			$table->string('owner', 64);
+			$table->json('cardset')->nullable();
 			$table->timestamps();
 		});
 	}

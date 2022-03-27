@@ -74,6 +74,7 @@ class Enter extends SocketListeners
 			'hasPassword' => $room->hasPassword,
 			'hasVote' => true,
 			'task' => $room->activeTask()->first(),
+			'cardset' => $room->cardset,
 		]);
 	}
 

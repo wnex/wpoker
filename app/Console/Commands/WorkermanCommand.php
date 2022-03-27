@@ -12,7 +12,7 @@ class WorkermanCommand extends Command {
 
 	/** @var string */
 	protected $signature = 'workman {action?} {--d} {--g}';
-	/** @var string */
+	/** @var string|null */
 	protected $description = 'Start a Workerman server.';
 
 	/**

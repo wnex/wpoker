@@ -8,6 +8,9 @@ import App from '@/js/views/App';
 import MenuList from '@/js/components/MenuList';
 import Statistics from '@/js/components/Statistics';
 
+import VueCookies from 'vue-cookies';
+Vue.use(VueCookies);
+
 const app = new Vue({
 	el: '#app',
 	router: Routes,
@@ -49,14 +52,7 @@ const app = new Vue({
 		},
 
 		getUser() {
-			return this.getCookie('user');
-		},
-
-		getCookie(name) {
-			let matches = document.cookie.match(new RegExp(
-				"(?:^|; )" + name.replace(/([\.$?*|{}\(\)\[\]\\\/\+^])/g, '\\$1') + "=([^;]*)"
-			));
-			return matches ? decodeURIComponent(matches[1]) : undefined;
+			return this.$cookies.get('uid');
 		},
 	},
 });
