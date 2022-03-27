@@ -50,7 +50,6 @@
 							<vue-markdown
 								v-if="!editing"
 								class="view"
-								:inline="true"
 								:html="false"
 								:anchorAttributes="anchorAttributes"
 								:source="card.view"

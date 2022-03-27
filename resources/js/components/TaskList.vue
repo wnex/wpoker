@@ -62,7 +62,6 @@
 							<span v-if="task.story_point_view" class="story-point" title="Story points">
 								<vue-markdown
 									class="view"
-									:inline="true"
 									:html="false"
 									:anchorAttributes="anchorAttributes"
 									:source="task.story_point_view"

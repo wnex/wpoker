@@ -35,7 +35,11 @@
 				<i class="fa fa-fw" :class="{'fa-toggle-on': user.hasVote, 'fa-toggle-off': !user.hasVote}" aria-hidden="true"></i>
 			</span>
 			<span v-if="user.vote === undefined && user.isVoted" class="empty-card ml-1"></span>
-			<span class="badge user-control badge-primary ml-1">{{user.voteView}}</span>
+			<vue-markdown
+				class="badge user-control badge-primary ml-1"
+				:html="false"
+				:source="user.voteView"
+			></vue-markdown>
 		</span>
 
 		<form v-if="user.isSelf && changeNameSwitcher" @submit.prevent="saveName">
@@ -51,12 +55,14 @@
 </template>
 
 <script>
+	import VueMarkdown from 'vue-markdown';
 	import TextError from '@/js/components/TextError';
 
 	export default {
 		props: ['socket', 'user', 'room'],
 
 		components: {
+			VueMarkdown,
 			TextError,
 		},
 
