@@ -1,11 +1,11 @@
 <template>
 	<li
 		class="list-group-item"
-		:class="{'d-flex justify-content-between lh-condensed': !changeNameSwitcher}"
+		:class="{'d-flex justify-content-between lh-condensed': !changeNameSwitcher, 'disconnected': !user.active}"
 	>
 		<div v-if="!changeNameSwitcherForSelf()" :class="{'text-success': user.isVoted}">
 			<h6 class="my-0">
-				{{user.name === '' ? 'User #'+user.id : user.name}}
+				{{user.name === '' ? '[No name]' : user.name}}
 			</h6>
 			<small v-show="user.isOwner" class="text-muted">{{user.isOwner ? 'Owner' : 'Guest'}}</small>
 		</div>
@@ -150,5 +150,9 @@
 		display: inline-block;
 		vertical-align: baseline;
 		white-space: nowrap;
+	}
+
+	.disconnected {
+		opacity: 0.5;
 	}
 </style>

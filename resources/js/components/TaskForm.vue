@@ -4,6 +4,7 @@
 			<div class="input-group">
 				<textarea
 					@keydown.enter.exact.prevent="submit"
+					@paste="onPasteImage"
 					@focus="$refs.focusable.focus()"
 					ref="text"
 					class="text-box"
@@ -92,6 +93,30 @@
 		}),
 
 		methods: {
+			onPasteImage(pasteEvent) {
+				if(pasteEvent.clipboardData == false){
+				    if(typeof(callback) == "function"){
+				        console.log(undefined);
+				    }
+				};
+
+				var items = pasteEvent.clipboardData.items;
+
+				if(items == undefined){
+				    if(typeof(callback) == "function"){
+				        console.log(undefined);
+				    }
+				};
+
+				for (var i = 0; i < items.length; i++) {
+				    // Skip content if not image
+				    if (items[i].type.indexOf("image") == -1) continue;
+				    // Retrieve image on clipboard as blob
+				    var blob = items[i].getAsFile();
+				    console.log(blob);
+				}
+			},
+
 			submit() {
 				if (this.mode === 'multi') {
 					let texts = this.textLocal.split('\n');

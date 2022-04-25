@@ -14,7 +14,6 @@ Vue.use(VueCookies);
 const app = new Vue({
 	el: '#app',
 	router: Routes,
-	//render: h => h(App),
 
 	components: {
 		App,
@@ -37,6 +36,12 @@ const app = new Vue({
 
 		this.socket.open(() => {
 			this.disconnect = false;
+
+			this.socket.send({
+				'action': 'user.connect',
+				'name': this.name,
+				'uid': this.getUser(),
+			});
 		});
 	},
 

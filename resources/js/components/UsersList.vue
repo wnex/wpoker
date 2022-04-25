@@ -6,7 +6,7 @@
 				<span class="badge badge-secondary">{{users.length}}</span>
 			</h4>
 			<ul class="list-group mb-3">
-				<user v-for="user in users" :key="user.id" :socket="socket" :user="user" :room="room"></user>
+				<user v-for="user in sortedUsers" :key="user.id" :socket="socket" :user="user" :room="room"></user>
 
 				<li v-if="average !== null" class="list-group-item d-flex justify-content-between">
 					<span>Average</span>
@@ -79,7 +79,17 @@
 		},
 
 		computed: {
-			
+			sortedUsers() {
+				return this.users.sort((a, b) => {
+					if (a.isOwner && !b.isOwner) return -1;
+					if (!a.isOwner && b.isOwner) return 1;
+
+					if (a.name == '' && !b.name == '') return 1;
+					if (!a.name == '' && b.name == '') return -1;
+
+					return a.name.localeCompare(b.name);
+				});
+			},
 		},
 
 		watch: {

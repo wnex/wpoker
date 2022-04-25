@@ -1,26 +1,11 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class Vote extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var Dispatcher */
-	private $event;
-
-	public function __construct(RoomsRepInt $rooms, Dispatcher $event, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		$this->event = $event;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Оценка
 	 * 
@@ -30,11 +15,13 @@ class Vote extends SocketListeners
 	 */
 	public function handle($data, $client_id)
 	{
-		$this->clients->setUser($client_id, [
-			'isVoted' => true,
-			'vote' => $data['point'],
-			'voteView' => $data['view'],
+		$connect = Connections::where('id', $client_id)->first();
+		$connect->vote = array_merge($connect->vote, [
+			'is_voted' => true,
+			'value' => $data['point'],
+			'view' => $data['view'],
 		]);
+		$connect->save();
 
 		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.vote',

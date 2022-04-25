@@ -1,27 +1,12 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Connections;
 use App\Enums\StagesOfRoom;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use App\Repositories\TasksRepositoryInterface as TasksRepInt;
 
 class TaskUpdateAll extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var TasksRepInt */
-	private $tasks;
-
-	public function __construct(RoomsRepInt $rooms, TasksRepInt $tasks, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		$this->tasks = $tasks;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Обновление всех тасков
 	 * 
@@ -34,7 +19,7 @@ class TaskUpdateAll extends SocketListeners
 		$room =$this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$owner_id = $this->clients->getOwnerId($room->owner);
+		$owner_id = Connections::where('uid', $room->owner)->first()->id;
 
 		if ($owner_id === $client_id) {
 			foreach ($data['tasks'] as $task) {

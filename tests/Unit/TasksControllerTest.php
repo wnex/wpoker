@@ -60,7 +60,6 @@ class TasksControllerTest extends TestCase
 	 */
 	public function DeleteMethodTest()
 	{
-		$faker = \Faker\Factory::create();
 		$params = [
 			'id' => rand(1, 10000),
 			'user' => md5((string)time()),

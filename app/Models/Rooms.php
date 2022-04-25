@@ -40,6 +40,11 @@ class Rooms extends Model {
 	/** @var array */
 	protected $fillable = ['name', 'owner', 'active_task_id', 'cardset'];
 
+	/** @var array */
+	protected $casts = [
+		'cardset' => 'array',
+	];
+
 	protected $appends = ['hasPassword'];
 	protected $hidden = ['password'];
 
@@ -49,7 +54,7 @@ class Rooms extends Model {
 	protected static function boot() {
 		parent::boot();
 
-		static::creating(function (Model $query) {
+		static::creating(function(Model $query) {
 			$query->hash = trim(file_get_contents('/proc/sys/kernel/random/uuid'));
 		});
 	}
@@ -61,6 +66,9 @@ class Rooms extends Model {
 		return $this->hasMany(Tasks::class, 'room_id');
 	}
 
+	/**
+	 * @return bool
+	 */
 	public function getHasPasswordAttribute() {
 		return !empty($this->password);
 	}
@@ -92,6 +100,36 @@ class Rooms extends Model {
 	 */
 	public function isOwner($user) {
 		return $this->owner === $user;
+	}
+
+	/**
+	 * @param  bool $withVote
+	 * @return array
+	 */
+	public function getRoomUsers($withVote = false)
+	{
+		$connects = Connections::where('room_id', $this->hash)->distinct('uid')->get();
+
+		$users = [];
+		foreach ($connects as $connect) {
+			$user = [
+				'id' => $connect->id,
+				'name' => $connect->name,
+				'active' => $connect->active,
+				'isVoted' => isset($connect->vote['is_voted']) ? $connect->vote['is_voted'] : false,
+				'isOwner' => $this->isOwner($connect['uid']),
+				'hasVote' => $connect->vote['has_vote'],
+			];
+
+			if ($withVote AND isset($connect->vote['value'])) {
+				$user['vote'] = $connect->vote['value'];
+				$user['voteView'] = $connect->vote['view'];
+			}
+
+			$users[] = $user;
+		}
+
+		return $users;
 	}
 
 }

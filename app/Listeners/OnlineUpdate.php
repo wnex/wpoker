@@ -1,12 +1,11 @@
 <?php
 namespace App\Listeners;
 
-use GatewayWorker\Lib\Gateway;
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
 
 class OnlineUpdate extends SocketListeners
 {
-
 	/**
 	 * Обновление онлайна
 	 * 
@@ -15,8 +14,7 @@ class OnlineUpdate extends SocketListeners
 	public function handle() {
 		$this->sendToAll([
 			'action' => 'users.online.update',
-			'quantity' => Gateway::getAllClientIdCount(),
+			'quantity' => Connections::query()->distinct('uid')->count(),
 		]);
 	}
-
 }

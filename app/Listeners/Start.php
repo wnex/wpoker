@@ -3,7 +3,6 @@
 namespace App\Listeners;
 
 use App\Listeners\SocketListeners;
-use Illuminate\Support\Facades\Cache;
 
 class Start extends SocketListeners
 {
@@ -16,8 +15,7 @@ class Start extends SocketListeners
 	 */
 	public function handle($worker)
 	{
-		Cache::put('users', []);
-		Cache::put('rooms', []);
+		
 	}
 
 }

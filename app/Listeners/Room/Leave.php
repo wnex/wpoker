@@ -1,6 +1,7 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Connections;
 use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 use Illuminate\Contracts\Events\Dispatcher;
 
@@ -27,7 +28,7 @@ class Leave
 	 */
 	public function handle($data, $client_id)
 	{
-		$this->rooms->removeClientFromRoom($data['room'], $client_id);
+		Connections::where('room_id', $data['room'])->where('id', $client_id)->update(['room_id' => '']);
 
 		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.left.user',

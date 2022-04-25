@@ -1,25 +1,11 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use App\Repositories\TasksRepositoryInterface as TasksRepInt;
 
 class TaskApprove extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var TasksRepInt */
-	private $tasks;
-
-	public function __construct(RoomsRepInt $rooms, TasksRepInt $tasks, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		$this->tasks = $tasks;
-		parent::__construct($clients);
-	}
 
 	/**
 	 * Подтверждение оценки
@@ -36,7 +22,7 @@ class TaskApprove extends SocketListeners
 			return;
 		}
 
-		$owner_id = $this->clients->getOwnerId($task->room->owner);
+		$owner_id = Connections::where('uid', $task->room->owner)->first()->id;
 
 		if ($owner_id === $client_id) {
 			$task->story_point = $data['point'];

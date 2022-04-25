@@ -58,16 +58,16 @@ export default class Socket {
 			this.setPongPongTimeout();
 		}, false);
 
-		if (reconnect) {
-			this.socket.addEventListener('close', () => {
-				if (this.closeFuncs.length > 0) {
-					for (var i = 0; i < this.closeFuncs.length; i++) {
-						this.closeFuncs[i].call(this);
-					}
+		this.socket.addEventListener('close', () => {
+			if (this.closeFuncs.length > 0) {
+				for (var i = 0; i < this.closeFuncs.length; i++) {
+					this.closeFuncs[i].call(this);
 				}
-				this.connect(address, port, reconnect);
-			}, false);
-		}
+			}
+			if (reconnect) {
+				setTimeout(() => this.connect(address, port, reconnect), 1000);
+			}
+		}, false);
 
 		this.socket.addEventListener('message', (etv) => {
 			let data : Data = JSON.parse(etv.data);

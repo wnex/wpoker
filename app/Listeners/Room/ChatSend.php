@@ -3,19 +3,9 @@ namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
 use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 
 class ChatSend extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	public function __construct(RoomsRepInt $rooms, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Сообщение в чат
 	 * 

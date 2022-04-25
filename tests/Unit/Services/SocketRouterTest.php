@@ -76,7 +76,7 @@ class SocketRouterTest extends TestCase
 		$router = new SocketRouter($container, $event);
 		$router->add($routesParams['route'], $routesParams['class']);
 
-		$routes = $router->routing($params, $client_id);
+		$router->routing($params, $client_id);
 	}
 
 }

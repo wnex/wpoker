@@ -132,6 +132,7 @@
 					name: data.name,
 					isOwner: data.isOwner,
 					hasVote: data.hasVote,
+					active: true,
 				});
 
 				if (data.isOwner) {
@@ -156,7 +157,7 @@
 				this.room.clientId = data.client_id;
 				this.room.task = data.task;
 				this.room.hasPassword = data.hasPassword;
-				this.room.cardset = JSON.parse(data.cardset) || {name: 'Default'};
+				this.room.cardset = data.cardset || {name: 'Default'};
 				this.hasVote = data.hasVote;
 				this.stage = data.stage;
 
@@ -166,12 +167,13 @@
 
 				this.setTitle(this.room.name);
 				this.setUsers(data.users);
+				this.saveVisitHistory();
 			});
 
 			this.socket.listener('room.update', (data) => {
 				this.room.name = data.name;
 				this.room.hasPassword = data.hasPassword;
-				this.room.cardset = JSON.parse(data.cardset) || {name: 'Default'};
+				this.room.cardset = data.cardset || {name: 'Default'};
 				this.setTitle(this.room.name);
 			});
 
@@ -252,6 +254,12 @@
 			});
 
 			this.socket.listener('room.vote.final', (data) => {
+				if (this.stage !== 2) {
+					this.soundFinal.pause();
+					this.soundFinal.currentTime = 0;
+					this.soundFinal.play();
+				}
+
 				this.canVote = false;
 				this.stage = 2;
 
@@ -261,10 +269,6 @@
 				if (this.room.isOwner) {
 					this.$refs.cards.startApprove();
 				}
-
-				this.soundFinal.pause();
-				this.soundFinal.currentTime = 0;
-				this.soundFinal.play();
 			});
 
 			this.socket.listener('room.vote.reset', (data) => {
@@ -304,6 +308,16 @@
 					this.$router.push({name: 'home'});
 				}
 			});
+
+			this.socket.listener('room.user.disconnected', (data) => {
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === data.id) {
+						this.users[i].active = false;
+						this.users[i].hasVote = false;
+						break;
+					}
+				}
+			});
 		},
 
 		methods: {
@@ -316,7 +330,7 @@
 					'action': 'room.enter',
 					'room': this.hash,
 					'name': this.name,
-					'user': this.$root.getUser(),
+					'uid': this.$root.getUser(),
 					'password': '',
 				});
 			},
@@ -391,6 +405,9 @@
 				this.users = users;
 
 				for (var i = 0; i < this.users.length; i++) {
+					if (!this.users[i].active) {
+						this.users[i].hasVote = false;
+					}
 					if (this.users[i].id === this.room.clientId) {
 						this.users[i].isSelf = true;
 					}
@@ -462,6 +479,24 @@
 						this.canVote = false;
 						break;
 				}
+			},
+
+			saveVisitHistory() {
+				let visitHistory = [];
+				if (localStorage.visitHistory) {
+					visitHistory = JSON.parse(localStorage.visitHistory);
+				}
+
+				for (var i = 0; i < visitHistory.length; i++) {
+					if (visitHistory[i].hash === this.room.hash) {
+						visitHistory.splice(i, 1);
+						break;
+					}
+				}
+
+				visitHistory.unshift({name: this.room.name, hash: this.room.hash});
+				visitHistory.splice(5);
+				localStorage.visitHistory = JSON.stringify(visitHistory);
 			},
 		},
 

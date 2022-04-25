@@ -15,3 +15,5 @@ $router->add('task.delete', '\App\Http\Controllers\TasksController@delete');
 $router->add('new.get', '\App\Http\Controllers\NewsController@get');
 
 $router->add('room.rebind', '\App\Http\Controllers\RoomsController@rebind');
+
+$router->add('captcha.verify', '\App\Http\Controllers\CaptchaController@verify');
