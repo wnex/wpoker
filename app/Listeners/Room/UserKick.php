@@ -3,7 +3,6 @@ namespace App\Listeners\Room;
 
 use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
 
 class UserKick extends SocketListeners
 {

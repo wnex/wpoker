@@ -6,6 +6,7 @@ use App\Listeners\SocketListeners;
 
 class Close extends SocketListeners
 {
+	protected $secondsForReconnect = 60;
 	/**
 	 * Закрытие соединения
 	 * 
@@ -18,8 +19,8 @@ class Close extends SocketListeners
 		$users = Connections::whereIn('room_id', $rooms)->pluck('id');
 		$connect = Connections::where('id', $client_id)->first();
 
-		if (!empty($connect->room_id)) {
-			$timer_id = $this->addTimer(30, function() use($client_id, $rooms) {
+		if (!empty($connect->room_id) AND $this->secondsForReconnect > 0) {
+			$timer_id = $this->addTimer($this->secondsForReconnect, function() use($client_id, $rooms) {
 				$connect = Connections::where('id', $client_id)->first();
 
 				if (isset($connect)) {

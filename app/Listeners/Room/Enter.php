@@ -15,28 +15,11 @@ class Enter extends SocketListeners
 	 */
 	public function handle($data, $client_id)
 	{
-		$oldConnect = Connections::where('id', '!=', $client_id)->where('uid', $data['uid'])->where('room_id', $data['room'])->first();
-		$connect = Connections::where('id', $client_id)->first();
-
-		// восстановление подключения
-		if (isset($oldConnect)) {
-			$connect->vote = $oldConnect->vote;
-			$oldConnect->delete();
-
-			$this->rooms->sendToRoom($data['room'], [
-				'action' => 'room.left.user',
-				'id' => $oldConnect->id,
-			], [$client_id]);
-		}
-
-		$connect->room_id = $data['room'];
-		$connect->save();
-
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$isOwner = Connections::where('id', $client_id)->where('uid', $room->owner)->exists();
-		$owner_id = Connections::where('uid', $room->owner)->where('room_id', $data['room'])->firstOrNew()->id;
+		$isOwner = $room->owner === $data['uid'];
+		$owner_id = $isOwner ? $client_id : Connections::where('uid', $room->owner)->firstOrNew()->id;
 
 		if (!$isOwner AND !empty($room->password) AND $data['password'] !== $room->password) {
 			$wrong = false;
@@ -52,6 +35,31 @@ class Enter extends SocketListeners
 
 			return;
 		}
+
+		$oldConnect = Connections::where('id', '!=', $client_id)
+								->where('active', false)
+								->where('uid', $data['uid'])
+								->where('room_id', $data['room'])
+								->first();
+		$connect = Connections::where('id', $client_id)->first();
+
+		// восстановление подключения
+		if (isset($oldConnect)) {
+			$connect->vote = $oldConnect->vote;
+			$oldConnect->delete();
+
+			$this->rooms->sendToRoom($data['room'], [
+				'action' => 'room.left.user',
+				'id' => $oldConnect->id,
+			], [$client_id]);
+		}
+
+		$this->kickedOtherConnect($data['room'], $data['uid']);
+
+		$connect->room_id = $data['room'];
+		$connect->save();
+
+		$this->joinGroup($client_id, 'room:'.$data['room']);
 
 		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.entered.user',
@@ -75,22 +83,42 @@ class Enter extends SocketListeners
 			'cardset' => $room->cardset,
 		]);
 
-		// если сервер уже хранил информацию о голосовании, то передаём её
+		$this->sendVote($data['room'], $connect);
+	}
+
+	protected function kickedOtherConnect($room, $uid)
+	{
+		$otherConnects = Connections::where('room_id', $room)->where('uid', $uid)->get();
+		Connections::where('room_id', $room)->where('uid', $uid)->update(['room_id' => '']);
+
+		foreach ($otherConnects as $otherConnect) {
+			$this->rooms->sendToRoom($room, [
+				'action' => 'room.left.user',
+				'id' => $otherConnect->id,
+			]);
+
+			$this->sendToAll([
+				'action' => 'room.kicked.you',
+			], [$otherConnect->id]);
+		}
+	}
+
+	protected function sendVote($room, $connect)
+	{
 		if ($connect->vote['is_voted']) {
-			$this->rooms->sendToRoom($data['room'], [
+			$this->rooms->sendToRoom($room, [
 				'action' => 'room.vote',
-				'id' => $client_id,
+				'id' => $connect->id,
 			]);
 
 			$this->sendToCurrentClient([
 				'action' => 'room.vote.you',
-				'id' => $client_id,
+				'id' => $connect->id,
 				'vote' => $connect->vote['value'],
 				'voteView' => $connect->vote['view'],
 			]);
 
-			$this->event->dispatch('server.room.vote.finish', [$data['room']]);
+			$this->event->dispatch('server.room.vote.finish', [$room]);
 		}
 	}
-
 }

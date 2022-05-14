@@ -2,23 +2,10 @@
 namespace App\Listeners\Room;
 
 use App\Models\Connections;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use Illuminate\Contracts\Events\Dispatcher;
+use App\Listeners\SocketListeners;
 
-class Leave
+class Leave extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var Dispatcher */
-	private $event;
-
-	public function __construct(RoomsRepInt $rooms, Dispatcher $event)
-	{
-		$this->rooms = $rooms;
-		$this->event = $event;
-	}
-
 	/**
 	 * Выход из комнаты
 	 * 
@@ -35,7 +22,8 @@ class Leave
 			'id' => $client_id,
 		]);
 
+		$this->leaveGroup($client_id, 'room:'.$data['room']);
+
 		$this->event->dispatch('server.room.vote.finish', [$data['room']]);
 	}
-
 }

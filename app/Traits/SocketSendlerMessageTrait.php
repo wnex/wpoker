@@ -65,6 +65,32 @@ trait SocketSendlerMessageTrait {
 	}
 
 	/**
+	 * 将 client_id 加入组
+	 *
+	 * @param string $client_id
+	 * @param int|string $group
+	 * @return void
+	 */
+	public function joinGroup($client_id, $group)
+	{
+		Gateway::joinGroup($client_id, $group);
+	}
+
+	/**
+	 * 将 client_id 离开组
+	 *
+	 * @param string $client_id
+	 * @param int|string $group
+	 *
+	 * @return void
+	 */
+	public function leaveGroup($client_id, $group)
+	{
+		Gateway::leaveGroup($client_id, $group);
+	}
+
+
+	/**
 	 * 获取与 uid 绑定的 client_id 列表
 	 *
 	 * @param string $uid

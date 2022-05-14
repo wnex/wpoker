@@ -28,11 +28,12 @@ use Illuminate\Database\Eloquent\Model;
 class Connections extends Model {
 
 	/** @var array */
-	protected $fillable = ['id', 'uid', 'room_id', 'name', 'active', 'vote'];
+	protected $fillable = ['id', 'uid', 'room_id', 'name', 'active', 'vote', 'data'];
 
 	/** @var array */
 	protected $casts = [
 		'vote' => 'array',
+		'data' => 'array',
 	];
 
 	protected $keyType = 'string';
@@ -43,7 +44,7 @@ class Connections extends Model {
 	protected static function boot() {
 		parent::boot();
 
-		static::creating(function (Model $query)
+		static::creating(function(Model $query)
 		{
 			$query->vote = [
 				'is_voted' => false,
@@ -51,6 +52,8 @@ class Connections extends Model {
 				'value' => null,
 				'view' => null,
 			];
+
+			$query->data = [];
 		});
 	}
 

@@ -14,13 +14,13 @@ class CreateConnectionsTable extends Migration
     public function up()
     {
         Schema::create('connections', function (Blueprint $table) {
-            $table->engine = 'MyISAM';
             $table->string('id', 20);
             $table->string('uid', 36)->default('');
             $table->string('room_id', 36)->default('');
             $table->string('name', 150)->default('');
             $table->boolean('active')->default(true);
             $table->json('vote');
+            $table->json('data');
             $table->timestamps();
         });
     }

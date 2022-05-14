@@ -2,7 +2,7 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
+use App\Models\Connections;
 
 class ChatSend extends SocketListeners
 {
@@ -16,10 +16,11 @@ class ChatSend extends SocketListeners
 	public function handle($data, $client_id)
 	{
 		if (empty($data['name'])) {
-			if (empty($this->clients->getUser($client_id)['name'])) {
-				$data['name'] = 'User #' . $this->clients->getUser($client_id)['id'];
+			$name = Connections::where('id', $client_id)->firstOrNew()->name;
+			if (empty($name)) {
+				$data['name'] = 'User #'.$client_id;
 			} else {
-				$data['name'] = $this->clients->getUser($client_id)['name'];
+				$data['name'] = $name;
 			}
 		}
 

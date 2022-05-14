@@ -14,7 +14,7 @@ class OnlineUpdate extends SocketListeners
 	public function handle() {
 		$this->sendToAll([
 			'action' => 'users.online.update',
-			'quantity' => Connections::query()->distinct('uid')->count(),
+			'quantity' => Connections::query()->whereActive(1)->distinct('uid')->count(),
 		]);
 	}
 }

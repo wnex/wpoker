@@ -81,10 +81,10 @@ class Rooms extends Model {
 	}
 
 	/**
-	 * @return Tasks|null
+	 * @return Tasks
 	 */
 	public function getNextTask() {
-		return $this->tasks()->whereNull('story_point')->orderBy('order', 'asc')->first();
+		return $this->tasks()->whereNull('story_point')->orderBy('order', 'asc')->firstOrNew([]);
 	}
 
 	/**

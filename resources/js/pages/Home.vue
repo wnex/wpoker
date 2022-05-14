@@ -51,7 +51,7 @@
 				</div>
 			</form>
 
-			<h4 class="d-flex justify-content-between align-items-center mb-3">Your secret UID</h4>
+			<h4 class="d-flex justify-content-between align-items-center mb-3">Your secret UUID</h4>
 			<div class="input-group mb-3">
 				<input :type="uidVisibility ? 'text' : 'password'" @focus="$event.target.select()" :value="$root.getUser()" readonly class="form-control">
 				<div class="input-group-append">
@@ -71,15 +71,14 @@
 			</div>
 
 			<h4 v-if="visitHistory.length > 0" class="d-flex justify-content-between align-items-center mb-3">Visit history</h4>
-			<ul v-if="visitHistory.length > 0" class="list-group mb-3">
-				<li v-for="room in visitHistory" class="list-group-item d-flex justify-content-between lh-condensed">
-					<span>
-						<router-link link :to="{name: 'room', params: {hash: room.hash}}" style="cursor: pointer;">
-							<h6 class="my-0">{{room.name}}</h6>
-						</router-link>
-					</span>
-				</li>
-			</ul>
+			<div v-if="visitHistory.length > 0">
+				<div v-for="room in visitHistory">
+					<router-link link :to="{name: 'room', params: {hash: room.hash}}" style="cursor: pointer;">
+						<h6 class="my-0">{{room.name}}</h6>
+					</router-link>
+					<hr>
+				</div>
+			</div>
 		</div>
 	</div>
 </template>
@@ -129,7 +128,7 @@
 		mounted: function() {
 			if(this.$route.query.kicked) {
 				this.$nextTick(() => {
-					alert('Kicked you out.');
+					console.log('Kicked you out.');
 				});
 			}
 		},

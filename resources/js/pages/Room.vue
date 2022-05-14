@@ -111,7 +111,7 @@
 
 			this.soundStart = new Audio('../sounds/all-eyes-on-me.mp3');
 			this.soundStart.volume = 0.1;
-			this.soundFinal = new Audio('../sounds/time-is-now.mp3');
+			this.soundFinal = new Audio('../sounds/rhodesmas.mp3');
 			this.soundFinal.volume = 0.1;
 		},
 
