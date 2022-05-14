@@ -165,7 +165,7 @@
 					this.room.isOwner = true;
 				}
 
-				this.setTitle(this.room.name);
+				this.$root.setTitle(this.room.name);
 				this.setUsers(data.users);
 				this.saveVisitHistory();
 			});
@@ -174,7 +174,7 @@
 				this.room.name = data.name;
 				this.room.hasPassword = data.hasPassword;
 				this.room.cardset = data.cardset || {name: 'Default'};
-				this.setTitle(this.room.name);
+				this.$root.setTitle(this.room.name);
 			});
 
 			this.socket.listener('room.user.changeName', (data) => {
@@ -293,7 +293,7 @@
 					return;
 				}
 
-				this.setTitle(data.name);
+				this.$root.setTitle(data.name);
 
 				let password = prompt(`Enter the password for the room "${data.name}"`);
 				if (password !== null && password.length !== 0) {
@@ -412,12 +412,6 @@
 						this.users[i].isSelf = true;
 					}
 				}
-			},
-
-			setTitle(name) {
-				let part = document.title.split(' - ');
-				let base = part[1] !== undefined ? part[1] : part[0];
-				document.title = name + ' - ' + base;
 			},
 
 			setPassword() {

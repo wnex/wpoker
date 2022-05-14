@@ -6,9 +6,16 @@
 
 	<link rel="icon" href="/favicon.png">
 
-	<title>Planning Poker</title>
-	<meta name="description" content="Free website for poker planning online.">
+	<title>{{ $meta['title'] }}</title>
+	<meta name="description" content="Free website for scrum planning online.">
 	<meta name="author" content="Dmitriy Tyugaev">
+
+	<meta property="og:type" content="website" />
+	<meta property="og:title" content="{{ $meta['title'] }}" />
+	<meta property="og:description" content="Free website for scrum planning online." />
+	<meta property="og:image" content="{{ $meta['image'] }}" />
+
+	<script>var meta = @json($meta);</script>
 
 	<!-- Styles -->
 	<link rel="stylesheet" type="text/css" href="{{ mix('css/app.css') }}">
@@ -48,9 +55,9 @@
 		</div>
 	</div>
 
-	<script type="text/javascript" src="{{ mix('js/manifest.js') }}"></script>
-	<script type="text/javascript" src="{{ mix('js/vendor.js') }}"></script>
-	<script type="text/javascript" src="{{ mix('js/app.js') }}"></script>
+	<script src="{{ mix('js/manifest.js') }}"></script>
+	<script src="{{ mix('js/vendor.js') }}"></script>
+	<script src="{{ mix('js/app.js') }}"></script>
 
 	@include('analytics')
 </body>

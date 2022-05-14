@@ -59,6 +59,14 @@ const app = new Vue({
 		getUser() {
 			return this.$cookies.get('uid');
 		},
+
+		setTitle(name = '') {
+			if (name !== '') {
+				document.title = name+' - '+global.meta.raw.name;
+			} else {
+				document.title = global.meta.title;
+			}
+		},
 	},
 });
 

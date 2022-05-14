@@ -132,4 +132,14 @@ class Rooms extends Model {
 		return $users;
 	}
 
+	/**
+	 * Get the route key for the model.
+	 *
+	 * @return string
+	 */
+	public function getRouteKeyName()
+	{
+		return 'hash';
+	}
+
 }

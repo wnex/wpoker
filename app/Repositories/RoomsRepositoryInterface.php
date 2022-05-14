@@ -6,7 +6,7 @@ use App\Models\Tasks;
 
 interface RoomsRepositoryInterface {
 	/**
-	 * @param  array{name: string, owner: string} $params
+	 * @param  array{name: string, owner: string, clone: int} $params
 	 * @return Rooms
 	 */
 	public function create($params);

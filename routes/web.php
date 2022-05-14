@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\Rooms;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -14,18 +15,27 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/{any}', function (Request $request) {
-	$response = view('app');
+$meta = function($name = '') {
+	$array = [
+		'title' => config('app.name').' - '.config('app.tagline'),
+		'image' => asset('/images/logo_og.png'),
+		'raw' => [
+			'name' => config('app.name'),
+			'tagline' => config('app.tagline'),
+		],
+	];
 
-	if (!$request->cookie('uid', false)) {
-		if ($request->cookie('user', false)) {
-			$uid = $request->cookie('user', false);
-			\Cookie::queue(\Cookie::forget('user'));
-		} else {
-			$uid = trim(file_get_contents('/proc/sys/kernel/random/uuid'));
-		}
-		\Cookie::queue(\Cookie::make('uid', $uid, 10000000, null, null, null, false));
+	if (!empty($name)) {
+		$array['title'] = $name.' - '.$array['raw']['name'];
 	}
 
-	return $response;
+	return $array;
+};
+
+Route::get('/room/{rooms:hash}', function(Rooms $rooms) use($meta) {
+	return view('app', ['meta' => $meta($rooms->name)]);
+});
+
+Route::get('/{any}', function(Request $request) use($meta) {
+	return view('app', ['meta' => $meta()]);
 })->where('any', '.*');

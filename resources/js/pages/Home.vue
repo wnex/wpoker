@@ -28,6 +28,9 @@
 							Updated at <timer :created="room.updated_at"></timer></small>
 					</span>
 					<span>
+						<span class="badge badge-secondary wn-button" @click="cloneRoom(room.id, room.name)" title="Clone the room">
+							<i class="fa fa-fw fa fa-clone" aria-hidden="true"></i>
+						</span>
 						<span class="badge badge-secondary wn-button" @click="setPassword(room.id)" title="Set password">
 							<i class="fa fa-fw" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 						</span>
@@ -131,6 +134,8 @@
 					console.log('Kicked you out.');
 				});
 			}
+
+			this.$root.setTitle();
 		},
 
 		methods: {
@@ -153,22 +158,27 @@
 				this.changeNameErrorText = null;
 			},
 
+			async captchaVerify(action) {
+				const recaptcha = await recaptchaLoad('6LeVSDIfAAAAABxjfI8yEzoalSQ5iNa1TTobtx8j');
+				const token = await recaptcha.execute('room/create');
+				
+				let verify = await this.socket.request('captcha.verify', {
+					action: action,
+					token: token,
+				});
+
+				return verify.data.success;
+			},
+
 			async createRoom() {
 				if (this.nameNewRoom === '') {
 					this.roomErrorText = 'Empty name.';
 					return false;
 				}
 
-				const recaptcha = await recaptchaLoad('6LeVSDIfAAAAABxjfI8yEzoalSQ5iNa1TTobtx8j');
-				const token = await recaptcha.execute('room/create');
-				
-				let verify = await this.socket.request('captcha.verify', {
-					action: 'room/create',
-					token: token,
-				});
-
-				if (!verify.data.success)
+				if (!this.captchaVerify('room/create')) {
 					return false;
+				}
 
 				let promise = this.socket.request('room.create', {
 					name: this.nameNewRoom,
@@ -180,6 +190,27 @@
 				});
 
 				this.roomErrorText = null;
+			},
+
+			async cloneRoom(id, cloneName) {
+				let name = prompt(`Enter the new room name`, cloneName);
+
+				if (name === '') {
+					return false;
+				}
+
+				if (!this.captchaVerify('room/create')) {
+					return false;
+				}
+
+				let promise = this.socket.request('room.create', {
+					name: name,
+					owner: this.$root.getUser(),
+					clone: id,
+				}).then((result) => {
+					this.rooms.unshift(result.data);
+					localStorage.rooms = JSON.stringify(this.rooms);
+				});
 			},
 
 			deleteRoom(id) {

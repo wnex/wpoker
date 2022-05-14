@@ -25,12 +25,20 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	}
 
 	/**
-	 * @param  array{name: string, owner: string} $params
+	 * @param  array{name: string, owner: string, clone: int} $params
 	 * @return Rooms
 	 */
 	public function create($params)
 	{
-		return $this->rooms->query()->create($params);
+		if ($params['clone'] !== 0) {
+			$clone = $this->rooms->query()->whereId($params['clone'])->firstOrNew();
+			return $this->rooms->query()->create(array_merge($params, [
+				'cardset' => $clone->cardset,
+				'password' => $clone->password,
+			]));
+		} else {
+			return $this->rooms->query()->create($params);
+		}
 	}
 
 	/**
