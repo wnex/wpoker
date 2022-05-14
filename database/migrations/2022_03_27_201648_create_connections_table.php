@@ -15,7 +15,7 @@ class CreateConnectionsTable extends Migration
     {
         Schema::create('connections', function (Blueprint $table) {
             $table->string('id', 20);
-            $table->string('uid', 36)->default('');
+            $table->string('uid', 64)->default(''); //36
             $table->string('room_id', 36)->default('');
             $table->string('name', 150)->default('');
             $table->boolean('active')->default(true);
