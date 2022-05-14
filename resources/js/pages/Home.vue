@@ -28,14 +28,14 @@
 							Updated at <timer :created="room.updated_at"></timer></small>
 					</span>
 					<span>
-						<span class="badge badge-secondary wn-button" @click="cloneRoom(room.id, room.name)" title="Clone the room">
-							<i class="fa fa-fw fa fa-clone" aria-hidden="true"></i>
-						</span>
-						<span class="badge badge-secondary wn-button" @click="setPassword(room.id)" title="Set password">
+						<span class="badge wn-button" @click="setPassword(room.id)" title="Set password">
 							<i class="fa fa-fw" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 						</span>
-						<span class="badge badge-secondary wn-button" @click="deleteRoom(room.id)" title="Delete the room">
-							<i class="fa fa-times" aria-hidden="true"></i>
+						<span class="badge wn-button" @click="cloneRoom(room.id, room.name)" title="Clone the room">
+							<i class="fa fa-fw fa-clone" aria-hidden="true"></i>
+						</span>
+						<span class="badge wn-button" @click="deleteRoom(room.id)" title="Delete the room">
+							<i class="fa fa-fw fa-trash-o" aria-hidden="true"></i>
 						</span>
 					</span>
 				</li>

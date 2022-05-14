@@ -64,7 +64,7 @@ const app = new Vue({
 			if (name !== '') {
 				document.title = name+' - '+global.meta.raw.name;
 			} else {
-				document.title = global.meta.title;
+				document.title = global.meta.raw.name+' - '+global.meta.raw.tagline;
 			}
 		},
 	},
