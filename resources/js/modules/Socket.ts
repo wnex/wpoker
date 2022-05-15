@@ -8,16 +8,21 @@ interface Data {
 }
 
 interface Listeners {
-    [key:string]: Function;
+	[key:string]: Function[];
+}
+
+interface GroupListeners {
+	[key:string]: Listeners;
 }
 
 interface Response {
-    [key:string]: Function;
+	[key:string]: Function;
 }
 
 export default class Socket {
 	public socket : WebSocket;
-	private listeners : Listeners = {};
+	public listeners : GroupListeners = {};
+	protected currentGroup : string = 'nogroup';
 
 	private openFuncs : Function[] = [];
 	private closeFuncs : Function[] = [];
@@ -82,8 +87,13 @@ export default class Socket {
 				return false;
 			}
 
-			if (this.listeners[data.action] !== undefined) {
-				this.listeners[data.action].call(this, data);
+			for (let group in this.listeners) {
+				let actionsList = this.listeners[group][data.action];
+				if (actionsList !== undefined && actionsList.length > 0) {
+					for (let i = 0; i < this.listeners[group][data.action].length; i++) {
+						this.listeners[group][data.action][i].call(this, data);
+					}
+				}
 			}
 		});
 
@@ -109,8 +119,52 @@ export default class Socket {
 		this.setPongPongTimeout();
 	}
 
-	public listener(action : string, callback : Function) {
-		this.listeners[action] = callback;
+	public listener(action : string, callback : Function, group : string = '') {
+		this.on(action, callback, group);
+	}
+
+	public on(action : string, callback : Function, group : string = '') {
+		if (group === '') {
+			group = this.currentGroup;
+		}
+
+		if (this.listeners[group] === undefined) {
+			this.listeners[group] = {};
+		}
+
+		if (this.listeners[group][action] === undefined) {
+			this.listeners[group][action] = [];
+		}
+
+		this.listeners[group][action].push(callback);
+	}
+
+	public off(action : string, callback : Function) {
+		for (let group in this.listeners) {
+			let actionsList = this.listeners[group][action];
+			if (actionsList !== undefined && actionsList.length > 0) {
+				for (let i = 0; i < actionsList.length; i++) {
+					if (actionsList[i] === callback) {
+						this.listeners[group][action].splice(i, 1);
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	public group(name : string) {
+		this.currentGroup = name;
+	}
+
+	public endGroup() {
+		this.currentGroup = 'nogroup';
+	}
+
+	public offGroup(name : string) {
+		if (this.listeners[name] !== undefined) {
+			this.listeners[name] = {};
+		}
 	}
 
 	public request(action : string, params : any) : Promise<Data> {
@@ -139,7 +193,7 @@ export default class Socket {
 		return this.socket.readyState === this.socket.OPEN;
 	}
 
-	public open(callback : Function) {
+	public onOpen(callback : Function) {
 		if (this.isOpen()) {
 			callback.call(this);
 		}
@@ -147,12 +201,30 @@ export default class Socket {
 		this.openFuncs.push(callback);
 	}
 
-	public close(callback : Function) {
+	public onClose(callback : Function) {
 		if (!this.isOpen()) {
 			callback.call(this);
 		}
 
 		this.closeFuncs.push(callback);
+	}
+
+	public offOpen(callback : Function) {
+		for (let i = 0; i < this.openFuncs.length; i++) {
+			if (this.openFuncs[i] === callback) {
+				this.openFuncs.splice(i, 1);
+				break;
+			}
+		}
+	}
+
+	public offClose(callback : Function) {
+		for (let i = 0; i < this.closeFuncs.length; i++) {
+			if (this.closeFuncs[i] === callback) {
+				this.closeFuncs.splice(i, 1);
+				break;
+			}
+		}
 	}
 
 }

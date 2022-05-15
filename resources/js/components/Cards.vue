@@ -193,9 +193,11 @@
 						break;
 					}
 				}
-			});
+			}, 'card');
+		},
 
-			//this.cards = this.cardsets.Default;
+		destroyed() {
+			this.socket.offGroup('card');
 		},
 
 		methods: {

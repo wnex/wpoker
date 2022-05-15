@@ -30,19 +30,13 @@ const app = new Vue({
 	created: function() {
 		this.socket = new Socket(document.body.dataset.socket);
 
-		this.socket.close(() => {
-			this.disconnect = true;
-		});
+		this.socket.onOpen(this.onConnected);
+		this.socket.onClose(this.onDisconnected);
+	},
 
-		this.socket.open(() => {
-			this.disconnect = false;
-
-			this.socket.send({
-				'action': 'user.connect',
-				'name': this.name,
-				'uid': this.getUser(),
-			});
-		});
+	destroyed() {
+		this.socket.offOpen(this.onConnected);
+		this.socket.offClose(this.onDisconnected);
 	},
 
 	mounted: function() {
@@ -52,6 +46,20 @@ const app = new Vue({
 	},
 
 	methods: {
+		onConnected() {
+			this.disconnect = false;
+
+			this.socket.send({
+				'action': 'user.connect',
+				'name': this.name,
+				'uid': this.getUser(),
+			});
+		},
+
+		onDisconnected() {
+			this.disconnect = true;
+		},
+
 		changedName(value) {
 			localStorage.name = this.name = value;
 		},

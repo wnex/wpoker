@@ -98,21 +98,23 @@
 			changeRoomNameErrorText: null,
 		}),
 
-		created: function() {
+		created() {
 			this.room.hash = this.hash;
 
 			if (localStorage.name) {
 				this.name = localStorage.name;
 			}
 
-			this.socket.open(() => {
-				this.enterRoom();
-			});
+			this.socket.onOpen(this.enterRoom);
 
 			this.soundStart = new Audio('../sounds/all-eyes-on-me.mp3');
 			this.soundStart.volume = 0.1;
 			this.soundFinal = new Audio('../sounds/rhodesmas.mp3');
 			this.soundFinal.volume = 0.1;
+		},
+
+		destroyed() {
+			this.socket.offOpen(this.enterRoom);
 		},
 
 		beforeRouteUpdate(to, from, next) {
@@ -126,6 +128,8 @@
 		},
 
 		mounted: function() {
+			this.socket.group('room');
+
 			this.socket.listener('room.entered.user', (data) => {
 				this.users.push({
 					id: data.id,
@@ -318,6 +322,14 @@
 					}
 				}
 			});
+
+			this.socket.endGroup();
+
+			console.log(this.socket.listeners, Object.keys(this.socket.listeners).length);
+		},
+
+		destroyed() {
+			this.socket.offGroup('room');
 		},
 
 		methods: {
