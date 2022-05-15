@@ -115,6 +115,7 @@
 
 		destroyed() {
 			this.socket.offOpen(this.enterRoom);
+			this.socket.offGroup('room');
 		},
 
 		beforeRouteUpdate(to, from, next) {
@@ -324,12 +325,6 @@
 			});
 
 			this.socket.endGroup();
-
-			console.log(this.socket.listeners, Object.keys(this.socket.listeners).length);
-		},
-
-		destroyed() {
-			this.socket.offGroup('room');
 		},
 
 		methods: {

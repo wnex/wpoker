@@ -21,8 +21,8 @@ interface Response {
 
 export default class Socket {
 	public socket : WebSocket;
-	public listeners : GroupListeners = {};
-	protected currentGroup : string = 'nogroup';
+	private listeners : GroupListeners = {};
+	private currentGroup : string = 'nogroup';
 
 	private openFuncs : Function[] = [];
 	private closeFuncs : Function[] = [];
