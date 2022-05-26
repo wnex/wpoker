@@ -23,8 +23,9 @@ class VoteReset extends SocketListeners
 		$room->save();
 
 		Connections::where('room_id', $data['room'])->update([
-			'vote->is_votes' => false,
+			'vote->is_voted' => false,
 			'vote->value' => null,
+			'vote->view' => null,
 		]);
 
 		$this->rooms->sendToRoom($data['room'], [
