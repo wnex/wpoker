@@ -19,7 +19,7 @@ class RoomsController extends Controller {
 	}
 
 	/**
-	 * @param  array{name: string, owner: string}  $params
+	 * @param  array{name: string, owner: string, clone?: int}  $params
 	 * @return Rooms
 	 */
 	public function create($params)
@@ -27,6 +27,7 @@ class RoomsController extends Controller {
 		return $this->rooms->create([
 			'name' => $params['name'],
 			'owner' => $params['owner'],
+			'clone' => $params['clone'] ?? 0,
 		]);
 	}
 

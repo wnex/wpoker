@@ -29,6 +29,10 @@ This site has been designed to carry out poker planning within the team. The goa
 	export default {
 		props: ['socket'],
 
+		mounted() {
+			this.$root.setTitle();
+		},
+
 		components: {
 			VueMarkdown,
 		},

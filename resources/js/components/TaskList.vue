@@ -109,6 +109,8 @@
 		}),
 
 		mounted: function() {
+			this.socket.group('task');
+
 			this.socket.listener('room.task.add', (data) => {
 				this.tasks.push(data.task);
 				this.tasksSort();
@@ -154,6 +156,12 @@
 				}
 				this.$emit('approve', data);
 			});
+
+			this.socket.endGroup();
+		},
+
+		destroyed() {
+			this.socket.offGroup('task');
 		},
 
 		methods: {

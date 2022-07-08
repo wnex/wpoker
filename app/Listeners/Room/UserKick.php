@@ -1,26 +1,11 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class UserKick extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var Dispatcher */
-	private $event;
-
-	public function __construct(RoomsRepInt $rooms, Dispatcher $event, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		$this->event = $event;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Кик из комнаты
 	 * 
@@ -33,10 +18,10 @@ class UserKick extends SocketListeners
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$owner_id = $this->clients->getOwnerId($room->owner);
+		$owner_id = Connections::where('uid', $room->owner)->first()->id;
 
 		if ($owner_id === $client_id) {
-			$this->rooms->removeClientFromRoom($data['room'], $data['id']);
+			Connections::where('room_id', $data['room'])->where('id', $data['id'])->update(['room_id' => '']);
 
 			$this->rooms->sendToRoom($data['room'], [
 				'action' => 'room.left.user',

@@ -1,48 +1,56 @@
 <?php
 namespace App\Listeners;
 
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class Close extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var Dispatcher */
-	private $event;
-
-	public function __construct(RoomsRepInt $rooms, Dispatcher $event, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		$this->event = $event;
-		parent::__construct($clients);
-	}
-
+	protected $secondsForReconnect = 60;
 	/**
 	 * Закрытие соединения
 	 * 
-	 * @param  array{room: string}  $data
 	 * @param  string $client_id
 	 * @return void
 	 */
 	public function handle($client_id)
 	{
-		foreach ($this->rooms->getAllClientsByRooms() as $hash => $users) {
-			if (in_array($client_id, $users)) {
-				$this->rooms->removeClientFromRoom($hash, $client_id);
-			}
+		$rooms = Connections::where('id', $client_id)->distinct(['uid', 'room_id'])->pluck('room_id');
+		$users = Connections::whereIn('room_id', $rooms)->pluck('id');
+		$connect = Connections::where('id', $client_id)->first();
 
-			$this->sendToAll([
-				'action' => 'room.left.user',
-				'id' => $client_id,
-			], $users, [$client_id]);
+		if (!empty($connect->room_id) AND $this->secondsForReconnect > 0) {
+			$timer_id = $this->addTimer($this->secondsForReconnect, function() use($client_id, $rooms) {
+				$connect = Connections::where('id', $client_id)->first();
+
+				if (isset($connect)) {
+					$connect->delete();
+					$users = Connections::whereIn('room_id', $rooms)->pluck('id');
+
+					$this->sendToAll([
+						'action' => 'room.left.user',
+						'id' => $client_id,
+					], $users->toArray(), [$client_id]);
+				}
+			}, [], false);
+		} else {
+			if (isset($connect)) {
+				$connect->delete();
+			}
 		}
-		$this->clients->removeUser($client_id);
+		
+		Connections::where('id', $client_id)->update([
+			'active' => false,
+		]);
+		$this->sendToAll([
+			'action' => 'room.user.disconnected',
+			'id' => $client_id,
+		], $users->toArray(), [$client_id]);
 
 		$this->event->dispatch('server.online.update');
+		if (count($rooms) === 1) {
+			$this->event->dispatch('server.room.vote.finish', [$rooms[0]]);
+		}
 	}
 
 }

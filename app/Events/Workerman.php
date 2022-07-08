@@ -45,5 +45,13 @@ class Workerman {
 	public static function onClose($client_id) {
 		event("server.socket.close", [$client_id]);
 	}
+
+	/**
+	 * @param  \Workerman\Worker $worker
+	 * @return void
+	 */
+	public static function onWorkerStop($worker) {
+		event("server.socket.stop", [$worker]);
+	}
 	
 }

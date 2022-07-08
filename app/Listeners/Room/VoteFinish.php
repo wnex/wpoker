@@ -1,49 +1,32 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Rooms;
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 
 class VoteFinish extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	public function __construct(RoomsRepInt $rooms, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Окончание голосования
 	 * 
-	 * @param  string  $room
+	 * @param  string  $room_id
 	 * @return void
 	 */
-	public function handle($room)
+	public function handle($room_id)
 	{
-		$users_in_room = $this->rooms->getClientsFromRoom($room);
+		/** @var \Illuminate\Database\Eloquent\Builder */
+		$query = Connections::where('room_id', $room_id)->where('active', true)->where('vote->has_vote', true);
 
-		foreach ($users_in_room as $key => $user_id) {
-			if (!$this->clients->getUser($user_id)['hasVote']) {
-				unset($users_in_room[$key]);
-			}
-		}
-
-		$voted = 0;
-		foreach ($users_in_room as $user_id) {
-			if (isset($this->clients->getUser($user_id)['vote'])) {
-				$voted++;
-			}
-		}
+		$connects_in_room = (clone $query)->count();
+		$connects_with_vote_in_room = (clone $query)->whereNotNull('vote->value')->count();
+		$room = Rooms::where('hash', $room_id)->first();
 
 		// Все проголосовали
-		if ($voted !== 0 AND $voted === count($users_in_room)) {
-			$this->rooms->sendToRoom($room, [
+		if ($connects_with_vote_in_room !== 0 && $connects_in_room === $connects_with_vote_in_room) {
+			$this->rooms->sendToRoom($room_id, [
 				'action' => 'room.vote.final',
-				'users' => $this->clients->getAllUsers($room, true),
+				'users' => $room->getRoomUsers(true),
 			]);
 		}
 	}

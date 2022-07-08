@@ -34,7 +34,10 @@ class EventServiceProvider extends ServiceProvider
 
         'socket.room.chat.send'             => [\App\Listeners\Room\ChatSend::class],
 
+        'socket.user.connect'               => [\App\Listeners\UserConnect::class],
+
         'server.socket.start'               => [\App\Listeners\Start::class],
+        'server.socket.stop'                => [\App\Listeners\Stop::class],
         'server.socket.webSocketConnect'    => [\App\Listeners\WebSocketConnect::class],
         'server.socket.message'             => [\App\Listeners\Message::class],
         'server.socket.close'               => [\App\Listeners\Close::class],

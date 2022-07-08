@@ -98,21 +98,24 @@
 			changeRoomNameErrorText: null,
 		}),
 
-		created: function() {
+		created() {
 			this.room.hash = this.hash;
 
 			if (localStorage.name) {
 				this.name = localStorage.name;
 			}
 
-			this.socket.open(() => {
-				this.enterRoom();
-			});
+			this.socket.onOpen(this.enterRoom);
 
 			this.soundStart = new Audio('../sounds/all-eyes-on-me.mp3');
 			this.soundStart.volume = 0.1;
-			this.soundFinal = new Audio('../sounds/time-is-now.mp3');
+			this.soundFinal = new Audio('../sounds/rhodesmas.mp3');
 			this.soundFinal.volume = 0.1;
+		},
+
+		destroyed() {
+			this.socket.offOpen(this.enterRoom);
+			this.socket.offGroup('room');
 		},
 
 		beforeRouteUpdate(to, from, next) {
@@ -126,12 +129,15 @@
 		},
 
 		mounted: function() {
+			this.socket.group('room');
+
 			this.socket.listener('room.entered.user', (data) => {
 				this.users.push({
 					id: data.id,
 					name: data.name,
 					isOwner: data.isOwner,
 					hasVote: data.hasVote,
+					active: true,
 				});
 
 				if (data.isOwner) {
@@ -156,7 +162,7 @@
 				this.room.clientId = data.client_id;
 				this.room.task = data.task;
 				this.room.hasPassword = data.hasPassword;
-				this.room.cardset = JSON.parse(data.cardset) || {name: 'Default'};
+				this.room.cardset = data.cardset || {name: 'Default'};
 				this.hasVote = data.hasVote;
 				this.stage = data.stage;
 
@@ -164,15 +170,16 @@
 					this.room.isOwner = true;
 				}
 
-				this.setTitle(this.room.name);
+				this.$root.setTitle(this.room.name);
 				this.setUsers(data.users);
+				this.saveVisitHistory();
 			});
 
 			this.socket.listener('room.update', (data) => {
 				this.room.name = data.name;
 				this.room.hasPassword = data.hasPassword;
-				this.room.cardset = JSON.parse(data.cardset) || {name: 'Default'};
-				this.setTitle(this.room.name);
+				this.room.cardset = data.cardset || {name: 'Default'};
+				this.$root.setTitle(this.room.name);
 			});
 
 			this.socket.listener('room.user.changeName', (data) => {
@@ -252,6 +259,12 @@
 			});
 
 			this.socket.listener('room.vote.final', (data) => {
+				if (this.stage !== 2) {
+					this.soundFinal.pause();
+					this.soundFinal.currentTime = 0;
+					this.soundFinal.play();
+				}
+
 				this.canVote = false;
 				this.stage = 2;
 
@@ -261,10 +274,6 @@
 				if (this.room.isOwner) {
 					this.$refs.cards.startApprove();
 				}
-
-				this.soundFinal.pause();
-				this.soundFinal.currentTime = 0;
-				this.soundFinal.play();
 			});
 
 			this.socket.listener('room.vote.reset', (data) => {
@@ -289,7 +298,7 @@
 					return;
 				}
 
-				this.setTitle(data.name);
+				this.$root.setTitle(data.name);
 
 				let password = prompt(`Enter the password for the room "${data.name}"`);
 				if (password !== null && password.length !== 0) {
@@ -304,6 +313,18 @@
 					this.$router.push({name: 'home'});
 				}
 			});
+
+			this.socket.listener('room.user.disconnected', (data) => {
+				for (var i = 0; i < this.users.length; i++) {
+					if (this.users[i].id === data.id) {
+						this.users[i].active = false;
+						this.users[i].hasVote = false;
+						break;
+					}
+				}
+			});
+
+			this.socket.endGroup();
 		},
 
 		methods: {
@@ -316,7 +337,7 @@
 					'action': 'room.enter',
 					'room': this.hash,
 					'name': this.name,
-					'user': this.$root.getUser(),
+					'uid': this.$root.getUser(),
 					'password': '',
 				});
 			},
@@ -391,16 +412,13 @@
 				this.users = users;
 
 				for (var i = 0; i < this.users.length; i++) {
+					if (!this.users[i].active) {
+						this.users[i].hasVote = false;
+					}
 					if (this.users[i].id === this.room.clientId) {
 						this.users[i].isSelf = true;
 					}
 				}
-			},
-
-			setTitle(name) {
-				let part = document.title.split(' - ');
-				let base = part[1] !== undefined ? part[1] : part[0];
-				document.title = name + ' - ' + base;
 			},
 
 			setPassword() {
@@ -462,6 +480,24 @@
 						this.canVote = false;
 						break;
 				}
+			},
+
+			saveVisitHistory() {
+				let visitHistory = [];
+				if (localStorage.visitHistory) {
+					visitHistory = JSON.parse(localStorage.visitHistory);
+				}
+
+				for (var i = 0; i < visitHistory.length; i++) {
+					if (visitHistory[i].hash === this.room.hash) {
+						visitHistory.splice(i, 1);
+						break;
+					}
+				}
+
+				visitHistory.unshift({name: this.room.name, hash: this.room.hash});
+				visitHistory.splice(5);
+				localStorage.visitHistory = JSON.stringify(visitHistory);
 			},
 		},
 

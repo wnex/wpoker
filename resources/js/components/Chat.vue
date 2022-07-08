@@ -182,12 +182,16 @@
 					Prism.highlightAll();
 					this.scrollToBottom();
 				});
-			});
+			}, 'chat');
 
 			this.$nextTick(() => {
 				Prism.highlightAll();
 				this.scrollToBottom();
 			});
+		},
+
+		destroyed() {
+			this.socket.offGroup('chat');
 		},
 
 		methods: {

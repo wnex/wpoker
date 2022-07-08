@@ -14,7 +14,6 @@ Vue.use(VueCookies);
 const app = new Vue({
 	el: '#app',
 	router: Routes,
-	//render: h => h(App),
 
 	components: {
 		App,
@@ -31,13 +30,13 @@ const app = new Vue({
 	created: function() {
 		this.socket = new Socket(document.body.dataset.socket);
 
-		this.socket.close(() => {
-			this.disconnect = true;
-		});
+		this.socket.onOpen(this.onConnected);
+		this.socket.onClose(this.onDisconnected);
+	},
 
-		this.socket.open(() => {
-			this.disconnect = false;
-		});
+	destroyed() {
+		this.socket.offOpen(this.onConnected);
+		this.socket.offClose(this.onDisconnected);
 	},
 
 	mounted: function() {
@@ -47,12 +46,34 @@ const app = new Vue({
 	},
 
 	methods: {
+		onConnected() {
+			this.disconnect = false;
+
+			this.socket.send({
+				'action': 'user.connect',
+				'name': this.name,
+				'uid': this.getUser(),
+			});
+		},
+
+		onDisconnected() {
+			this.disconnect = true;
+		},
+
 		changedName(value) {
 			localStorage.name = this.name = value;
 		},
 
 		getUser() {
 			return this.$cookies.get('uid');
+		},
+
+		setTitle(name = '') {
+			if (name !== '') {
+				document.title = name+' - '+global.meta.raw.name;
+			} else {
+				document.title = global.meta.raw.name+' - '+global.meta.raw.tagline;
+			}
 		},
 	},
 });

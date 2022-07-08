@@ -6,7 +6,7 @@ use App\Models\Tasks;
 
 interface RoomsRepositoryInterface {
 	/**
-	 * @param  array{name: string, owner: string} $params
+	 * @param  array{name: string, owner: string, clone: int} $params
 	 * @return Rooms
 	 */
 	public function create($params);
@@ -40,43 +40,6 @@ interface RoomsRepositoryInterface {
 	 * @return Tasks|null
 	 */
 	public function getLastTask($room);
-
-	/**
-	 * @todo Rename this method to getAllClientsByRooms
-	 * @old getAllRooms
-	 * 
-	 * @return array
-	 */
-	public function getAllClientsByRooms();
-
-	/**
-	 * @todo Rename this method to getClientsFromRoom
-	 * @old getUsers
-	 * 
-	 * @param  string $hash
-	 * @return array
-	 */
-	public function getClientsFromRoom($hash);
-
-	/**
-	 * @todo Rename this method to addClientToRoom
-	 * @old addUser
-	 * 
-	 * @param string $hash
-	 * @param string $client_id
-	 * @return void
-	 */
-	public function addClientToRoom($hash, $client_id);
-
-	/**
-	 * @todo Rename this method to removeClientFromRoom
-	 * @old removeUser
-	 * 
-	 * @param  string $hash
-	 * @param  string $client_id
-	 * @return void
-	 */
-	public  function removeClientFromRoom($hash, $client_id);
 
 	/**
 	 * @param  string $hash

@@ -24,7 +24,7 @@ interface TasksRepositoryInterface {
 	public function updateOrder($id, $newOrder);
 
 	/**
-	 * @param  @param  array{id: int, owner: string} $params
+	 * @param  array{id: int, owner: string} $params
 	 * @return mixed
 	 */
 	public function delete($params);

@@ -2,20 +2,10 @@
 namespace App\Listeners\Room;
 
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
+use App\Models\Connections;
 
 class ChatSend extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	public function __construct(RoomsRepInt $rooms, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Сообщение в чат
 	 * 
@@ -26,10 +16,11 @@ class ChatSend extends SocketListeners
 	public function handle($data, $client_id)
 	{
 		if (empty($data['name'])) {
-			if (empty($this->clients->getUser($client_id)['name'])) {
-				$data['name'] = 'User #' . $this->clients->getUser($client_id)['id'];
+			$name = Connections::where('id', $client_id)->firstOrNew()->name;
+			if (empty($name)) {
+				$data['name'] = 'User #'.$client_id;
 			} else {
-				$data['name'] = $this->clients->getUser($client_id)['name'];
+				$data['name'] = $name;
 			}
 		}
 

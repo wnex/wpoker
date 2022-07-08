@@ -148,27 +148,31 @@
 				],
 				'Fibonacci Sequence': [
 					{point: 0, view: '0', color: '#cccaff'},
-					{point: 1, view: '1', color: '#6992c8'},
-					{point: 2, view: '2', color: '#f7abaa'},
-					{point: 3, view: '3', color: '#b0c4d1'},
-					{point: 5, view: '5', color: '#1db6a1'},
-					{point: 8, view: '8', color: '#7575b3'},
-					{point: 13, view: '13', color: '#f5e8b6'},
-					{point: 21, view: '21', color: '#f9a12f'},
-					{point: 0, view: '?', color: '#76ccea'},
-					{point: 0, view: 'ထ', color: '#f8d37b'},
+					{point: 1, view: '1', color: '#8CCB5E'},
+					{point: 2, view: '2', color: '#e87f6d'},
+					{point: 3, view: '3', color: '#6992c8'},
+					{point: 5, view: '5', color: '#f7abaa'},
+					{point: 8, view: '8', color: '#b0c4d1'},
+					{point: 13, view: '13', color: '#1db6a1'},
+					{point: 21, view: '21', color: '#7575b3'},
+					{point: 34, view: '34', color: '#f5e8b6'},
+					{point: 55, view: '55', color: '#f9a12f'},
+					{point: 89, view: '89', color: '#76ccea'},
+					{point: 144, view: '144', color: '#f8d37b'},
 				],
 				'Numerical Sequence': [
 					{point: 0, view: '0', color: '#cccaff'},
-					{point: 1, view: '1', color: '#6992c8'},
-					{point: 2, view: '2', color: '#f7abaa'},
-					{point: 3, view: '3', color: '#b0c4d1'},
-					{point: 4, view: '4', color: '#1db6a1'},
-					{point: 5, view: '5', color: '#7575b3'},
-					{point: 6, view: '6', color: '#f5e8b6'},
-					{point: 7, view: '7', color: '#f9a12f'},
-					{point: 0, view: '?', color: '#76ccea'},
-					{point: 0, view: 'ထ', color: '#f8d37b'},
+					{point: 1, view: '1', color: '#8CCB5E'},
+					{point: 2, view: '2', color: '#e87f6d'},
+					{point: 3, view: '3', color: '#6992c8'},
+					{point: 4, view: '4', color: '#f7abaa'},
+					{point: 5, view: '5', color: '#b0c4d1'},
+					{point: 6, view: '6', color: '#1db6a1'},
+					{point: 7, view: '7', color: '#7575b3'},
+					{point: 8, view: '8', color: '#f5e8b6'},
+					{point: 9, view: '9', color: '#f9a12f'},
+					{point: 10, view: '10', color: '#76ccea'},
+					{point: 11, view: '11', color: '#f8d37b'},
 				],
 				'Yes/No': [
 					{point: 0, view: 'Yes', color: '#8CCB5E'},
@@ -189,9 +193,11 @@
 						break;
 					}
 				}
-			});
+			}, 'card');
+		},
 
-			//this.cards = this.cardsets.Default;
+		destroyed() {
+			this.socket.offGroup('card');
 		},
 
 		methods: {
@@ -260,7 +266,7 @@
 					let promise = this.socket.request('room.update', {
 						id: this.room.id,
 						owner: this.$root.getUser(),
-						cardset: JSON.stringify({name: 'Custom', 'cards': this.cards}),
+						cardset: {name: 'Custom', 'cards': this.cards},
 					}).then((result) => {
 						this.editing = false;
 					});
@@ -276,7 +282,7 @@
 					let promise = this.socket.request('room.update', {
 						id: this.room.id,
 						owner: this.$root.getUser(),
-						cardset: JSON.stringify({name: name}),
+						cardset: {name: name},
 					}).then((result) => {
 						this.editing = false;
 					});

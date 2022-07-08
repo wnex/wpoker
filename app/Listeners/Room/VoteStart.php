@@ -25,10 +25,8 @@ class VoteStart
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$task = $room->getNextTask();
-
 		$room->stage = \App\Enums\StagesOfRoom::vote;
-		$room->active_task_id = $task ? $task->id : null;
+		$room->active_task_id = $room->getNextTask()->id;
 		$room->save();
 
 		$this->rooms->sendToRoom($data['room'], [

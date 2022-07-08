@@ -33,7 +33,6 @@ class RoomsControllerTest extends TestCase
 	 */
 	public function DeleteMethodTest()
 	{
-		$faker = \Faker\Factory::create();
 		$params = [
 			'id' => rand(1, 10000),
 			'owner' => md5((string)time()),
@@ -53,7 +52,6 @@ class RoomsControllerTest extends TestCase
 	 */
 	public function GetMethodTest()
 	{
-		$faker = \Faker\Factory::create();
 		$params = [
 			'owner' => md5((string)time()),
 		];

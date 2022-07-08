@@ -32,7 +32,6 @@ class SocketRouterTest extends TestCase
 
 		$routes = $router->all();
 
-		$this->assertIsArray($routes);
 		$this->assertTrue(count($routes) === 1);
 		$this->assertTrue($routes[$params['route']] === $params['class']);
 	}
@@ -76,7 +75,7 @@ class SocketRouterTest extends TestCase
 		$router = new SocketRouter($container, $event);
 		$router->add($routesParams['route'], $routesParams['class']);
 
-		$routes = $router->routing($params, $client_id);
+		$router->routing($params, $client_id);
 	}
 
 }

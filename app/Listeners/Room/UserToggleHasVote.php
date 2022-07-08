@@ -1,26 +1,11 @@
 <?php
 namespace App\Listeners\Room;
 
+use App\Models\Connections;
 use App\Listeners\SocketListeners;
-use App\Repositories\ClientsRepository;
-use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
-use Illuminate\Contracts\Events\Dispatcher;
 
 class UserToggleHasVote extends SocketListeners
 {
-	/** @var RoomsRepInt */
-	private $rooms;
-
-	/** @var Dispatcher */
-	private $event;
-
-	public function __construct(RoomsRepInt $rooms, Dispatcher $event, ClientsRepository $clients)
-	{
-		$this->rooms = $rooms;
-		$this->event = $event;
-		parent::__construct($clients);
-	}
-
 	/**
 	 * Переключение возможности голосовать для пользователя
 	 * 
@@ -33,12 +18,11 @@ class UserToggleHasVote extends SocketListeners
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$client = $this->clients->getUser($data['id']);
-		$owner_id = $this->clients->getOwnerId($room->owner);
+		$owner_id = Connections::where('uid', $room->owner)->first()->id;
 
-		if (!empty($client) AND ($data['id'] === $client_id OR $owner_id === $client_id)) {
-			$this->clients->setUser($data['id'], [
-				'hasVote' => $data['value'],
+		if ($data['id'] === $client_id OR $owner_id === $client_id) {
+			Connections::where('room_id', $data['room'])->where('id', $data['id'])->update([
+				'vote->has_vote' => $data['value'],
 			]);
 
 			$this->rooms->sendToRoom($data['room'], [

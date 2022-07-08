@@ -8,10 +8,15 @@ use GatewayWorker\Register;
 use Illuminate\Console\Command;
 use Workerman\Worker;
 
+/** @psalm-suppress PropertyNotSetInConstructor */
 class WorkermanCommand extends Command {
 
 	/** @var string */
+	protected $name = 'workman';
+
+	/** @var string */
 	protected $signature = 'workman {action?} {--d} {--g}';
+
 	/** @var string|null */
 	protected $description = 'Start a Workerman server.';
 

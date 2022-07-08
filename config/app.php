@@ -13,7 +13,8 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Laravel'),
+    'name' => 'Planning Poker',
+    'tagline' => 'For free scrum poker online',
 
     /*
     |--------------------------------------------------------------------------

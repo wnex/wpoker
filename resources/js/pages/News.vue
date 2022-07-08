@@ -47,6 +47,8 @@
 				.then((result) => {
 					this.news = result.data;
 				});
+
+			this.$root.setTitle();
 		},
 
 		methods: {
