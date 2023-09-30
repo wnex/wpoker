@@ -1,7 +1,6 @@
 <?php
 namespace App\Listeners;
 
-use App\Listeners\SocketListeners;
 use App\Repositories\ConnectionsRepository;
 use App\Repositories\RoomsRepositoryInterface as RoomsRepInt;
 use App\Repositories\TasksRepositoryInterface as TasksRepInt;

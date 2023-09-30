@@ -30,10 +30,10 @@ class TaskUpdateAll extends SocketListeners
 		$this->rooms->sendToRoom($data['room'], [
 			'action' => 'room.task.update.all',
 			'tasks' => $room->tasks,
-		], [$client_id]);
+		]);
 
 		// Если голосование уже начато, задача могла поменятся
-		if ($room->stage === StagesOfRoom::vote) {
+		if ($room->stage === StagesOfRoom::vote AND $room->active_task_id !== $room->getNextTask()->id) {
 			$room->stage = StagesOfRoom::vote;
 			$room->active_task_id = $room->getNextTask()->id;
 			$room->save();
