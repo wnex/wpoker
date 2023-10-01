@@ -25,15 +25,18 @@ class VoteStart
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$room->stage = \App\Enums\StagesOfRoom::vote;
-		$room->active_task_id = $room->getNextTask()->id;
-		$room->save();
+		if ($room->clientIsOwner($client_id)) {
+			$room->stage = \App\Enums\StagesOfRoom::vote;
+			$room->active_task_id = $room->getNextTask()->id;
+			$room->save();
+			$room->touch();
 
-		$this->rooms->sendToRoom($data['room'], [
-			'action' => 'room.vote.start',
-			'stage' => $room->stage,
-			'task' => $room->activeTask()->first(),
-		]);
+			$this->rooms->sendToRoom($data['room'], [
+				'action' => 'room.vote.start',
+				'stage' => $room->stage,
+				'task' => $room->activeTask()->first(),
+			]);
+		}
 	}
 
 }

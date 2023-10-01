@@ -8,7 +8,7 @@
 			<ul class="list-group mb-3">
 				<user v-for="user in sortedUsers" :key="user.id" :socket="socket" :user="user" :room="room"></user>
 
-				<li v-if="average !== null" class="list-group-item d-flex justify-content-between">
+				<li v-if="average !== null && average != 0" class="list-group-item d-flex justify-content-between">
 					<span>Average</span>
 					<strong>{{average}}</strong>
 				</li>

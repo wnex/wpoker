@@ -20,28 +20,27 @@ class Close extends SocketListeners
 		$connect = Connections::where('id', $client_id)->first();
 
 		if (!empty($connect->room_id) AND $this->secondsForReconnect > 0) {
-			$timer_id = $this->addTimer($this->secondsForReconnect, function() use($client_id, $rooms, $users) {
-				$connect = Connections::where('id', $client_id)->first();
-
-				$this->deleteConnection($connect, $rooms, $client_id);
-
-				Connections::where('id', $client_id)->update([
-					'active' => false,
-				]);
-				$this->sendToAll([
-					'action' => 'room.user.disconnected',
-					'id' => $client_id,
-				], $users->toArray(), [$client_id]);
+			$timer_id = $this->addTimer($this->secondsForReconnect, function() use($client_id, $rooms) {
+				$this->deleteConnection($rooms, $client_id);
 			}, [], false);
+
+			Connections::where('id', $client_id)->update([
+				'active' => false,
+			]);
+			$this->sendToAll([
+				'action' => 'room.user.disconnected',
+				'id' => $client_id,
+			], $users->toArray(), [$client_id]);
 		} else {
-			$this->deleteConnection($connect, $rooms, $client_id);
+			$this->deleteConnection($rooms, $client_id);
 		}
 
 		$this->event->dispatch('server.online.update');
 	}
 
-	protected function deleteConnection($connect, $rooms, $client_id)
+	protected function deleteConnection($rooms, $client_id)
 	{
+		$connect = Connections::where('id', $client_id)->first();
 		if (isset($connect)) {
 			$connect->delete();
 			$users = Connections::whereIn('room_id', $rooms)->pluck('id');

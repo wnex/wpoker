@@ -44,7 +44,6 @@
 					<button v-if="stage === 0" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="startVote">Start vote</button>
 					<button v-if="stage === 1 || stage === 2" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
 					<button v-if="canSkipButton" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="skipVote">Skip</button>
-					<button v-if="canNextButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="nextVote">Next</button>
 					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="revote">Revote</button>
 				</div>
 			</transition>
@@ -165,6 +164,8 @@
 				this.room.cardset = data.cardset || {name: 'Default'};
 				this.hasVote = data.hasVote;
 				this.stage = data.stage;
+
+				this.$refs.stopwatch.startTimer(performance.now() + (data.time*1000));
 
 				if (this.room.clientId === this.room.ownerId) {
 					this.room.isOwner = true;
@@ -374,13 +375,7 @@
 					});
 
 					this.$refs.cards.stopApprove();
-					this.nextVote();
 				}
-			},
-
-			nextVote() {
-				this.resetVote();
-				this.startVote();
 			},
 
 			revote() {
@@ -397,7 +392,7 @@
 					count = 0;
 				for (var i = 0; i < this.users.length; i++) {
 					if (this.users[i]['hasVote'] && this.users[i]['vote'] != 0) {
-						amount += this.users[i]['vote'];
+						amount += parseFloat(this.users[i]['vote']);
 						count++;
 					}
 				}

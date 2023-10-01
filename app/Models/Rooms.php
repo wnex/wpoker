@@ -103,6 +103,14 @@ class Rooms extends Model {
 	}
 
 	/**
+	 * @param  string $client_id
+	 * @return bool
+	 */
+	public function clientIsOwner($client_id) {
+		return Connections::where('id', $client_id)->where('uid', $this->owner)->exists();
+	}
+
+	/**
 	 * @param  bool $withVote
 	 * @return array
 	 */

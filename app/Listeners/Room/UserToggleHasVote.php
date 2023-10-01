@@ -18,9 +18,7 @@ class UserToggleHasVote extends SocketListeners
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$owner_id = Connections::where('uid', $room->owner)->first()->id;
-
-		if ($data['id'] === $client_id OR $owner_id === $client_id) {
+		if ($data['id'] === $client_id OR $room->clientIsOwner($client_id)) {
 			Connections::where('room_id', $data['room'])->where('id', $data['id'])->update([
 				'vote->has_vote' => $data['value'],
 			]);

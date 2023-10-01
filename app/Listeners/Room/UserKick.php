@@ -18,9 +18,7 @@ class UserKick extends SocketListeners
 		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
-		$owner_id = Connections::where('uid', $room->owner)->first()->id;
-
-		if ($owner_id === $client_id) {
+		if ($room->clientIsOwner($client_id)) {
 			Connections::where('room_id', $data['room'])->where('id', $data['id'])->update(['room_id' => '']);
 
 			$this->rooms->sendToRoom($data['room'], [

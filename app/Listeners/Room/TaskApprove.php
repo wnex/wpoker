@@ -22,15 +22,10 @@ class TaskApprove extends SocketListeners
 			return;
 		}
 
-		$owner_id = Connections::where('uid', $task->room->owner)->first()->id;
-
-		if ($owner_id === $client_id) {
+		if ($task->room->clientIsOwner($client_id)) {
 			$task->story_point = $data['point'];
 			$task->story_point_view = $data['view'];
 			$task->save();
-
-			$task->room->stage = \App\Enums\StagesOfRoom::result;
-			$task->room->save();
 
 			$this->rooms->sendToRoom($task->room->hash, [
 				'action' => 'room.task.approve',
@@ -48,6 +43,12 @@ class TaskApprove extends SocketListeners
 				'date' => date('c'),
 				'notification' => true,
 			]);
+
+			$this->event->dispatch('socket.room.vote.reset', [['room' => $task->room->hash], $client_id]);
+
+			if (!is_null($task->room->getNextTask()->id)) {
+				$this->event->dispatch('socket.room.vote.start', [['room' => $task->room->hash], $client_id]);
+			}
 		}
 	}
 

@@ -121,7 +121,7 @@
 			message: '',
 			messages: [],
 			sound: null,
-			showChatHistory: false,
+			showChatHistory: true,
 			scrollSettings: {
 				suppressScrollY: false,
 				suppressScrollX: true,
@@ -365,10 +365,6 @@
 	.list-enter, .list-leave-to {
 		opacity: 0;
 		transform: translateX(30px);
-	}
-
-	.history .btn {
-
 	}
 
 	.history .message-block {

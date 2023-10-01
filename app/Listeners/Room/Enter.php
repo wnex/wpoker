@@ -81,6 +81,7 @@ class Enter extends SocketListeners
 			'hasVote' => $connect->vote['has_vote'],
 			'task' => $room->activeTask()->first(),
 			'cardset' => $room->cardset,
+			'time' => time() - strtotime($room->updated_at),
 		]);
 
 		$this->sendVote($data['room'], $connect);

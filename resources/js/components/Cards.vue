@@ -445,10 +445,6 @@
 		transform: rotateY(180deg);
 		transition: all 0.5s;
 	}
-
-	.editable {
-		
-	}
 	.editable .poker-card-front {
 		font-size:  0.7rem;
 		font-weight: 100;

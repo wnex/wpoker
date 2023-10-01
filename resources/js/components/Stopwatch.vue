@@ -27,9 +27,10 @@
 				this.startTime = Math.floor(performance.now() - time);
 			},
 			// タイマーをスタートさせる
-			startTimer: function () {
+			startTimer: function (time) {
 				// loop()内で this の値が変更されるので退避
 				var vm = this;
+				vm.diffTime = typeof time !== 'undefined' ? time : 0;
 				//console.log(this);
 				//alert(timer0.innerText);
 				vm.setSubtractStartTime(vm.diffTime);
