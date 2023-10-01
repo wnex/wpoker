@@ -318,7 +318,6 @@
 				for (var i = 0; i < this.users.length; i++) {
 					if (this.users[i].id === data.id) {
 						this.users[i].active = false;
-						this.users[i].hasVote = false;
 						break;
 					}
 				}
@@ -412,9 +411,6 @@
 				this.users = users;
 
 				for (var i = 0; i < this.users.length; i++) {
-					if (!this.users[i].active) {
-						this.users[i].hasVote = false;
-					}
 					if (this.users[i].id === this.room.clientId) {
 						this.users[i].isSelf = true;
 					}

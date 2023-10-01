@@ -16,7 +16,7 @@ class VoteFinish extends SocketListeners
 	public function handle($room_id)
 	{
 		/** @var \Illuminate\Database\Eloquent\Builder */
-		$query = Connections::where('room_id', $room_id)->where('active', true)->where('vote->has_vote', true);
+		$query = Connections::where('room_id', $room_id)->where('vote->has_vote', true);
 
 		$connects_in_room = (clone $query)->count();
 		$connects_with_vote_in_room = (clone $query)->whereNotNull('vote->value')->count();
