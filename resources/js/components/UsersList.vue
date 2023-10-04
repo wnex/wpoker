@@ -84,6 +84,9 @@
 					if (a.isOwner && !b.isOwner) return -1;
 					if (!a.isOwner && b.isOwner) return 1;
 
+					if (a.hasVote && !b.hasVote) return -1;
+					if (!a.hasVote && b.hasVote) return 1;
+
 					if (a.name == '' && !b.name == '') return 1;
 					if (!a.name == '' && b.name == '') return -1;
 

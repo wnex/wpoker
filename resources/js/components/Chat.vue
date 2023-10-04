@@ -2,7 +2,7 @@
 	<div>
 		<h4 class="d-flex justify-content-between align-items-center mb-2">
 			<span class="text-muted">Chat</span>
-			<button class="btn btn-sm btn-outline-secondary mb-0" @click="switchShowChatHistory">History</button>
+			<!-- <button class="btn btn-sm btn-outline-secondary mb-0" @click="switchShowChatHistory">History</button> -->
 		</h4>
 
 		<div class="history mb-2">
@@ -47,7 +47,7 @@
 		</focusable>
 
 		<transition name="fade">
-			<div v-if="showMessagesLength > 0" class="chat-block" aria-live="polite" aria-atomic="true">
+			<div v-show="showMessagesLength > 0" class="chat-block" aria-live="polite" aria-atomic="true">
 				<div class="mb-2" style="display: flex; flex-direction: column;">
 					<button type="submit" @click="clearAll()" class="btn clear-all btn-outline-secondary">Hide all</button>
 				</div>
@@ -55,7 +55,7 @@
 					<transition-group name="list">
 						<div
 							v-for="message in messages"
-							v-if="message.isShow"
+							v-show="message.isShow"
 							:key="message.id"
 							class="toast show mb-2"
 							role="alert"

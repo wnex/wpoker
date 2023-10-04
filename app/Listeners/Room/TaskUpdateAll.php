@@ -16,7 +16,7 @@ class TaskUpdateAll extends SocketListeners
 	 */
 	public function handle($data, $client_id)
 	{
-		$room =$this->rooms->first(['hash' => $data['room']]);
+		$room = $this->rooms->first(['hash' => $data['room']]);
 		if (is_null($room)) return;
 
 		if ($room->clientIsOwner($client_id)) {
@@ -31,9 +31,12 @@ class TaskUpdateAll extends SocketListeners
 
 			// Если голосование уже начато, задача могла поменятся
 			if ($room->stage === StagesOfRoom::vote AND $room->active_task_id !== $room->getNextTask()->id) {
-				$room->stage = StagesOfRoom::vote;
 				$room->active_task_id = $room->getNextTask()->id;
 				$room->save();
+
+				$this->rooms->sendToRoom($data['room'], [
+					'action' => 'room.vote.reset',
+				]);
 
 				$this->rooms->sendToRoom($data['room'], [
 					'action' => 'room.vote.start',

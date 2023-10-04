@@ -1,45 +1,42 @@
 <template>
 	<li
 		class="list-group-item"
-		:class="{'d-flex justify-content-between lh-condensed': !changeNameSwitcher, 'disconnected': !user.active}"
+		:class="{'d-flex justify-content-between lh-condensed': !changeNameSwitcher, 'disconnected': !user.active, 'list-group-item-secondary': !user.hasVote}"
 	>
 		<div v-if="!changeNameSwitcherForSelf()" :class="{'text-success': user.isVoted}">
 			<h6 class="my-0">
 				{{user.name === '' ? '[No name]' : user.name}}
 			</h6>
-			<small v-show="user.isOwner" class="text-muted">{{user.isOwner ? 'Owner' : 'Guest'}}</small>
+			<small v-if="user.isOwner" class="text-muted">Owner</small>
+			<small v-if="!user.hasVote" class="text-muted">Spectator</small>
 		</div>
 		<span v-if="!changeNameSwitcher" class="text-muted d-flex panel-buttons">
-			<span
-				v-if="user.isSelf"
-				title="Change name"
-				class="badge pr-0 user-control pointer"
-				@click.prevent="changeName"
-			>
-				<i class="fa fa-fw fa-pencil" aria-hidden="true"></i>
-			</span>
-			<span
-				v-if="room.isOwner && !user.isOwner"
-				title="Kick this user"
-				class="badge pr-0 user-control pointer"
-				@click="kickOut(user.id)"
-			>
-				<i class="fa fa-fw fa-sign-out" aria-hidden="true"></i>
-			</span>
-			<span
-				v-if="user.isSelf || room.isOwner && !user.isOwner"
-				title="Has vote"
-				class="badge pr-0 user-control pointer"
-				@click="toggleUserHasVote(user.id, !user.hasVote)"
-			>
-				<i class="fa fa-fw" :class="{'fa-toggle-on': user.hasVote, 'fa-toggle-off': !user.hasVote}" aria-hidden="true"></i>
-			</span>
 			<span v-if="user.vote === undefined && user.isVoted" class="empty-card ml-1"></span>
 			<vue-markdown
 				class="badge user-control badge-primary ml-1"
 				:html="false"
 				:source="user.voteView"
 			></vue-markdown>
+
+			<div v-if="user.isSelf || room.isOwner" class="btn-group dropleft" role="group">
+				<button type="button" class="btn badge pr-0 user-control pointer" title="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+					<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
+				</button>
+				<div class="dropdown-menu">
+					<button v-if="user.isSelf" @click.prevent="changeName" class="dropdown-item btn-sm" type="button">
+						<i class="fa fa-fw fa-pencil" aria-hidden="true"></i> Change name
+					</button>
+					<button v-if="room.isOwner && !user.isOwner" @click.prevent="kickOut(user.id)" class="dropdown-item btn-sm" type="button">
+						<i class="fa fa-fw fa-sign-out" aria-hidden="true"></i> Kick from room
+					</button>
+					<button v-if="user.isSelf || room.isOwner && !user.isOwner" @click.prevent="toggleUserHasVote(user.id, !user.hasVote)" class="dropdown-item btn-sm" type="button">
+						<i class="fa fa-fw" :class="{'fa-toggle-on': !user.hasVote, 'fa-toggle-off': user.hasVote}" aria-hidden="true"></i> Spectator mode
+					</button>
+					<button v-if="!user.isSelf && room.isOwner" @click.prevent="transferTheRoom(user.id)" class="dropdown-item btn-sm" type="button">
+						<i class="fa fa-fw fa-arrow-circle-o-right" aria-hidden="true"></i> Transfer the room
+					</button>
+				</div>
+			</div>
 		</span>
 
 		<form v-if="user.isSelf && changeNameSwitcher" @submit.prevent="saveName">
@@ -123,6 +120,16 @@
 					'room': this.room.hash,
 				});
 			},
+
+			async transferTheRoom(client_id) {
+				if (confirm("Transfer the room other user?")) {
+					let data = await this.socket.request('room.update', {
+						id: this.room.id,
+						owner: this.$root.getUser(),
+						owner_client_id: client_id,
+					});
+				}
+			}
 		},
 	}
 </script>

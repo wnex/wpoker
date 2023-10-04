@@ -25,19 +25,43 @@
 						@click="editRoomName"
 						title="Edit room's name"
 					>
-						<i class="fa fa-pencil" aria-hidden="true"></i>
+						<i class="fa fa-fw fa-pencil" aria-hidden="true"></i>
 					</span>
 					<span v-if="room.name !== '' && room.isOwner && !changeRoomNameSwitcher" class="badge wn-button" @click="setPassword" title="Set password">
-						<i class="fa" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
+						<i class="fa fa-fw" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 					</span>
 					<span v-if="room.name !== '' && !room.isOwner" class="badge">
 						<i class="fa" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 					</span>
+					<span v-if="room.name !== '' && !changeRoomNameSwitcher" class="badge wn-button" data-toggle="modal" data-target="#qrcode">
+						<i class="fa fa-fw fa-share" aria-hidden="true"></i>
+					</span>
+
+					<!-- Modal -->
+					<div class="modal fade" id="qrcode" tabindex="-1" role="dialog" aria-labelledby="qrcodeModalLabel" aria-hidden="true">
+						<div class="modal-dialog" role="document">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h5 class="modal-title" id="qrcodeModalLabel">Share QR Code</h5>
+									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+										<span aria-hidden="true">&times;</span>
+									</button>
+								</div>
+								<div class="modal-body" style="text-align: center;">
+									<qrcode-vue :value="fullPageUrl" :size="300" level="H" />
+									<a :href="fullPageUrl">{{ fullPageUrl }}</a>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+								</div>
+							</div>
+						</div>
+					</div>
 				</div>
-				<span class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
+				<span v-show="room.name !== ''" class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
 			</h4>
 
-			<cards ref="cards" :socket="socket" :canVote="canVote" :room="room"></cards>
+			<cards ref="cards" :socket="socket" :canVote="canVote" :room="room" :users="users"></cards>
 
 			<transition name="fade">
 				<div v-if="room.isOwner" class="row ml-0">
@@ -45,6 +69,23 @@
 					<button v-if="stage === 1 || stage === 2" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
 					<button v-if="canSkipButton" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="skipVote">Skip</button>
 					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="revote">Revote</button>
+				</div>
+			</transition>
+
+			<transition name="fade">
+				<div v-if="room.task" class="row ml-0 mr-0 mt-3 mb-3 pt-0">
+					<h4 class="d-flex justify-content-between align-items-center mb-3">
+						<span>Сurrent task</span>
+					</h4>
+
+					<div class="mb-2 col-12 p-0">
+						<vue-markdown
+							:html="false"
+							:anchorAttributes="anchorAttributes"
+							:source="room.task.text"
+							class="alert alert-primary mb-0 p-2"
+						></vue-markdown>
+					</div>
 				</div>
 			</transition>
 
@@ -60,6 +101,8 @@
 	import Cards from '@/js/components/Cards';
 	import UsersList from '@/js/components/UsersList';
 	import TextError from '@/js/components/TextError';
+	import VueMarkdown from 'vue-markdown';
+	import QrcodeVue from 'qrcode.vue'
 
 	export default {
 		props: ['socket', 'hash'],
@@ -71,6 +114,8 @@
 			Cards,
 			UsersList,
 			TextError,
+			VueMarkdown,
+			QrcodeVue,
 		},
 
 		data: () => ({
@@ -80,7 +125,6 @@
 				name: '',
 				hash: null,
 				task: null,
-				ownerId: null,
 				clientId: null,
 				isOwner: false,
 				hasPassword: false,
@@ -138,10 +182,6 @@
 					hasVote: data.hasVote,
 					active: true,
 				});
-
-				if (data.isOwner) {
-					this.room.ownerId = data.id;
-				}
 			});
 
 			this.socket.listener('room.left.user', (data) => {
@@ -157,7 +197,7 @@
 			this.socket.listener('room.parameters', (data) => {
 				this.room.id = data.id;
 				this.room.name = data.name;
-				this.room.ownerId = data.owner;
+				this.room.isOwner = data.isOwner;
 				this.room.clientId = data.client_id;
 				this.room.task = data.task;
 				this.room.hasPassword = data.hasPassword;
@@ -165,11 +205,8 @@
 				this.hasVote = data.hasVote;
 				this.stage = data.stage;
 
-				this.$refs.stopwatch.startTimer(performance.now() + (data.time*1000));
-
-				if (this.room.clientId === this.room.ownerId) {
-					this.room.isOwner = true;
-				}
+				this.$refs.stopwatch.clearAll();
+				this.$refs.stopwatch.startTimer(Date.now() - data.time*1000);
 
 				this.$root.setTitle(this.room.name);
 				this.setUsers(data.users);
@@ -181,6 +218,19 @@
 				this.room.hasPassword = data.hasPassword;
 				this.room.cardset = data.cardset || {name: 'Default'};
 				this.$root.setTitle(this.room.name);
+				this.room.isOwner = data.owner_client_id == this.room.clientId;
+
+				// Изменение овнера
+				for (let i = 0; i < this.users.length; i++) {
+					const user = this.users[i];
+					if (user.id == data.owner_client_id && !user.isOwner) {
+						this.users[i].isOwner = true;
+					}
+
+					if (user.id != data.owner_client_id && user.isOwner) {
+						this.users[i].isOwner = false;
+					}
+				}
 			});
 
 			this.socket.listener('room.user.changeName', (data) => {
@@ -307,7 +357,7 @@
 						'action': 'room.enter',
 						'room': this.hash,
 						'name': this.name,
-						'user': this.$root.getUser(),
+						'uid': this.$root.getUser(),
 						'password': password,
 					});
 				} else {
@@ -504,6 +554,15 @@
 			canReVoteButton() {
 				return this.stage === 2 && this.$refs.tasksList.haveUnratedTasks && this.$refs.cards.approve;
 			},
+			anchorAttributes() {
+				return {
+					target: 'blank',
+					rel: 'nofollow',
+				}
+			},
+			fullPageUrl() {
+				return global.location.href;
+			}
 		},
 
 		watch: {

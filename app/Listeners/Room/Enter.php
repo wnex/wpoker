@@ -75,13 +75,13 @@ class Enter extends SocketListeners
 			'id' => $room->id,
 			'name' => $room->name,
 			'users' => $room->getRoomUsers($room->stage === 2),
-			'owner' => $owner_id,
+			'isOwner' => $isOwner,
 			'stage' => $room->stage,
 			'hasPassword' => $room->hasPassword,
 			'hasVote' => $connect->vote['has_vote'],
 			'task' => $room->activeTask()->first(),
 			'cardset' => $room->cardset,
-			'time' => time() - strtotime($room->updated_at),
+			'time' => strtotime($room->updated_at),
 		]);
 
 		$this->sendVote($data['room'], $connect);

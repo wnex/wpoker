@@ -59,7 +59,7 @@
 								<i class="fa fa-fw fa-pencil button-icon" title="Edit" @click.stop="editInit(task.id)"></i>
 								<i class="fa fa-fw fa-trash-o button-icon" title="Delete" @click="remove(task.id)"></i>
 							</span>
-							<span v-if="task.story_point_view" class="story-point" title="Story points">
+							<span v-if="task.story_point_view && !room.isOwner" class="story-point" title="Story points">
 								<vue-markdown
 									class="view"
 									:html="false"
@@ -67,6 +67,28 @@
 									:source="task.story_point_view"
 								></vue-markdown>
 							</span>
+							<div v-if="task.story_point_view && room.isOwner" class="btn-group" role="group">
+								<div class="btn-group" role="group">
+									<span class="story-point btn btn-primary dropdown-toggle" title="Story points" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+										<vue-markdown
+											class="view"
+											:html="false"
+											:anchorAttributes="anchorAttributes"
+											:source="task.story_point_view"
+										></vue-markdown>
+									</span>
+									<div class="dropdown-menu">
+										<button v-for="(card, index) in cards" :key="index" @click="editStoryPoint(task.id, card.point, card.view)" class="dropdown-item btn-sm" type="button">
+											<vue-markdown
+												class="view"
+												:html="false"
+												:anchorAttributes="anchorAttributes"
+												:source="card.view"
+											></vue-markdown>
+										</button>
+									</div>
+								</div>
+							</div>
 						</span>
 					</li>
 				</transition-group>
@@ -79,6 +101,7 @@
 	import VueMarkdown from 'vue-markdown';
 	import Draggable from 'vuedraggable';
 	import TaskForm from '@/js/components/TaskForm';
+	import CardSets from '@/js/modules/CardSets.ts';
 
 	import Prism from 'prismjs';
 	import 'prismjs/themes/prism.css';
@@ -106,9 +129,12 @@
 				id: '',
 			},
 			textFocused: false,
+			cards: [],
+			cardsets: {},
 		}),
 
 		mounted: function() {
+			this.cardsets = CardSets;
 			this.socket.group('task');
 
 			this.socket.listener('room.task.add', (data) => {
@@ -256,6 +282,15 @@
 					});
 			},
 
+			editStoryPoint(id, story_point, story_point_view) {
+				let promise = this.socket.request('task.update', {
+					id: id,
+					story_point: story_point,
+					story_point_view: story_point_view,
+					user: this.$root.getUser(),
+				});
+			},
+
 			save() {
 				localStorage['tasks-'+this.room.hash] = JSON.stringify(this.tasks);
 			},
@@ -330,7 +365,23 @@
 				if (this.room.id !== undefined && this.room.id !== null) {
 					this.init();
 				}
-			}
+			},
+			'room.cardset'(n, o) {
+				if (n.name !== undefined) {
+					if (n.name === 'Custom') {
+						this.cards = n.cards;
+					} else {
+						for (let name in this.cardsets) {
+							if (name === n.name) {
+								this.cards = this.cardsets[name];
+								break;
+							}
+						}
+					}
+				} else {
+					this.cards = this.cardsets.Default;
+				}
+			},
 		},
 	}
 </script>
@@ -391,5 +442,9 @@
 	}
 	.fade-enter, .fade-leave-to {
 		opacity: 0;
+	}
+
+	.dropdown-menu {
+		min-width: auto;
 	}
 </style>

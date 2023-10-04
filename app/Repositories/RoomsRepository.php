@@ -42,7 +42,7 @@ class RoomsRepository implements RoomsRepositoryInterface {
 	}
 
 	/**
-	 * @param  array{id: int, owner: string, name?: string, password?: string, cardset?: string} $params
+	 * @param  array{id: int, owner: string, name?: string, password?: string, cardset?: string, owner_client_id?: string} $params
 	 * @return Rooms|null
 	 */
 	public function update($params)
@@ -66,6 +66,13 @@ class RoomsRepository implements RoomsRepositoryInterface {
 				$room->cardset = $params['cardset'];
 			}
 
+			if (isset($params['owner_client_id'])) {
+				$connect = Connections::where('room_id', $room->hash)->where('id', $params['owner_client_id'])->first();
+				if ($connect) {
+					$room->owner = $connect->uid;
+				}
+			}
+
 			$room->save();
 
 			$this->sendToRoom($room->hash, [
@@ -73,6 +80,7 @@ class RoomsRepository implements RoomsRepositoryInterface {
 				'name' => $room->name,
 				'cardset' => $room->cardset,
 				'hasPassword' => $room->hasPassword,
+				'owner_client_id' => Connections::where('uid', $room->owner)->firstOrNew()->id,
 			]);
 
 			return $room;

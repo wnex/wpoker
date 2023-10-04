@@ -70,7 +70,9 @@ class TasksRepository implements TasksRepositoryInterface {
 		}
 
 		if ($task->room->isOwner($params['user'])) {
-			$task->text = $params['text'];
+			if (isset($params['text'])) $task->text = $params['text'];
+			if (isset($params['story_point'])) $task->story_point = $params['story_point'];
+			if (isset($params['story_point_view'])) $task->story_point_view = $params['story_point_view'];
 			if (isset($params['order'])) {
 				$task->order = $params['order'];
 			}
@@ -126,6 +128,7 @@ class TasksRepository implements TasksRepositoryInterface {
 		}
 
 		if ($task->room->isOwner($params['owner'])) {
+			$room = $task->room;
 			$deleted = $this->tasks->query()->where('id', $params['id'])->delete();
 
 			if ($deleted) {
@@ -133,6 +136,21 @@ class TasksRepository implements TasksRepositoryInterface {
 					'action' => 'room.task.remove',
 					'id' => $task->id,
 				]);
+
+				if ($room->stage === \App\Enums\StagesOfRoom::vote AND $room->active_task_id !== $room->getNextTask()->id) {
+					$room->active_task_id = $room->getNextTask()->id;
+					$room->save();
+
+					$this->rooms->sendToRoom($room->hash, [
+						'action' => 'room.vote.reset',
+					]);
+
+					$this->rooms->sendToRoom($room->hash, [
+						'action' => 'room.vote.start',
+						'stage' => $room->stage,
+						'task' => $room->activeTask()->first(),
+					]);
+				}
 			}
 
 			return $deleted;

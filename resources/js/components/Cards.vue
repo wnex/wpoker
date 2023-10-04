@@ -17,20 +17,9 @@
 			</div>
 		</div>
 
-		<transition name="fade">
-			<div v-if="room.task" class="mb-2 col-12">
-				<vue-markdown
-					:html="false"
-					:anchorAttributes="anchorAttributes"
-					:source="room.task.text"
-					class="alert alert-primary mb-0 p-2"
-				></vue-markdown>
-			</div>
-		</transition>
-
 		<div class="col-12">
-			<div v-if="approve" class="alert alert-warning mb-2" role="alert">
-				You must confirm the grade for the current task in order to proceed.
+			<div v-if="approve" class="alert alert-success mb-2" role="alert">
+				You must confirm the vote for the current task.
 			</div>
 		</div>
 
@@ -39,14 +28,11 @@
 			:key="card.view"
 			class="poker-card mb-3 d-flex col-3 col-md-2 justify-content-between"
 		>
-			<div class="flip-container" :class="{'hover': canVote || approve || editing}">
+			<div class="flip-container" :class="{'hover': canVote || (approve && isApprove(card.view)) || editing}">
 				<div class="flipper">
-					<div class="front">
-						<img :src="cover" @click="cardShake(card.view)" :class="{'shake': card.shake}" width="100%">
-					</div>
+					<div class="front" @click="cardShake(card.view)" :class="{'shake': card.shake}"></div>
 					<div class="back" :class="{'editable': editing}">
-						<div class="poker-card-front" :style="'background-color: '+card.color+';'"  @click.prevent="vote(card.point, card.view)">
-							<div class="poker-card-inner-border"></div>
+						<div class="poker-card-front" :style="'background-color: '+card.color+';'" :class="{'shake': card.shake}"  @click.prevent="vote(card.point, card.view)">
 							<vue-markdown
 								v-if="!editing"
 								class="view"
@@ -82,7 +68,6 @@
 					</div>
 					<div class="back">
 						<div class="poker-card-front new-card" @click="newCard()">
-							<div class="poker-card-inner-border"></div>
 							<span>New</span>
 						</div>
 					</div>
@@ -101,11 +86,12 @@
 	import 'prismjs/components/prism-markup-templating.js';
 	import 'prismjs/components/prism-php';
 	import 'prismjs/components/prism-bash';
-
+	
+	import CardSets from '@/js/modules/CardSets.ts';
 	import Editable from '@/js/components/Editable';
 
 	export default {
-		props: ['socket', 'canVote', 'room'],
+		props: ['socket', 'canVote', 'room', 'users'],
 
 		components: {
 			Editable,
@@ -117,71 +103,12 @@
 			cover: '/images/cards/cover_min.png',
 			editing: false,
 			cards: [],
-			cardsets: {
-				'Default': [
-					{point: 0, view: '0', color: '#cccaff'},
-					{point: 0.25, view: '1/4', color: '#8CCB5E'},
-					{point: 0.5, view: '1/2', color: '#e87f6d'},
-					{point: 1, view: '1', color: '#6992c8'},
-					{point: 2, view: '2', color: '#f7abaa'},
-					{point: 3, view: '3', color: '#b0c4d1'},
-					{point: 5, view: '5', color: '#1db6a1'},
-					{point: 8, view: '8', color: '#7575b3'},
-					{point: 13, view: '13', color: '#f5e8b6'},
-					{point: 0, view: '?', color: '#f9a12f'},
-					{point: 0, view: ':coffee:', color: '#76ccea'},
-					{point: 0, view: ':dragon:', color: '#f8d37b'},
-				],
-				'Alternative': [
-					{point: 0, view: '0', color: '#cccaff'},
-					{point: 0.5, view: '1/2', color: '#8CCB5E'},
-					{point: 1, view: '1', color: '#e87f6d'},
-					{point: 2, view: '2', color: '#6992c8'},
-					{point: 3, view: '3', color: '#f7abaa'},
-					{point: 5, view: '5', color: '#b0c4d1'},
-					{point: 8, view: '8', color: '#1db6a1'},
-					{point: 13, view: '13', color: '#7575b3'},
-					{point: 20, view: '20', color: '#f5e8b6'},
-					{point: 40, view: '40', color: '#f9a12f'},
-					{point: 100, view: '100', color: '#76ccea'},
-					{point: 0, view: ':dragon:', color: '#f8d37b'},
-				],
-				'Fibonacci Sequence': [
-					{point: 0, view: '0', color: '#cccaff'},
-					{point: 1, view: '1', color: '#8CCB5E'},
-					{point: 2, view: '2', color: '#e87f6d'},
-					{point: 3, view: '3', color: '#6992c8'},
-					{point: 5, view: '5', color: '#f7abaa'},
-					{point: 8, view: '8', color: '#b0c4d1'},
-					{point: 13, view: '13', color: '#1db6a1'},
-					{point: 21, view: '21', color: '#7575b3'},
-					{point: 34, view: '34', color: '#f5e8b6'},
-					{point: 55, view: '55', color: '#f9a12f'},
-					{point: 89, view: '89', color: '#76ccea'},
-					{point: 144, view: '144', color: '#f8d37b'},
-				],
-				'Numerical Sequence': [
-					{point: 0, view: '0', color: '#cccaff'},
-					{point: 1, view: '1', color: '#8CCB5E'},
-					{point: 2, view: '2', color: '#e87f6d'},
-					{point: 3, view: '3', color: '#6992c8'},
-					{point: 4, view: '4', color: '#f7abaa'},
-					{point: 5, view: '5', color: '#b0c4d1'},
-					{point: 6, view: '6', color: '#1db6a1'},
-					{point: 7, view: '7', color: '#7575b3'},
-					{point: 8, view: '8', color: '#f5e8b6'},
-					{point: 9, view: '9', color: '#f9a12f'},
-					{point: 10, view: '10', color: '#76ccea'},
-					{point: 11, view: '11', color: '#f8d37b'},
-				],
-				'Yes/No': [
-					{point: 0, view: 'Yes', color: '#8CCB5E'},
-					{point: 0, view: 'No', color: '#e87f6d'},
-				],
-			},
+			cardsets: {},
 		}),
 
 		mounted: function() {
+			this.cardsets = CardSets;
+
 			this.socket.listener('room.card.shake', (data) => {
 				for (var i = 0; i < this.cards.length; i++) {
 					if (this.cards[i].view === data.view) {
@@ -224,6 +151,18 @@
 						'view': view,
 					});
 					this.stopApprove();
+				}
+
+				for (var i = 0; i < this.cards.length; i++) {
+					if (this.cards[i].view === view) {
+						this.$set(this.cards[i], 'shake', true);
+
+						clearTimeout(this.cards[i]['animation']);
+						this.$set(this.cards[i], 'animation', setTimeout(() => {
+							this.$set(this.cards[i], 'shake', false);
+						}, 500));
+						break;
+					}
 				}
 			},
 
@@ -288,6 +227,14 @@
 					});
 				}
 			},
+
+			isApprove(view) {
+				for (let i = 0; i < this.users.length; i++) {
+					const user = this.users[i];
+					if (user.voteView === view)
+						return true;
+				}
+			}
 		},
 
 		computed: {
@@ -335,7 +282,7 @@
 
 	.poker-card > div {
 		cursor: pointer;
-		border-radius: 5px;
+		/* border-radius: 5px; */
 	}
 
 	.poker-card-front {
@@ -344,12 +291,11 @@
 		height: 100%;
 		text-align: center;
 		line-height: 100%;
-		font-size: 3.3rem;
 		letter-spacing: 0px;
 		color: #eee;
 		white-space: nowrap;
 		-webkit-text-stroke: 1px rgba(0,0,0,1);
-		border-radius: 5px;
+		border-radius: 0.5em;
 
 		background: linear-gradient(to left top, rgba(0, 0, 0, 0) 48.9%, rgba(0, 0, 0, .08) 51%, rgba(0, 0, 0, .08) 78%, rgba(0, 0, 0, 0) 80%), linear-gradient(to left top, rgba(0, 0, 0, .08) 28%, rgba(0, 0, 0, 0) 30%);
 		background-size: .5em 1.5em;
@@ -359,7 +305,11 @@
 		-khtml-user-select: none;    /* Konqueror */
 		-moz-user-select: none;      /* Firefox */
 		-ms-user-select: none;       /* Internet Explorer/Edge */
-		user-select: none; 
+		user-select: none;
+
+		box-shadow: 0px 0px 5px rgba(0,0,0,0.7);
+		outline: 1px solid rgba(0,0,0,0.2);
+		outline-offset: -5px;
 	}
 
 	@media (max-width: 576px) {
@@ -378,23 +328,9 @@
 		position: absolute;
 		top: 50%;
 		left: 50%;
+		z-index: 10;
+		font-size: 3.3rem;
 		transform: translate(-50%, -50%);
-	}
-
-	.poker-card-inner-border {
-		position: absolute;
-		top: 50%;
-		left: 50%;
-		transform: translate(-50%, -50%);
-		width: calc(100% - 10px);
-		height: calc(100% - 10px);
-		border: 1px solid rgba(0, 0, 0, .3);
-		border-radius: 5px;
-	}
-
-	.approve .back {
-		border-radius: 5px;
-		animation: neon 1.5s ease-in-out infinite alternate;
 	}
 
 	/* entire container, keeps perspective */
@@ -420,7 +356,7 @@
 
 		width: 100%;
 		/* 3:4 Aspect Ratio */
-		padding-top: 150%;
+		/* padding-top: 150%; */
 	}
 
 	/* hide back of pane during swap */
@@ -459,9 +395,9 @@
 		font-size:  2rem;
 	}
 
-	img.shake {
-		animation: shake .5s;
-		animation-iteration-count: 1;
+	.shake {
+		animation: tilt-n-move-shaking2 .5s;
+		animation-iteration-count: infinite;
 	}
 
 	@keyframes shake {
@@ -478,14 +414,129 @@
 		100% { transform: rotate(0deg); }
 	}
 
-	@keyframes neon {
-		from {
-			/* box-shadow: 0 0 0px #fff, 0 0 0px #007bff, 0 0 10px #007bff; */
-			box-shadow: 0 0 10px #007bff;
+	@keyframes tilt-n-move-shaking {
+		0% { transform: translate(0, 0) rotate(0deg); }
+		25% { transform: translate(5px, 5px) rotate(5deg); }
+		50% { transform: translate(0, 0) rotate(0deg); }
+		75% { transform: translate(-5px, 5px) rotate(-5deg); }
+		100% { transform: translate(0, 0) rotate(0deg); }
+	}
+
+	@keyframes tilt-n-move-shaking2 {
+		0% { transform: translate(0, 0) rotate(0deg); }
+		50% { transform: translate(2px, 10px) rotate(-5deg); }
+		100% { transform: translate(0, 0) rotate(0deg); }
+	}
+</style>
+
+
+<style lang="scss" scoped>
+	$w: 100%;
+	$h: 150px;
+	$f: $h/$w;
+	$n: 7;
+	$g: 1em;
+	$c0: #015965;//#f2b6a6;//
+	$c1: #36BBCE;//#d82c30;//
+
+	@function int_ch($ch0, $ch1) {
+		@return calc(
+			var(--i)*#{$ch1} + var(--noti)*#{$ch0})
+	}
+
+	@function int_col($c0, $c1) {
+		$ch: 'red' 'green' 'blue';
+		$n: length($ch);
+		$args: ();
+		
+		@each $fn in $ch {
+			$args: $args, int_ch(call($fn, $c0), call($fn, $c1))
 		}
-		to {
-			/* box-shadow: 0 0 10px #fff, 0 0 10px #007bff, 0 0 20px #007bff; */
-			box-shadow: 0 0 20px #007bff;
+		
+		@return RGB(#{$args})
+	}
+
+	.flipper .front {
+		overflow: hidden;
+		//position: relative;
+		width: var(--w, #{$w});
+		height: var(--h, #{$h});
+		border-radius: .5em;
+		background: linear-gradient(var(--ang, 180deg), $c0, $c1);
+		box-shadow: 0px 0px 5px #000;
+		
+		&, &:before, &:after {
+			--strip-stop: 100%;
+			--strip-f: .25;
+			--strip-stop-0: calc(var(--strip-f)*var(--strip-stop));
+			--strip-stop-1: calc(var(--strip-stop) - var(--strip-stop-0));
+			--strip-end: red;
+			--strip-mid: transparent;
+			--strip-list:
+				var(--strip-end) 0,
+				var(--strip-end) var(--strip-stop-0), 
+				var(--strip-mid) 0, 
+				var(--strip-mid) var(--strip-stop-1), 
+				var(--strip-end) 0, 
+				var(--strip-end) var(--strip-stop);
+			--joint-list: 
+				var(--joint-end, red) var(--joint-stop, 25%), 
+				var(--joint-mid, transparent) 0;
+			--joint-0: 
+				linear-gradient(135deg, var(--joint-list));
+			--joint-1: 
+				linear-gradient(-135deg, var(--joint-list));
+			--joint-2:
+				linear-gradient(-45deg, var(--joint-list));
+			--joint-3: 
+				linear-gradient(45deg, var(--joint-list));
+		}
+		
+		&:before, &:after {
+			--i: 0;
+			--noti: calc(1 - var(--i));
+			--sgni: calc(2*var(--i) - 1);
+			--c: hsl(0, 0%, 0%, var(--i));
+			--notc: hsl(0, 0%, 0%, var(--noti));
+			--fill: linear-gradient(var(--c), var(--c));
+			position: absolute;
+			top: 0; right: 0; bottom: 0; left: 0;
+			--c0: #{int_col($c0, $c1)};
+			--c1: #{int_col($c1, $c0)};
+			-webkit-mask: var(--mask);
+							mask: var(--mask);
+			-webkit-mask-position: var(--mask-o, 50% 50%);
+							mask-position: var(--mask-o, 50% 50%);
+			-webkit-mask-size: var(--mask-d);
+							mask-size: var(--mask-d);
+			content: ''
+		}
+		
+		&:after { --i: 1 }
+	}
+
+	.flipper .front {
+		outline: 1px solid rgba(255,255,255,0.5);
+		outline-offset: -5px;
+
+		position: relative;
+		--d: 2em;
+		--ang: 45deg;
+		--strip-stop: calc(.0625*var(--d));
+		--narr: var(--strip-list);
+		
+		&:before, &:after {
+			background: var(--c0);
+			--strip-end: var(--c);
+			--strip-mid: var(--notc);
+			--strip-stop: var(--d);
+			--mask: 
+				linear-gradient(90deg, var(--c), var(--notc)), 
+				repeating-linear-gradient(45deg, var(--narr)), 
+				repeating-linear-gradient(90deg, var(--strip-list)), 
+				repeating-linear-gradient(-45deg, var(--strip-list));
+			-webkit-mask-composite: source-in, source-in, source-in, source-over;
+							mask-composite: intersect
 		}
 	}
 </style>

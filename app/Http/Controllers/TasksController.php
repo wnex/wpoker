@@ -50,7 +50,9 @@ class TasksController extends Controller {
 		return $this->tasks->update([
 			'id' => $params['id'],
 			'user' => $params['user'],
-			'text' => $params['text'],
+			'text' => $params['text'] ?? null,
+			'story_point' => $params['story_point'] ?? null,
+			'story_point_view' => $params['story_point_view'] ?? null,
 		]);
 	}
 
