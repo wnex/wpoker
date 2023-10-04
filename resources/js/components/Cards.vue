@@ -450,7 +450,7 @@
 		$args: ();
 		
 		@each $fn in $ch {
-			$args: $args, int_ch(call($fn, $c0), call($fn, $c1))
+			$args: $args, int_ch(call(get-function($fn), $c0), call(get-function($fn), $c1))
 		}
 		
 		@return RGB(#{$args})

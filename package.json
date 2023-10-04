@@ -24,7 +24,7 @@
         "lodash": "^4.17.21",
         "moment": "^2.29.4",
         "popper.js": "^1.12",
-        "prismjs": "^1.29.0",
+        "prismjs": "^1.21.0",
         "qrcode.vue": "^1.7.0",
         "recaptcha-v3": "^1.10.0",
         "resolve-url-loader": "^2.3.1",
