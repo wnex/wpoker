@@ -80,7 +80,7 @@ class RoomsRepository implements RoomsRepositoryInterface {
 				'name' => $room->name,
 				'cardset' => $room->cardset,
 				'hasPassword' => $room->hasPassword,
-				'owner_client_id' => Connections::where('uid', $room->owner)->firstOrNew()->id,
+				'owner_client_id' => Connections::where('uid', $room->owner)->where('room_id', $room->hash)->firstOrNew()->id,
 			]);
 
 			return $room;
