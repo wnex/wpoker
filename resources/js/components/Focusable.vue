@@ -9,7 +9,7 @@
 		<slot name="main"></slot>
 
 		<transition name="fade">
-			<div v-if="focused" class="row input-group-append mt-2 focusable-hidden">
+			<div v-if="focused" class="row input-group-append m-0 mt-2">
 				<div class="col p-0">
 					<slot name="footer"></slot>
 				</div>
@@ -25,7 +25,7 @@
 
 	export default {
 		props: {
-			
+
 		},
 
 		data() {
@@ -56,11 +56,11 @@
 		transition: padding-bottom 0.3s;
 	}
 
-	.focusable-hidden {
+	/* .focusable-hidden {
 		position: absolute;
 		bottom: 10px; left: 10px;
 		width: calc(100% - 20px);
-	} 
+	}  */
 
 	.is-focused {
 		padding-bottom: 50px;

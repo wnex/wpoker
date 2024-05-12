@@ -15,21 +15,21 @@ const webpack = require('webpack');
 mix.js('resources/js/app.js', 'public/js')
    .sass('resources/sass/app.scss', 'public/css');
 
-mix.version().extract().sourceMaps();
+mix.vue().version().extract().sourceMaps();
 
 mix.webpackConfig({
 	module: {
 		rules: [
-			{
-				test: /\.tsx?$/,
-				loader: "ts-loader",
-				options: { appendTsSuffixTo: [/\.vue$/] },
-				exclude: /node_modules/,
-			},
-		],
+            {
+                test: /\.ts$/,
+                loader: 'ts-loader',
+                exclude: /node_module/,
+                options: { appendTsSuffixTo: [/\.vue$/] }
+            },
+        ],
 	},
 	resolve: {
-		extensions: ["*", ".js", ".jsx", ".vue", ".ts", ".tsx"],
+		extensions: [ '.vue', '.ts', '.js' ],
 		alias: {
 			'@': __dirname + '/resources'
 		}

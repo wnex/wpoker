@@ -1,9 +1,9 @@
 // Body
-$body-bg: #f8fafc;
+//$body-bg: #f8fafc;
 
 // Typography
 $font-family-sans-serif: 'Roboto', sans-serif;
-$font-size-base: 1rem;
+/* $font-size-base: 1rem;
 $line-height-base: 1.6;
 
 // Colors
@@ -16,4 +16,21 @@ $orange: #f6993f;
 $yellow: #ffed4a;
 $green: #38c172;
 $teal: #4dc0b5;
-$cyan: #6cb2eb;
+$cyan: #6cb2eb; */
+
+$colors: (
+  "blue":       $blue,
+  "indigo":     $indigo,
+  "purple":     $purple,
+  "pink":       $pink,
+  "red":        $red,
+  "orange":     $orange,
+  "yellow":     $yellow,
+  "green":      $green,
+  "teal":       $teal,
+  "cyan":       $cyan,
+  "black":      $black,
+  "white":      $white,
+  "gray":       $gray-600,
+  "gray-dark":  $gray-800
+);

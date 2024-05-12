@@ -27,13 +27,14 @@
 			</div>
 		</div>
 
-		<focusable class="pt-2 pl-2 pr-2 mb-4" ref="focusable">
+		<focusable class="pt-2 pl-2 pr-2 mb-4 p-2" ref="focusable" @blurred="onBlurred">
 			<form @submit.prevent="send">
 				<div class="input-group">
 					<textarea
 						@keydown.enter.exact.prevent="send"
 						@focus="$refs.focusable.focus()"
-						class="message-box" ref="message"
+						class="message-box"
+						ref="message"
 						v-model="message"
 						placeholder="Enter your message"
 						v-autosize="message" rows="1"
@@ -42,7 +43,7 @@
 			</form>
 
 			<template v-slot:footer>
-				<button @click.prevent="send" class="btn btn-primary btn-sm float-right" :disabled="message.length === 0">Send</button>
+				<button @click.prevent="send" class="btn btn-primary btn-sm float-end" :disabled="message.length === 0">Send</button>
 			</template>
 		</focusable>
 
@@ -263,6 +264,10 @@
 				moment.locale('en');
 				return moment(date).fromNow();
 			},
+
+			onBlurred() {
+				this.$refs.message.blur();
+			},
 		},
 
 		computed: {
@@ -334,6 +339,7 @@
 		border: none;
 		outline: 0;
 		resize: none;
+		background-color: var(--bs-card-bg);
 	}
 
 	.show-all {

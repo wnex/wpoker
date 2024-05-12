@@ -3,7 +3,7 @@
 		<div v-if="room.isOwner" class="btn-toolbar col-12 d-flex justify-content-between align-items-center mb-2">
 			<div class="btn-group mr-3" role="group">
 				<div class="btn-group" role="group">
-					<button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ (room.cardset && room.cardset.name) || 'Default' }}</button>
+					<button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenu2" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{{ (room.cardset && room.cardset.name) || 'Default' }}</button>
 					<div class="dropdown-menu">
 						<button v-for="(cardset, index) in cardsets" :key="index" @click="setCardSet(index)" class="dropdown-item btn-sm" type="button">
 							{{ index }}
@@ -433,7 +433,7 @@
 <style lang="scss" scoped>
 	$w: 100%;
 	$h: 150px;
-	$f: $h/$w;
+	$f: calc($h / $w);
 	$n: 7;
 	$g: 1em;
 	$c0: #015965;//#f2b6a6;//

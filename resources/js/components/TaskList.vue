@@ -4,8 +4,8 @@
 			<h4 class="d-flex justify-content-between align-items-center mb-3">
 				<span>Tasks</span>
 				<div>
-					<span class="badge badge-secondary" title="Completed tasks/Number of tasks">{{completedTasks}}/{{tasks.length}}</span>
-					<span class="badge badge-primary" title="Amount story points">{{amount}}</span>
+					<span class="badge bg-secondary-subtle text-secondary-emphasis" title="Completed tasks/Number of tasks">{{completedTasks}}/{{tasks.length}}</span>
+					<span class="badge bg-primary-subtle text-primary-emphasis" title="Amount story points">{{amount}}</span>
 				</div>
 			</h4>
 
@@ -46,7 +46,7 @@
 						v-for="task in tasks"
 						:key="task.id"
 						class="list-group-item d-flex justify-content-between lh-condensed task"
-						:class="{'task-complite': task.story_point_view, 'task-active': task.id === (room.task ? room.task.id : 0)}"
+						:class="{'list-group-item-secondary': task.story_point_view, 'list-group-item-primary': task.id === (room.task ? room.task.id : 0)}"
 					>
 						<div>
 							<span class="text-muted">#{{task.order}}</span>
@@ -69,7 +69,7 @@
 							</span>
 							<div v-if="task.story_point_view && room.isOwner" class="btn-group" role="group">
 								<div class="btn-group" role="group">
-									<span class="story-point btn btn-primary dropdown-toggle" title="Story points" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+									<span class="story-point btn btn-primary dropdown-toggle" title="Story points" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 										<vue-markdown
 											class="view"
 											:html="false"

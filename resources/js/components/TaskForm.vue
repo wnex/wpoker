@@ -1,5 +1,5 @@
 <template>
-	<focusable class="pt-2 pl-2 pr-2 mb-4" ref="focusable" @blurred="onBlurred">
+	<focusable class="pt-2 pl-2 pr-2 mb-4 p-2" ref="focusable" @blurred="onBlurred">
 		<form v-show="!isPreview" @submit.prevent="submit">
 			<div class="input-group">
 				<textarea
@@ -19,26 +19,25 @@
 		<vue-markdown v-if="isPreview" :html="false" :anchorAttributes="anchorAttributes" :source="textLocal"></vue-markdown>
 
 		<template v-slot:footer>
-			<button class="btn btn-light btn-sm" v-show="!isPreview" @click.prevent="isPreview = true">Preview</button>
+			<button class="btn btn-light btn-sm" v-show="!isPreview && textLocal.length !== 0" @click.prevent="isPreview = true">Preview</button>
 			<button class="btn btn-light btn-sm" v-show="isPreview" @click.prevent="isPreview = false">Edit</button>
 
-			<div v-show="!isEdit" class="btn-group btn-group-toggle" data-toggle="buttons">
-				<label class="btn btn-light btn-sm" :class="{'active': mode === 'once'}">
-					<input type="radio" @click="mode = 'once'" v-model="mode">Once
-				</label>
-				<label class="btn btn-light btn-sm" :class="{'active': mode === 'multi'}">
-					<input type="radio" @click="mode = 'multi'" v-model="mode">Multi
-				</label>
+			<div v-show="!isEdit" class="btn-group" role="group">
+				<input type="radio" class="btn-check" name="mode" id="modeOnce" value="once" v-model="mode">
+				<label class="btn btn-light btn-sm" for="modeOnce">Once</label>
+
+				<input type="radio" class="btn-check" name="mode" id="modeMulti" value="multi" v-model="mode">
+				<label class="btn btn-light btn-sm" for="modeMulti">Multi</label>
 			</div>
 
-			<button class="btn btn-light btn-sm" data-toggle="tooltip" data-placement="bottom" title="Markdown supported" disabled>
+			<button type="button" class="btn btn-light btn-sm" data-bs-toggle="tooltip" data-bs-placement="top" data-bs-title="Markdown supported">
 				<i class="fa fa-question-circle-o" aria-hidden="true"></i>
 			</button>
 
 			<button
 				@click.prevent="submit"
 				type="submit"
-				class="btn btn-sm float-right"
+				class="btn btn-sm float-end"
 				:class="{'btn-success': isEdit, 'btn-primary': !isEdit}"
 				:disabled="textLocal.length === 0"
 			>{{button}}</button>
@@ -136,6 +135,7 @@
 
 			onBlurred() {
 				this.isPreview = false;
+				this.$refs.text.blur();
 			}
 		},
 
@@ -178,5 +178,6 @@
 		border: none;
 		outline: 0;
 		resize: none;
+		background-color: var(--bs-card-bg);
 	}
 </style>

@@ -19,7 +19,7 @@
 			></vue-markdown>
 
 			<div v-if="user.isSelf || room.isOwner" class="btn-group dropleft" role="group">
-				<button type="button" class="btn badge pr-0 user-control pointer" title="" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				<button type="button" class="btn badge pr-0 user-control pointer" title="" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 					<i class="fa fa-ellipsis-v" aria-hidden="true"></i>
 				</button>
 				<div class="dropdown-menu">

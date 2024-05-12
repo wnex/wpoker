@@ -6,9 +6,9 @@
 			<chat :socket="socket" :room="room"></chat>
 		</div>
 		<div class="col-md-8 order-md-1">
-			<h4 class="d-flex justify-content-between align-items-center mb-3">
-				<div>
-					<span v-if="!changeRoomNameSwitcher">{{room.name}}</span>
+			<div class="d-flex justify-content-between align-items-center mb-3">
+				<div class="d-flex justify-content-between align-items-center gap-2">
+					<h4 v-if="!changeRoomNameSwitcher">{{room.name}}</h4>
 					<form v-if="room.isOwner && changeRoomNameSwitcher" @submit.prevent="saveRoomName">
 						<text-error :text="changeRoomNameErrorText"></text-error>
 						<div class="input-group">
@@ -21,54 +21,85 @@
 
 					<span
 						v-if="room.name !== '' && room.isOwner && !changeRoomNameSwitcher"
-						class="badge wn-button"
+						class="badge bg-secondary-subtle text-secondary-emphasis"
 						@click="editRoomName"
+						data-bs-toggle="modal" data-bs-target="#passwordModal"
 						title="Edit room's name"
+						role="button"
 					>
 						<i class="fa fa-fw fa-pencil" aria-hidden="true"></i>
 					</span>
-					<span v-if="room.name !== '' && room.isOwner && !changeRoomNameSwitcher" class="badge wn-button" @click="setPassword" title="Set password">
+					<span v-if="room.name !== '' && room.isOwner && !changeRoomNameSwitcher" class="badge bg-secondary-subtle text-secondary-emphasis" role="button" @click="setPassword" title="Set password">
 						<i class="fa fa-fw" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 					</span>
-					<span v-if="room.name !== '' && !room.isOwner" class="badge">
+					<span v-if="room.name !== '' && !room.isOwner" class="badge bg-secondary-subtle text-secondary-emphasis" role="button">
 						<i class="fa" :class="{'fa-unlock': !room.hasPassword, 'fa-lock': room.hasPassword}" aria-hidden="true"></i>
 					</span>
-					<span v-if="room.name !== '' && !changeRoomNameSwitcher" class="badge wn-button" data-toggle="modal" data-target="#qrcode">
+					<span v-if="room.name !== '' && !changeRoomNameSwitcher" class="badge bg-secondary-subtle text-secondary-emphasis" role="button" data-bs-toggle="modal" data-bs-target="#qrcodeModal">
 						<i class="fa fa-fw fa-share" aria-hidden="true"></i>
 					</span>
 
-					<!-- Modal -->
-					<div class="modal fade" id="qrcode" tabindex="-1" role="dialog" aria-labelledby="qrcodeModalLabel" aria-hidden="true">
-						<div class="modal-dialog" role="document">
+
+					<div class="modal fade" id="passwordModal" tabindex="-1" aria-labelledby="passwordModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
 							<div class="modal-content">
 								<div class="modal-header">
-									<h5 class="modal-title" id="qrcodeModalLabel">Share QR Code</h5>
-									<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-										<span aria-hidden="true">&times;</span>
-									</button>
+									<h1 class="modal-title fs-5" id="passwordModalLabel">New message</h1>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+								</div>
+								<div class="modal-body">
+									<form>
+										<div class="mb-3">
+											<label for="recipient-name" class="col-form-label">Recipient:</label>
+											<input type="text" class="form-control" id="recipient-name">
+										</div>
+										<div class="mb-3">
+											<label for="message-text" class="col-form-label">Message:</label>
+											<textarea class="form-control" id="message-text"></textarea>
+										</div>
+									</form>
+								</div>
+								<div class="modal-footer">
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-primary">Save</button>
+								</div>
+							</div>
+						</div>
+					</div>
+
+					<!-- Modal -->
+					<div class="modal fade" id="qrcodeModal" tabindex="-1" aria-labelledby="qrcodeModalLabel" aria-hidden="true">
+						<div class="modal-dialog">
+							<div class="modal-content">
+								<div class="modal-header">
+									<h1 class="modal-title fs-5" id="qrcodeModalLabel">Share QR Code</h1>
+									<button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
 								</div>
 								<div class="modal-body" style="text-align: center;">
 									<qrcode-vue :value="fullPageUrl" :size="300" level="H" />
 									<a :href="fullPageUrl">{{ fullPageUrl }}</a>
 								</div>
 								<div class="modal-footer">
-									<button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+									<button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
 								</div>
 							</div>
 						</div>
 					</div>
+
 				</div>
-				<span v-show="room.name !== ''" class="badge badge-secondary"><stopwatch ref="stopwatch"></stopwatch></span>
-			</h4>
+				<span v-show="room.name !== ''" class="badge bg-secondary-subtle text-secondary-emphasis"><stopwatch ref="stopwatch"></stopwatch></span>
+			</div>
 
 			<cards ref="cards" :socket="socket" :canVote="canVote" :room="room" :users="users"></cards>
 
 			<transition name="fade">
 				<div v-if="room.isOwner" class="row ml-0">
-					<button v-if="stage === 0" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="startVote">Start vote</button>
-					<button v-if="stage === 1 || stage === 2" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
-					<button v-if="canSkipButton" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="skipVote">Skip</button>
-					<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="revote">Revote</button>
+					<div class="d-flex gap-2">
+						<button v-if="stage === 0" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="startVote">Start vote</button>
+						<button v-if="stage === 1 || stage === 2" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="resetVote">Reset</button>
+						<button v-if="canSkipButton" class="btn mr-3 mb-3 col-md-3 btn-primary" @click="skipVote">Skip</button>
+						<button v-if="canReVoteButton" class="btn mr-3 col-md-3 mb-3 btn-primary" @click="revote">Revote</button>
+					</div>
 				</div>
 			</transition>
 
@@ -78,12 +109,12 @@
 						<span>Сurrent task</span>
 					</h4>
 
-					<div class="mb-2 col-12 p-0">
+					<div class="mb-2 col-12">
 						<vue-markdown
 							:html="false"
 							:anchorAttributes="anchorAttributes"
 							:source="room.task.text"
-							class="alert alert-primary mb-0 p-2"
+							class="alert alert-success mb-0 p-2"
 						></vue-markdown>
 					</div>
 				</div>
@@ -225,10 +256,12 @@
 					const user = this.users[i];
 					if (user.id == data.owner_client_id && !user.isOwner) {
 						this.users[i].isOwner = true;
+						continue;
 					}
 
 					if (user.id != data.owner_client_id && user.isOwner) {
 						this.users[i].isOwner = false;
+						continue;
 					}
 				}
 			});

@@ -1,11 +1,15 @@
 // Fonts
 @import url('https://fonts.googleapis.com/css2?family=Roboto&display=swap');
 
+// Bootstrap
+@import 'bootstrap/scss/bootstrap';
+@import 'bootstrap-icons/font/bootstrap-icons.css';
+
+@import "../../node_modules/bootstrap/scss/variables";
+//@import "../../node_modules/bootstrap/scss/variables-dark";
+
 // Variables
 @import 'variables';
-
-// Bootstrap
-@import '~bootstrap/scss/bootstrap';
 
 input:focus, textarea:focus, button:focus {
     outline-style: none !important;
@@ -30,7 +34,13 @@ p:last-of-type {
 }
 
 .navbar {
-	background-color: #0051a9;
+	background-color: $blue-600;
+}
+
+@include color-mode(dark) {
+	.navbar {
+		background-color: $blue-900;
+	}
 }
 
 .navbar .logo {
