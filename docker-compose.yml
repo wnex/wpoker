@@ -1,0 +1,52 @@
+version: '3.5'
+
+services:
+  nginx:
+    image: nginx:latest
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - .:/var/www/html
+    depends_on:
+      - mysql
+      - php-fpm
+      - php-daemon
+    links:
+      - mysql
+      - php-fpm
+      - php-daemon
+
+  php-fpm:
+    build:
+      context: .
+      dockerfile: php.dockerfile
+    volumes:
+      - .:/var/www/html
+
+  mysql:
+    image: percona:5.7.26
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+      - MYSQL_DATABASE=wpoker
+      - MYSQL_USER=wpoker
+      - MYSQL_PASSWORD=wpoker
+    ports:
+      - "8006:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+  php-daemon:
+    build:
+      context: .
+      dockerfile: php.cli.dockerfile
+    ports:
+      - "3000:3000"
+    command: php /app/artisan workman start
+    links:
+      - mysql
+    volumes:
+      - .:/app
+
+volumes:
+  mysql-data:
