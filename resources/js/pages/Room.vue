@@ -126,12 +126,12 @@
 </template>
 
 <script>
-	import Stopwatch from '@/js/components/Stopwatch';
-	import Chat from '@/js/components/Chat';
-	import TaskList from '@/js/components/TaskList';
-	import Cards from '@/js/components/Cards';
-	import UsersList from '@/js/components/UsersList';
-	import TextError from '@/js/components/TextError';
+	import Stopwatch from '@/js/components/Stopwatch.vue';
+	import Chat from '@/js/components/Chat.vue';
+	import TaskList from '@/js/components/TaskList.vue';
+	import Cards from '@/js/components/Cards.vue';
+	import UsersList from '@/js/components/UsersList.vue';
+	import TextError from '@/js/components/TextError.vue';
 	import VueMarkdown from 'vue-markdown';
 	import QrcodeVue from 'qrcode.vue'
 

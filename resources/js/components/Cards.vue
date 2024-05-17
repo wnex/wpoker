@@ -88,7 +88,7 @@
 	import 'prismjs/components/prism-bash';
 	
 	import CardSets from '@/js/modules/CardSets.ts';
-	import Editable from '@/js/components/Editable';
+	import Editable from '@/js/components/Editable.vue';
 
 	export default {
 		props: ['socket', 'canVote', 'room', 'users'],

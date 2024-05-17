@@ -47,7 +47,7 @@
 
 <script>
 	import VueMarkdown from 'vue-markdown';
-	import Focusable from '@/js/components/Focusable';
+	import Focusable from '@/js/components/Focusable.vue';
 
 	import Vue from 'vue';
 	import VueAutosize from 'autosize-vue';

@@ -22,8 +22,8 @@
 </template>
 
 <script>
-	import Chart from '@/js/components/Chart';
-	import User from '@/js/components/User';
+	import Chart from '@/js/components/Chart.vue';
+	import User from '@/js/components/User.vue';
 
 	export default {
 		props: ['socket', 'users', 'room', 'average'],

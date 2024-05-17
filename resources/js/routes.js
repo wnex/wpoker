@@ -1,10 +1,10 @@
 import Vue from 'vue';
 import VueRouter from 'vue-router';
 
-import Home from '@/js/pages/Home';
-import Room from '@/js/pages/Room';
-import News from '@/js/pages/News';
-import About from '@/js/pages/About';
+import Home from '@/js/pages/Home.vue';
+import Room from '@/js/pages/Room.vue';
+import News from '@/js/pages/News.vue';
+import About from '@/js/pages/About.vue';
 
 Vue.use(VueRouter)
 

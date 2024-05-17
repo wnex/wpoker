@@ -53,7 +53,7 @@
 
 <script>
 	import VueMarkdown from 'vue-markdown';
-	import TextError from '@/js/components/TextError';
+	import TextError from '@/js/components/TextError.vue';
 
 	export default {
 		props: ['socket', 'user', 'room'],

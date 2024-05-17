@@ -79,8 +79,8 @@
 </template>
 
 <script>
-	import Timer from '@/js/components/Timer';
-	import Focusable from '@/js/components/Focusable';
+	import Timer from '@/js/components/Timer.vue';
+	import Focusable from '@/js/components/Focusable.vue';
 	import moment from 'moment';
 
 	import Vue from 'vue';

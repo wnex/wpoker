@@ -87,9 +87,9 @@
 </template>
 
 <script>
-	import Timer from '@/js/components/Timer';
-	import Socket from '@/js/modules/Socket';
-	import TextError from '@/js/components/TextError';
+	import Timer from '@/js/components/Timer.vue';
+	import Socket from '@/js/modules/Socket.ts';
+	import TextError from '@/js/components/TextError.vue';
 	import { validate as uuidValidate } from 'uuid';
 	import { load as recaptchaLoad } from 'recaptcha-v3';
 

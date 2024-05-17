@@ -100,7 +100,7 @@
 <script>
 	import VueMarkdown from 'vue-markdown';
 	import Draggable from 'vuedraggable';
-	import TaskForm from '@/js/components/TaskForm';
+	import TaskForm from '@/js/components/TaskForm.vue';
 	import CardSets from '@/js/modules/CardSets.ts';
 
 	import Prism from 'prismjs';

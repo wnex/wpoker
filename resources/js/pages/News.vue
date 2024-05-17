@@ -19,7 +19,7 @@
 </template>
 
 <script>
-	import Timer from '@/js/components/Timer';
+	import Timer from '@/js/components/Timer.vue';
 
 	import VueMarkdown from 'vue-markdown';
 

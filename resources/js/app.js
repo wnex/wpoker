@@ -1,69 +1,19 @@
 import './bootstrap';
+import '../sass/app.scss'; 
 import Vue from 'vue';
 
-import Socket from '@/js/modules/Socket';
 import Routes from '@/js/routes.js';
 
-import App from '@/js/views/App';
-import MenuList from '@/js/components/MenuList';
-import Statistics from '@/js/components/Statistics';
+import App from '@/js/views/App.vue';
 
 import VueCookies from 'vue-cookies';
 Vue.use(VueCookies);
 
 const app = new Vue({
-	el: '#app',
+	render: (h) => h(App),
 	router: Routes,
 
-	components: {
-		App,
-		MenuList,
-		Statistics,
-	},
-
-	data: {
-		name: '',
-		socket: null,
-		disconnect: false,
-	},
-
-	created: function() {
-		this.socket = new Socket(document.body.dataset.socket);
-
-		this.socket.onOpen(this.onConnected);
-		this.socket.onClose(this.onDisconnected);
-	},
-
-	destroyed() {
-		this.socket.offOpen(this.onConnected);
-		this.socket.offClose(this.onDisconnected);
-	},
-
-	mounted: function() {
-		if (localStorage.name) {
-			this.name = localStorage.name;
-		}
-	},
-
 	methods: {
-		onConnected() {
-			this.disconnect = false;
-
-			this.socket.send({
-				'action': 'user.connect',
-				'name': this.name,
-				'uid': this.getUser(),
-			});
-		},
-
-		onDisconnected() {
-			this.disconnect = true;
-		},
-
-		changedName(value) {
-			localStorage.name = this.name = value;
-		},
-
 		getUser() {
 			return this.$cookies.get('uid');
 		},
@@ -75,7 +25,7 @@ const app = new Vue({
 				document.title = global.meta.raw.name+' - '+global.meta.raw.tagline;
 			}
 		},
-	},
-});
+	}
+}).$mount('#app');
 
 export default app;
