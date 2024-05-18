@@ -10,6 +10,8 @@ $config = [
 	],
 
 	'transport' => 'ssl',
+	'host' => env('APP_SOCKET', 'ws://localhost'),
+	'port' => env('APP_SOCKET_PORT', '3000'),
 ];
 
 if (env('APP_ENV') === 'local') {

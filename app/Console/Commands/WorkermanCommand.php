@@ -67,7 +67,7 @@ class WorkermanCommand extends Command {
 	 * @return void
 	 */
 	private function startGateWay() {
-		$gateway = new Gateway("websocket://0.0.0.0:3000", config('websocket.context'));
+		$gateway = new Gateway('websocket://0.0.0.0:'.config('websocket.port'), config('websocket.context'));
 		$gateway->transport            = config('websocket.transport');
 		$gateway->name                 = 'Gateway';
 		$gateway->count                = 1;

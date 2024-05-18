@@ -4,7 +4,7 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf
       - .:/var/www/html
     depends_on:
       - mysql
@@ -14,11 +14,16 @@ services:
       - mysql
       - php-fpm
       - php-daemon
+    labels:
+      - "traefik.http.routers.wpoker.rule=Host(`wpoker.local`)"
+    networks:
+      - traefik
+      - default
 
   php-fpm:
     build:
-      context: .
-      dockerfile: php.dockerfile
+      context: ./docker
+      dockerfile: php.local.dockerfile
     ports:
       - "5173:5173"
     volumes:
@@ -38,10 +43,10 @@ services:
 
   php-daemon:
     build:
-      context: .
+      context: ./docker
       dockerfile: php.cli.dockerfile
     ports:
-      - "3000:3000"
+      - "${APP_SOCKET_PORT:-3000}:${APP_SOCKET_PORT:-3000}"
     command: php /app/artisan workman start
     links:
       - mysql
@@ -50,3 +55,7 @@ services:
 
 volumes:
   mysql-data:
+
+networks:
+  traefik:
+    external: true

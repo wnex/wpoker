@@ -2,8 +2,9 @@
 
 namespace App\Exceptions;
 
-use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Throwable;
+use BezhanSalleh\FilamentExceptions\FilamentExceptions;
+use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
 {
@@ -25,6 +26,15 @@ class Handler extends ExceptionHandler
         'password',
         'password_confirmation',
     ];
+
+    public function register()
+    {
+        $this->reportable(function (Throwable $e) {
+            if ($this->shouldReport($e)) {
+                FilamentExceptions::report($e);
+            }
+        });
+    }
 
     /**
      * Report or log an exception.

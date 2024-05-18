@@ -21,7 +21,7 @@
 	<!-- Styles -->
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
 </head>
-<body data-socket="{{env('APP_SOCKET', 'ws://localhost:3000')}}">
+<body data-socket="{{config('websocket.host').':'.config('websocket.port')}}">
 	<svg xmlns="http://www.w3.org/2000/svg" class="d-none">
 		<symbol id="check2" viewBox="0 0 16 16">
 			<path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"></path>

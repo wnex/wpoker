@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  restart: unless-stopped
+  nginx:
+    image: nginx:latest
+    ports:
+      - "80:80"
+    volumes:
+      - ./docker/nginx.conf:/etc/nginx/nginx.conf:ro
+      - .:/var/www/html:ro
+    depends_on:
+      - php-fpm
+      - php-daemon
+
+  php-fpm:
+    restart: unless-stopped
+    build:
+      context: ./docker
+      dockerfile: php.dockerfile
+    volumes:
+      - .:/var/www/html:ro
+
+  php-daemon:
+    restart: unless-stopped
+    build:
+      context: ./docker
+      dockerfile: php.cli.dockerfile
+    ports:
+      - "${APP_SOCKET_PORT:-3000}:${APP_SOCKET_PORT:-3000}"
+    command: php /app/artisan workman start
+    volumes:
+      - .:/app:ro
