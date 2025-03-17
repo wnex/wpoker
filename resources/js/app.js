@@ -59,7 +59,7 @@ const app = new Vue({
 		},
 
 		changedName(value) {
-			this.$cookies.set('username', this.name = value);
+			this.$cookies.set('username', this.name = value, 10000000*60);
 		},
 
 		getUser() {

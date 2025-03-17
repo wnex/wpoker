@@ -84,7 +84,7 @@
 					return false;
 				}
 
-				this.$cookies.set('username', this.name);
+				this.$cookies.set('username', this.name, 10000000*60);
 				this.changeNameSwitcher = false;
 
 				this.socket.send({
