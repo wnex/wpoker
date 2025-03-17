@@ -152,7 +152,7 @@
 					return false;
 				}
 
-				localStorage.name = this.name;
+				this.$cookies.set('username', this.name, 10000000*60);
 				this.changeNameErrorText = null;
 			},
 
