@@ -70,9 +70,7 @@
 		}),
 
 		mounted: function() {
-			if (localStorage.name) {
-				this.name = localStorage.name;
-			}
+			this.name = this.$cookies.get('username') ?? '';
 		},
 
 		methods: {
@@ -86,7 +84,7 @@
 					return false;
 				}
 
-				localStorage.name = this.name;
+				this.$cookies.set('username', this.name);
 				this.changeNameSwitcher = false;
 
 				this.socket.send({

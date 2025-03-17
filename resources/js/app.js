@@ -40,9 +40,7 @@ const app = new Vue({
 	},
 
 	mounted: function() {
-		if (localStorage.name) {
-			this.name = localStorage.name;
-		}
+		this.name = this.$cookies.get('username') ?? '';
 	},
 
 	methods: {
@@ -61,7 +59,7 @@ const app = new Vue({
 		},
 
 		changedName(value) {
-			localStorage.name = this.name = value;
+			this.$cookies.set('username', this.name = value);
 		},
 
 		getUser() {

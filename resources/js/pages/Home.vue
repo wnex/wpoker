@@ -113,9 +113,7 @@
 		}),
 
 		created: function() {
-			if (localStorage.name) {
-				this.name = localStorage.name;
-			}
+			this.name = this.$cookies.get('username') ?? '';
 
 			if (localStorage.rooms) {
 				this.rooms = JSON.parse(localStorage.rooms);
@@ -161,7 +159,7 @@
 			async captchaVerify(action) {
 				const recaptcha = await recaptchaLoad('6LeVSDIfAAAAABxjfI8yEzoalSQ5iNa1TTobtx8j');
 				const token = await recaptcha.execute('room/create');
-				
+
 				let verify = await this.socket.request('captcha.verify', {
 					action: action,
 					token: token,
@@ -229,7 +227,7 @@
 					});
 				}
 			},
-			
+
 			setPassword(id) {
 				let password = prompt(`Enter the password for the room. Empty password will unlock the room.`);
 

@@ -7,9 +7,10 @@ use App\Listeners\SocketListeners;
 class Close extends SocketListeners
 {
 	protected $secondsForReconnect = 60;
+	protected $secondsForReconnectWithVote = 600;
 	/**
 	 * Закрытие соединения
-	 * 
+	 *
 	 * @param  string $client_id
 	 * @return void
 	 */
@@ -20,7 +21,8 @@ class Close extends SocketListeners
 		$connect = Connections::where('id', $client_id)->first();
 
 		if (!empty($connect->room_id) AND $this->secondsForReconnect > 0) {
-			$timer_id = $this->addTimer($this->secondsForReconnect, function() use($client_id, $rooms) {
+			$secondForReconnect = $connect->vote['is_voted'] ? $this->secondsForReconnectWithVote : $this->secondsForReconnect;
+			$timer_id = $this->addTimer($secondForReconnect, function() use($client_id, $rooms) {
 				$this->deleteConnection($rooms, $client_id);
 			}, [], false);
 

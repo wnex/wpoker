@@ -144,9 +144,7 @@
 		created() {
 			this.room.hash = this.hash;
 
-			if (localStorage.name) {
-				this.name = localStorage.name;
-			}
+			this.name = this.$cookies.get('username') ?? '';
 
 			this.socket.onOpen(this.enterRoom);
 
