@@ -2,17 +2,81 @@
 	<vue-markdown
 		:html="true"
 		:anchorAttributes="anchorAttributes"
-		:source="`##### About
+		:source="`### wPoker: Онлайн-приложение для скрам-оценки задач
 
-This site has been designed to carry out poker planning within the team. The goal was to develop a user-friendly online scheduling tool so that participants can vote from both a PC and a mobile device. As a result, this project can be used for planning poker online and offline, via mobile devices.
+wPoker — это онлайн-приложение, разработанное специально для проведения скрам-оценок задач и улучшения совместной работы команд. Приложение доступно на различных платформах: мобильные устройства (телефоны) и персональные компьютеры.
 
-> Planning poker, also called Scrum poker, is a consensus-based, gamified technique for estimating, mostly used for timeboxing in Agile principles. In planning poker, members of the group make estimates by playing numbered cards face-down to the table, instead of speaking them aloud. The cards are revealed, and the estimates are then discussed. By hiding the figures in this way, the group can avoid the cognitive bias of anchoring, where the first number spoken aloud sets a precedent for subsequent estimates.
->
-> Planning poker is a variation of the Wideband delphi method. It is most commonly used in agile software development, in particular in Scrum and Extreme Programming.
->
-> The method was first defined and named by James Grenning in 2002 and later popularized by Mike Cohn in the book Agile Estimating and Planning, whose company trade marked the term and a digital online tool.
->
->@wikipedia.org`"
+#### Основные функции:
+
+1. **Создание и управление комнатами**
+   - Создайте отдельную комнату для своей команды.
+   - Установите пароль, чтобы контролировать вход в вашу комнату.
+   - Передайте права на управление комнатой другому пользователю.
+
+2. **Оценка задач**
+   - Добавляйте и редактируйте список задач.
+   - Используйте стандартные наборы карточек или создавайте свои собственные.
+
+3. **Скрам-оценка**
+   - Ведите онлайн-оценку задач с вашей командой в реальном времени.
+   - Используйте внутренний чат для обсуждения и комментариев по ходу работы.
+
+4. **Пользовательский контроль**
+   - Добавляйте пользователей в качестве наблюдателей, которые могут наблюдать за процессом оценки, но не участвовать в голосовании.
+   - Выгоняйте неактивных или бесполезных участников из комнаты.
+
+5. **Сохранение данных**
+   - Информация о комнатах, задачах и подключениях пользователей сохраняется на нашем надежном сервере.
+   - Личные данные пользователя (например, имя) хранятся на сервере только в течение сессии.
+
+#### Особенности:
+
+- **Мультиплатформенность:** Приложение доступно для мобильных устройств и компьютеров.
+- **Гибкость:** Используйте стандартные наборы карточек или создавайте свои собственные под ваши нужды.
+- **Альтернативная оценка:** Если ваши задачи ведутся где-то еще, вы можете проводить оценку без списка задач.
+
+#### Заключение
+
+Благодаря wPoker ваша команда будет работать более эффективно и продуктивно. Начните прямо сейчас!
+
+---
+
+### wPoker: Online Scrum Task Estimation Application
+
+wPoker is online application designed for conducting scrum task estimation sessions and enhancing team collaboration. The app is available on various platforms, including mobile devices (phones) and personal computers.
+
+#### Key Features:
+
+1. **Room Creation and Management**
+   - Create a dedicated room for your team.
+   - Set a password to control access to your room.
+   - Transfer ownership of the room to another user.
+
+2. **Task Estimation**
+   - Add and edit task lists.
+   - Use standard card sets or create your own custom sets.
+
+3. **Scrum Estimations**
+   - Conduct online task estimation sessions with your team in real-time.
+   - Utilize an internal chat for discussions and comments during the session.
+
+4. **User Control**
+   - Add users as observers who can watch the estimation process but cannot vote.
+   - Remove inactive or unproductive participants from the room.
+
+5. **Data Storage**
+   - Information about rooms, tasks, and user connections is stored on our secure server.
+   - Personal user data (such as name) is stored only during the session.
+
+#### Features:
+
+- **Multi-platform Support:** The application is available for both mobile devices and computers.
+- **Flexibility:** Use standard card sets or create your own custom sets tailored to your needs.
+- **Alternative Estimation:** Conduct estimations without a task list if your tasks are managed elsewhere.
+
+#### Conclusion
+
+With wPoker, your team will work more efficiently and productively. Start now!`"
 	></vue-markdown>
 </template>
 
